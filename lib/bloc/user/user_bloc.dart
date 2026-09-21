@@ -19,12 +19,16 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     UserLoginRequested event,
     Emitter<UserState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, clearError: true));
+    emit(
+      state.copyWith(isLoading: true, loginSuccess: false, clearError: true),
+    );
 
     try {
-      final user = await repository.login(event.username, event.password);
+      await repository.login(event.username, event.password);
 
-      emit(state.copyWith(isLoading: false, user: user, clearError: true));
+      emit(
+        state.copyWith(isLoading: false, loginSuccess: true, clearError: true),
+      );
     } catch (e) {
       emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
     }

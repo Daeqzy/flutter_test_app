@@ -1,19 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/data_sources/user_data_sources.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:dio/dio.dart';
 
-import 'bloc/counter/counter_bloc.dart';
-import 'screens/counter_screen.dart';
-import 'models/user.dart';
 import 'bloc/user/user_bloc.dart';
-import 'repositories/user_repository.dart';
 import 'bloc/user/user_event.dart';
 import 'bloc/user/user_state.dart';
+import 'repositories/user_repository.dart';
+import 'network_service/api_service.dart';
+import 'network_service/auth_interceptor.dart';
+import 'screens/counter_screen.dart';
+import 'repositories/data_repository.dart';
 
 void main() {
+  // HTTP client
+  final dio = Dio();
+
+  // Automatically adds the Bearer token to authenticated requests
+  dio.interceptors.add(AuthInterceptor());
+
+  // Retrofit API service
+  final apiService = ApiService(dio);
+
+  // Repository responsible for API/data operations
+  final dataRepository = DataRepository(apiService);
+
   runApp(
     BlocProvider(
-      create: (_) => UserBloc(UserRepository(UserDataSource())),
+      create: (_) => UserBloc(UserRepository(UserDataSource(), dataRepository)),
       child: const MyApp(),
     ),
   );
@@ -51,7 +65,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
-  final bool _isLoading = false;
 
   @override
   void dispose() {
@@ -77,13 +90,15 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return BlocListener<UserBloc, UserState>(
       listener: (context, state) {
-        if (state.user != null) {
+        // Real API login succeeded.
+        if (state.loginSuccess) {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const CounterScreen()),
           );
         }
 
+        // Something went wrong during login.
         if (state.errorMessage != null) {
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(state.errorMessage!)));
@@ -184,6 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value == null || value.trim().isEmpty) {
                             return 'Please enter your username';
                           }
+
                           return null;
                         },
                       ),
@@ -245,6 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter your password';
                           }
+
                           return null;
                         },
                       ),
@@ -255,7 +272,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         alignment: Alignment.centerRight,
                         child: TextButton(
                           onPressed: () {
-                            //Implement forgot password.
+                            // Implement forgot password later.
                           },
                           child: const Text('Forgot password?'),
                         ),
@@ -263,34 +280,42 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 16),
 
-                      SizedBox(
-                        height: 54,
-                        child: FilledButton(
-                          onPressed: _isLoading ? null : _login,
-                          style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFF2563EB),
-                            disabledBackgroundColor: const Color(0xFF93C5FD),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                          child: _isLoading
-                              ? const SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.5,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : const Text(
-                                  'Sign in',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                      // This now listens to UserBloc instead of
+                      // using a local _isLoading variable.
+                      BlocBuilder<UserBloc, UserState>(
+                        builder: (context, state) {
+                          return SizedBox(
+                            height: 54,
+                            child: FilledButton(
+                              onPressed: state.isLoading ? null : _login,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: const Color(0xFF2563EB),
+                                disabledBackgroundColor: const Color(
+                                  0xFF93C5FD,
                                 ),
-                        ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              child: state.isLoading
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.5,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Sign in',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                            ),
+                          );
+                        },
                       ),
 
                       const SizedBox(height: 32),
