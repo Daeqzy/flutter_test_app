@@ -39,3 +39,29 @@ class DeleteUserRequested extends UserEvent {
   @override
   List<Object?> get props => [userId];
 }
+
+class GetUserLocationsRequested extends UserEvent {
+  const GetUserLocationsRequested();
+}
+
+class TogglePasswordVisibility extends UserEvent {
+  const TogglePasswordVisibility();
+}
+
+class UsernameChanged extends UserEvent {
+  final String username;
+
+  const UsernameChanged(this.username);
+
+  @override
+  List<Object?> get props => [username];
+}
+
+class PasswordChanged extends UserEvent {
+  final String password;
+
+  const PasswordChanged(this.password);
+
+  @override
+  List<Object?> get props => [password];
+}

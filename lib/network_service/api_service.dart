@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../models/location_result.dart';
 import '../models/login_request.dart';
 import '../models/login_response.dart';
 
@@ -12,4 +13,7 @@ abstract class ApiService {
 
   @POST('api/Account/Login')
   Future<LoginResponse> login(@Body() LoginRequest request);
+
+  @GET('api/Locations/UserLocations')
+  Future<List<LocationResult>> getUserLocations();
 }

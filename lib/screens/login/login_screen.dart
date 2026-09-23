@@ -4,39 +4,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/user/user_bloc.dart';
 import '../../bloc/user/user_event.dart';
 import '../../bloc/user/user_state.dart';
-import '../counter_screen.dart';
+import '../main/main_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class LoginScreen extends StatelessWidget {
+  LoginScreen({super.key});
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  bool _obscurePassword = true;
-
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  void _login() {
+  void _login(BuildContext context) {
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
+    final state = context.read<UserBloc>().state;
+
     context.read<UserBloc>().add(
       UserLoginRequested(
-        username: _usernameController.text.trim(),
-        password: _passwordController.text,
+        username: state.username.trim(),
+        password: state.password,
       ),
     );
   }
@@ -46,9 +31,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocListener<UserBloc, UserState>(
       listener: (context, state) {
         if (state.loginSuccess) {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const CounterScreen()),
+            MaterialPageRoute(builder: (context) => const MainScreen()),
           );
         }
 
@@ -58,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text('Company App')),
+        appBar: AppBar(title: const Text('CODEX Computers')),
         body: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
@@ -67,9 +52,17 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.lock_outline, size: 80),
+                  // CODEX LOGO
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(25),
+                    child: Image.asset(
+                      'assets/images/codex_logo.png',
+                      width: 280,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 25),
 
                   const Text(
                     'Welcome Back',
@@ -85,8 +78,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 40),
 
+                  // USERNAME
                   TextFormField(
-                    controller: _usernameController,
+                    onChanged: (value) {
+                      context.read<UserBloc>().add(UsernameChanged(value));
+                    },
                     decoration: const InputDecoration(
                       labelText: 'Username',
                       prefixIcon: Icon(Icons.person_outline),
@@ -103,46 +99,62 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 20),
 
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
+                  // PASSWORD
+                  BlocBuilder<UserBloc, UserState>(
+                    buildWhen: (previous, current) {
+                      return previous.obscurePassword !=
+                          current.obscurePassword;
+                    },
+                    builder: (context, state) {
+                      return TextFormField(
+                        obscureText: state.obscurePassword,
+                        onChanged: (value) {
+                          context.read<UserBloc>().add(PasswordChanged(value));
                         },
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          border: const OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              state.obscurePassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              context.read<UserBloc>().add(
+                                const TogglePasswordVisibility(),
+                              );
+                            },
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your password';
+                          }
 
-                      return null;
+                          return null;
+                        },
+                      );
                     },
                   ),
 
                   const SizedBox(height: 30),
 
+                  // LOGIN BUTTON
                   BlocBuilder<UserBloc, UserState>(
+                    buildWhen: (previous, current) {
+                      return previous.isLoading != current.isLoading;
+                    },
                     builder: (context, state) {
-                      final isLoading = state.isLoading;
                       return SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: isLoading ? null : _login,
-                          child: isLoading
+                          onPressed: state.isLoading
+                              ? null
+                              : () => _login(context),
+                          child: state.isLoading
                               ? const SizedBox(
                                   width: 20,
                                   height: 20,

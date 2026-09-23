@@ -13,6 +13,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<UserLoginRequested>(userLoginRequested);
     on<GetUsersRequested>(getUsersRequested);
     on<AddUserRequested>(addUserRequested);
+    on<GetUserLocationsRequested>(getUserLocationsRequested);
+    on<TogglePasswordVisibility>(togglePasswordVisibility);
+    on<UsernameChanged>(usernameChanged);
+    on<PasswordChanged>(passwordChanged);
   }
 
   FutureOr<void> userLoginRequested(
@@ -64,5 +68,41 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     } catch (e) {
       emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
     }
+  }
+
+  Future<void> getUserLocationsRequested(
+    GetUserLocationsRequested event,
+    Emitter<UserState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, clearError: true));
+
+    try {
+      final locations = await repository.getUserLocations();
+
+      emit(
+        state.copyWith(
+          isLoading: false,
+          locations: locations,
+          clearError: true,
+        ),
+      );
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+    }
+  }
+
+  void togglePasswordVisibility(
+    TogglePasswordVisibility event,
+    Emitter<UserState> emit,
+  ) {
+    emit(state.copyWith(obscurePassword: !state.obscurePassword));
+  }
+
+  void usernameChanged(UsernameChanged event, Emitter<UserState> emit) {
+    emit(state.copyWith(username: event.username));
+  }
+
+  void passwordChanged(PasswordChanged event, Emitter<UserState> emit) {
+    emit(state.copyWith(password: event.password));
   }
 }

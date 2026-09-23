@@ -15,6 +15,8 @@ class AuthInterceptor extends Interceptor {
       options.headers['Authorization'] = 'Bearer $accessToken';
     }
 
+    print('REQUEST: ${options.method} ${options.uri}');
+
     handler.next(options);
   }
 }

@@ -1,5 +1,6 @@
 import '../data_sources/user_data_sources.dart';
 import '../models/user.dart';
+import '../models/location_result.dart';
 import 'data_repository.dart';
 
 class UserRepository {
@@ -21,5 +22,9 @@ class UserRepository {
   // Fake/local add user for now
   Future<void> addUser(String username, String email) {
     return dataSource.addUser(username, email);
+  }
+
+  Future<List<LocationResult>> getUserLocations() {
+    return dataRepository.getUserLocations();
   }
 }
