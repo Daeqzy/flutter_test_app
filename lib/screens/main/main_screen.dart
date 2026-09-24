@@ -6,6 +6,13 @@ import '../../bloc/navigation/navigation_bloc.dart';
 import '../../bloc/navigation/navigation_event.dart';
 import '../../bloc/navigation/navigation_state.dart';
 
+import '../../bloc/services/services_bloc.dart';
+import '../../bloc/services/services_event.dart';
+
+import '../../bloc/user/user_bloc.dart';
+import '../../bloc/user/user_state.dart';
+
+import '../login/login_screen.dart';
 import '../home/home_screen.dart';
 import '../services/services_screen.dart';
 import '../notifications/notifications_screen.dart';
@@ -16,78 +23,103 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const pages = [
-      HomeScreen(),
-      ServicesScreen(),
-      NotificationsScreen(),
-      ProfileScreen(),
+    final pages = [
+      const HomeScreen(),
+
+      BlocProvider(
+        create: (_) => ServicesBloc()..add(const ServicesRequested()),
+        child: const ServicesScreen(),
+      ),
+
+      const NotificationsScreen(),
+      const ProfileScreen(),
     ];
 
-    return BlocProvider(
-      create: (_) => NavigationBloc(),
-      child: BlocBuilder<NavigationBloc, NavigationState>(
-        builder: (context, state) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('CODEX Computers')),
+    return BlocListener<UserBloc, UserState>(
+      listenWhen: (previous, current) =>
+          previous.logoutSuccess != current.logoutSuccess,
 
-            body: pages[state.selectedIndex],
+      listener: (context, state) {
+        if (state.logoutSuccess) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => LoginScreen()),
+            (route) => false,
+          );
+        }
+      },
 
-            bottomNavigationBar: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 20,
-                    color: Colors.black.withValues(alpha: 0.08),
-                  ),
-                ],
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  child: GNav(
-                    selectedIndex: state.selectedIndex,
+      child: BlocProvider(
+        create: (_) => NavigationBloc(),
 
-                    gap: 8,
-                    iconSize: 24,
+        child: BlocBuilder<NavigationBloc, NavigationState>(
+          builder: (context, state) {
+            return Scaffold(
+              appBar: AppBar(title: const Text('CODEX Computers')),
 
-                    color: const Color(0xFF64748B),
-                    activeColor: const Color(0xFF2563EB),
+              body: pages[state.selectedIndex],
 
-                    tabBackgroundColor: const Color(0xFF2563EB)
-                        .withValues(alpha: 0.10),
+              bottomNavigationBar: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 20,
+                      color: Colors.black.withValues(alpha: 0.08),
+                    ),
+                  ],
+                ),
 
+                child: SafeArea(
+                  child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 12,
+                      vertical: 10,
                     ),
 
-                    duration: const Duration(milliseconds: 350),
+                    child: GNav(
+                      selectedIndex: state.selectedIndex,
 
-                    tabs: const [
-                      GButton(icon: Icons.home_outlined, text: 'Home'),
-                      GButton(icon: Icons.grid_view_rounded, text: 'Services'),
-                      GButton(
-                        icon: Icons.notifications_outlined,
-                        text: 'Notifications',
+                      gap: 8,
+                      iconSize: 24,
+
+                      color: const Color(0xFF64748B),
+                      activeColor: const Color(0xFF2563EB),
+
+                      tabBackgroundColor: const Color(0xFF2563EB)
+                          .withValues(alpha: 0.10),
+
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
                       ),
-                      GButton(icon: Icons.person_outline, text: 'Profile'),
-                    ],
 
-                    onTabChange: (index) {
-                      context.read<NavigationBloc>().add(
-                        NavigationTabChanged(index),
-                      );
-                    },
+                      duration: const Duration(milliseconds: 350),
+
+                      tabs: const [
+                        GButton(icon: Icons.home_outlined, text: 'Home'),
+                        GButton(
+                          icon: Icons.grid_view_rounded,
+                          text: 'Services',
+                        ),
+                        GButton(
+                          icon: Icons.notifications_outlined,
+                          text: 'Notifications',
+                        ),
+                        GButton(icon: Icons.person_outline, text: 'Profile'),
+                      ],
+
+                      onTabChange: (index) {
+                        context.read<NavigationBloc>().add(
+                          NavigationTabChanged(index),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

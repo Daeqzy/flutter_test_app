@@ -1,6 +1,7 @@
 import '../data_sources/user_data_sources.dart';
 import '../models/user.dart';
 import '../models/location_result.dart';
+import '../models/login_response.dart';
 import 'data_repository.dart';
 
 class UserRepository {
@@ -10,8 +11,8 @@ class UserRepository {
   UserRepository(this.dataSource, this.dataRepository);
 
   // Real API login through DataRepository
-  Future<void> login(String username, String password) async {
-    await dataRepository.login(username, password);
+  Future<LoginResponse> login(String username, String password) async {
+    return await dataRepository.login(username, password);
   }
 
   // Fake/local users for now
@@ -26,5 +27,9 @@ class UserRepository {
 
   Future<List<LocationResult>> getUserLocations() {
     return dataRepository.getUserLocations();
+  }
+
+  Future<void> logout() {
+    return dataRepository.logout();
   }
 }

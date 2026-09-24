@@ -7,6 +7,8 @@ class UserState extends Equatable {
   final bool isLoading;
   final bool loginSuccess;
   final bool obscurePassword;
+  final bool logoutSuccess;
+  final String authenticatedUsername;
   final String username;
   final String password;
   final User? user;
@@ -18,7 +20,9 @@ class UserState extends Equatable {
     this.isLoading = false,
     this.loginSuccess = false,
     this.obscurePassword = true,
+    this.logoutSuccess = false,
     this.username = '',
+    this.authenticatedUsername = '',
     this.password = '',
     this.user,
     this.users = const [],
@@ -30,7 +34,9 @@ class UserState extends Equatable {
     bool? isLoading,
     bool? loginSuccess,
     bool? obscurePassword,
+    bool? logoutSuccess,
     String? username,
+    String? authenticatedUsername,
     String? password,
     User? user,
     List<User>? users,
@@ -43,7 +49,10 @@ class UserState extends Equatable {
       isLoading: isLoading ?? this.isLoading,
       loginSuccess: loginSuccess ?? this.loginSuccess,
       obscurePassword: obscurePassword ?? this.obscurePassword,
+      logoutSuccess: logoutSuccess ?? this.logoutSuccess,
       username: username ?? this.username,
+      authenticatedUsername:
+          authenticatedUsername ?? this.authenticatedUsername,
       password: password ?? this.password,
       user: clearUser ? null : (user ?? this.user),
       users: users ?? this.users,
@@ -57,7 +66,9 @@ class UserState extends Equatable {
     isLoading,
     loginSuccess,
     obscurePassword,
+    logoutSuccess,
     username,
+    authenticatedUsername,
     password,
     user,
     users,

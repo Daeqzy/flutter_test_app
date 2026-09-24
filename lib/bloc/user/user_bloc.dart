@@ -17,6 +17,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<TogglePasswordVisibility>(togglePasswordVisibility);
     on<UsernameChanged>(usernameChanged);
     on<PasswordChanged>(passwordChanged);
+    on<UserLogoutRequested>(userLogoutRequested);
   }
 
   FutureOr<void> userLoginRequested(
@@ -26,12 +27,19 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     emit(
       state.copyWith(isLoading: true, loginSuccess: false, clearError: true),
     );
-
     try {
-      await repository.login(event.username, event.password);
+      final loginResponse = await repository.login(
+        event.username,
+        event.password,
+      );
 
       emit(
-        state.copyWith(isLoading: false, loginSuccess: true, clearError: true),
+        state.copyWith(
+          isLoading: false,
+          loginSuccess: true,
+          authenticatedUsername: loginResponse.username,
+          clearError: true,
+        ),
       );
     } catch (e) {
       emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
@@ -104,5 +112,14 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   void passwordChanged(PasswordChanged event, Emitter<UserState> emit) {
     emit(state.copyWith(password: event.password));
+  }
+
+  Future<void> userLogoutRequested(
+    UserLogoutRequested event,
+    Emitter<UserState> emit,
+  ) async {
+    await repository.logout();
+
+    emit(const UserState(logoutSuccess: true));
   }
 }

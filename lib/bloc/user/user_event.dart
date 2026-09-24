@@ -65,3 +65,7 @@ class PasswordChanged extends UserEvent {
   @override
   List<Object?> get props => [password];
 }
+
+class UserLogoutRequested extends UserEvent {
+  const UserLogoutRequested();
+}
