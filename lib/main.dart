@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/data_sources/user_data_sources.dart';
+import 'package:flutter_application_1/services/biometric_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dio/dio.dart';
 
 import 'bloc/user/user_bloc.dart';
+import 'bloc/user/user_event.dart';
 import 'repositories/user_repository.dart';
 import 'repositories/data_repository.dart';
 import 'network_service/api_service.dart';
@@ -24,9 +26,15 @@ void main() {
   final dataRepository = DataRepository(apiService);
 
   runApp(
-    BlocProvider(
-      create: (_) => UserBloc(UserRepository(UserDataSource(), dataRepository)),
-      child: const MyApp(),
+    RepositoryProvider<DataRepository>.value(
+      value: dataRepository,
+      child: BlocProvider(
+        create: (_) => UserBloc(
+          UserRepository(UserDataSource(), dataRepository),
+          BiometricService(),
+        )..add(const CheckRememberedSession()),
+        child: const MyApp(),
+      ),
     ),
   );
 }

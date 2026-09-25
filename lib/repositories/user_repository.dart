@@ -1,6 +1,5 @@
 import '../data_sources/user_data_sources.dart';
 import '../models/user.dart';
-import '../models/location_result.dart';
 import '../models/login_response.dart';
 import 'data_repository.dart';
 
@@ -25,11 +24,23 @@ class UserRepository {
     return dataSource.addUser(username, email);
   }
 
-  Future<List<LocationResult>> getUserLocations() {
-    return dataRepository.getUserLocations();
-  }
-
   Future<void> logout() {
     return dataRepository.logout();
+  }
+
+  Future<void> saveRememberMe(String username) async {
+    await dataRepository.saveRememberMe(username);
+  }
+
+  Future<void> clearRememberMe() async {
+    await dataRepository.clearRememberMe();
+  }
+
+  Future<bool> hasRememberedSession() async {
+    return await dataRepository.hasRememberedSession();
+  }
+
+  Future<String?> getRememberedUsername() async {
+    return await dataRepository.getRememberedUsername();
   }
 }

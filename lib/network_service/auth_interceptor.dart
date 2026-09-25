@@ -9,10 +9,14 @@ class AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final accessToken = await secureStorage.read(key: 'accessToken');
+    final isLoginRequest = options.path.contains('api/Account/Login');
 
-    if (accessToken != null && accessToken.isNotEmpty) {
-      options.headers['Authorization'] = 'Bearer $accessToken';
+    if (!isLoginRequest) {
+      final accessToken = await secureStorage.read(key: 'accessToken');
+
+      if (accessToken != null && accessToken.isNotEmpty) {
+        options.headers['Authorization'] = 'Bearer $accessToken';
+      }
     }
 
     print('REQUEST: ${options.method} ${options.uri}');

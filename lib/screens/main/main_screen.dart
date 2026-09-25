@@ -12,6 +12,14 @@ import '../../bloc/services/services_event.dart';
 import '../../bloc/user/user_bloc.dart';
 import '../../bloc/user/user_state.dart';
 
+import '../../bloc/notifications/notifications_bloc.dart';
+import '../../bloc/notifications/notifications_event.dart';
+
+import '../../bloc/partners/partners_bloc.dart';
+import '../../bloc/partners/partners_event.dart';
+
+import '../../repositories/data_repository.dart';
+
 import '../login/login_screen.dart';
 import '../home/home_screen.dart';
 import '../services/services_screen.dart';
@@ -31,7 +39,11 @@ class MainScreen extends StatelessWidget {
         child: const ServicesScreen(),
       ),
 
-      const NotificationsScreen(),
+      BlocProvider(
+        create: (_) => NotificationsBloc()..add(const NotificationsRequested()),
+        child: const NotificationsScreen(),
+      ),
+
       const ProfileScreen(),
     ];
 
@@ -48,8 +60,16 @@ class MainScreen extends StatelessWidget {
         }
       },
 
-      child: BlocProvider(
-        create: (_) => NavigationBloc(),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (_) => NavigationBloc()),
+
+          BlocProvider(
+            create: (context) =>
+                PartnersBloc(context.read<DataRepository>())
+                  ..add(const PartnersRequested()),
+          ),
+        ],
 
         child: BlocBuilder<NavigationBloc, NavigationState>(
           builder: (context, state) {

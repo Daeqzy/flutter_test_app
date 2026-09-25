@@ -40,10 +40,6 @@ class DeleteUserRequested extends UserEvent {
   List<Object?> get props => [userId];
 }
 
-class GetUserLocationsRequested extends UserEvent {
-  const GetUserLocationsRequested();
-}
-
 class TogglePasswordVisibility extends UserEvent {
   const TogglePasswordVisibility();
 }
@@ -68,4 +64,21 @@ class PasswordChanged extends UserEvent {
 
 class UserLogoutRequested extends UserEvent {
   const UserLogoutRequested();
+}
+
+class RememberMeChanged extends UserEvent {
+  final bool rememberMe;
+
+  const RememberMeChanged(this.rememberMe);
+
+  @override
+  List<Object?> get props => [rememberMe];
+}
+
+class CheckRememberedSession extends UserEvent {
+  const CheckRememberedSession();
+}
+
+class BiometricAuthRequested extends UserEvent {
+  const BiometricAuthRequested();
 }

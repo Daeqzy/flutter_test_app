@@ -51,27 +51,27 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<List<LocationResult>> getUserLocations() async {
+  Future<List<MatPartnerData>> getPartners() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<LocationResult>>(
+    final _options = _setStreamType<List<MatPartnerData>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'api/Locations/UserLocations',
+            'api/MobileIntra/GetPartners',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<LocationResult> _value;
+    late List<MatPartnerData> _value;
     try {
       _value = _result.data!
           .map(
-            (dynamic i) => LocationResult.fromJson(i as Map<String, dynamic>),
+            (dynamic i) => MatPartnerData.fromJson(i as Map<String, dynamic>),
           )
           .toList();
     } on Object catch (e, s) {

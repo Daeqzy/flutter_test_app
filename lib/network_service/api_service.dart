@@ -4,6 +4,7 @@ import 'package:retrofit/retrofit.dart';
 import '../models/location_result.dart';
 import '../models/login_request.dart';
 import '../models/login_response.dart';
+import '../models/mat_partner_data.dart';
 
 part 'api_service.g.dart';
 
@@ -14,6 +15,6 @@ abstract class ApiService {
   @POST('api/Account/Login')
   Future<LoginResponse> login(@Body() LoginRequest request);
 
-  @GET('api/Locations/UserLocations')
-  Future<List<LocationResult>> getUserLocations();
+  @GET('api/MobileIntra/GetPartners')
+  Future<List<MatPartnerData>> getPartners();
 }

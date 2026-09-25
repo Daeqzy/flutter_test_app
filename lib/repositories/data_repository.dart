@@ -2,7 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/login_request.dart';
 import '../models/login_response.dart';
-import '../models/location_result.dart';
+import '../models/mat_partner_data.dart';
 import '../network_service/api_service.dart';
 
 class DataRepository {
@@ -34,13 +34,41 @@ class DataRepository {
 
   Future<void> logout() async {
     await secureStorage.delete(key: 'accessToken');
+
     await secureStorage.delete(key: 'refreshToken');
+
+    await clearRememberMe();
   }
 
-  // GET USER LOCATIONS
-  Future<List<LocationResult>> getUserLocations() async {
-    final locations = await apiService.getUserLocations();
+  Future<List<MatPartnerData>> getPartners() async {
+    final partners = await apiService.getPartners();
 
-    return locations;
+    return partners;
+  }
+
+  Future<void> saveRememberMe(String username) async {
+    await secureStorage.write(key: 'rememberMe', value: 'true');
+
+    await secureStorage.write(key: 'rememberedUsername', value: username);
+  }
+
+  Future<void> clearRememberMe() async {
+    await secureStorage.delete(key: 'rememberMe');
+
+    await secureStorage.delete(key: 'rememberedUsername');
+  }
+
+  Future<bool> hasRememberedSession() async {
+    final rememberMe = await secureStorage.read(key: 'rememberMe');
+
+    final accessToken = await secureStorage.read(key: 'accessToken');
+
+    return rememberMe == 'true' &&
+        accessToken != null &&
+        accessToken.isNotEmpty;
+  }
+
+  Future<String?> getRememberedUsername() async {
+    return await secureStorage.read(key: 'rememberedUsername');
   }
 }
