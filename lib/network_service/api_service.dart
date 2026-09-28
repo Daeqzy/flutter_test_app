@@ -6,6 +6,7 @@ import '../models/login_request.dart';
 import '../models/login_response.dart';
 import '../models/mat_partner_data.dart';
 import '../models/partner_connection_data.dart';
+import '../models/partner_agreement_data.dart';
 
 part 'api_service.g.dart';
 
@@ -21,6 +22,12 @@ abstract class ApiService {
 
   @GET('api/MobileIntra/GetPartnerConnections')
   Future<List<PartnerConnectionData>> getPartnerConnections(
+    @Query('tp') int tp,
+    @Query('p') int p,
+  );
+
+  @GET('api/MobileIntra/GetPartnerAgreements')
+  Future<List<PartnerAgreementData>> getPartnerAgreements(
     @Query('tp') int tp,
     @Query('p') int p,
   );

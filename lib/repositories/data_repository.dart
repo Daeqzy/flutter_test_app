@@ -4,6 +4,7 @@ import '../models/login_request.dart';
 import '../models/login_response.dart';
 import '../models/mat_partner_data.dart';
 import '../models/partner_connection_data.dart';
+import '../models/partner_agreement_data.dart';
 import '../network_service/api_service.dart';
 
 class DataRepository {
@@ -80,5 +81,11 @@ class DataRepository {
     final connections = await apiService.getPartnerConnections(tp, p);
 
     return connections;
+  }
+
+  Future<List<PartnerAgreementData>> getPartnerAgreements(int tp, int p) async {
+    final agreements = await apiService.getPartnerAgreements(tp, p);
+
+    return agreements;
   }
 }

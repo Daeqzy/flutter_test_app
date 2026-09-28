@@ -11,9 +11,13 @@ import '../../bloc/partners/partners_state.dart';
 import '../../bloc/partner_connections/partner_connections_bloc.dart';
 import '../../bloc/partner_connections/partner_connections_event.dart';
 
+import '../../bloc/partner_agreements/partner_agreements_bloc.dart';
+import '../../bloc/partner_agreements/partner_agreements_event.dart';
+
 import '../../repositories/data_repository.dart';
 
 import '../partner_connections_screen.dart';
+import '../partner_agreements_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -217,179 +221,263 @@ class HomeScreen extends StatelessWidget {
                       elevation: 1,
                       margin: EdgeInsets.zero,
                       clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: () {
-                          final tp = partner.tipPartner;
-                          final p = partner.id;
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // --------------------------------
+                            // PARTNER HEADER
+                            // --------------------------------
 
-                          // tp may be 0.
-                          // Only p / partner ID must be greater than 0.
-                          if (tp == null || p == null || p < 1) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Connections are not available for this partner.',
-                                ),
-                              ),
-                            );
-
-                            return;
-                          }
-
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => BlocProvider(
-                                create: (_) =>
-                                    PartnerConnectionsBloc(
-                                      context.read<DataRepository>(),
-                                    )..add(
-                                      PartnerConnectionsRequested(tp: tp, p: p),
-                                    ),
-                                child: PartnerConnectionsScreen(
-                                  tp: tp,
-                                  p: p,
-                                  partnerName: partner.naziv ?? 'Partner',
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // --------------------------------
-                              // PARTNER INITIAL
-                              // --------------------------------
-
-                              Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primaryContainer,
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    _getPartnerInitial(partner.naziv),
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer,
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      _getPartnerInitial(partner.naziv),
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimaryContainer,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
 
-                              const SizedBox(width: 14),
+                                const SizedBox(width: 14),
 
-                              // --------------------------------
-                              // PARTNER INFORMATION
-                              // --------------------------------
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      partner.naziv ?? 'Unnamed partner',
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        partner.naziv ?? 'Unnamed partner',
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
-                                    ),
 
-                                    if (_hasText(partner.mestoNaziv)) ...[
-                                      const SizedBox(height: 6),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.location_city_outlined,
-                                            size: 16,
-                                            color: Colors.grey.shade600,
-                                          ),
-                                          const SizedBox(width: 5),
-                                          Expanded(
-                                            child: Text(
-                                              partner.mestoNaziv!,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.grey.shade600,
+                                      if (_hasText(partner.mestoNaziv)) ...[
+                                        const SizedBox(height: 6),
+
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.location_city_outlined,
+                                              size: 16,
+                                              color: Colors.grey.shade600,
+                                            ),
+
+                                            const SizedBox(width: 5),
+
+                                            Expanded(
+                                              child: Text(
+                                                partner.mestoNaziv!,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: Colors.grey.shade600,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-
-                                    if (_hasText(partner.adresa)) ...[
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.location_on_outlined,
-                                            size: 16,
-                                            color: Colors.grey.shade600,
-                                          ),
-                                          const SizedBox(width: 5),
-                                          Expanded(
-                                            child: Text(
-                                              partner.adresa!,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.grey.shade600,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-
-                                    const SizedBox(height: 10),
-
-                                    // --------------------------------
-                                    // TYPE / ID CHIPS
-                                    // --------------------------------
-                                    Wrap(
-                                      spacing: 8,
-                                      runSpacing: 6,
-                                      children: [
-                                        if (partner.tipPartner != null)
-                                          _PartnerInfoChip(
-                                            label: 'Type ${partner.tipPartner}',
-                                          ),
-
-                                        if (partner.id != null)
-                                          _PartnerInfoChip(
-                                            label: 'ID ${partner.id}',
-                                          ),
+                                          ],
+                                        ),
                                       ],
-                                    ),
-                                  ],
+
+                                      if (_hasText(partner.adresa)) ...[
+                                        const SizedBox(height: 4),
+
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.location_on_outlined,
+                                              size: 16,
+                                              color: Colors.grey.shade600,
+                                            ),
+
+                                            const SizedBox(width: 5),
+
+                                            Expanded(
+                                              child: Text(
+                                                partner.adresa!,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: Colors.grey.shade600,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                                 ),
-                              ),
+                              ],
+                            ),
 
-                              const SizedBox(width: 10),
+                            const SizedBox(height: 12),
 
-                              // --------------------------------
-                              // OPEN ARROW
-                              // --------------------------------
-                              Icon(
-                                Icons.chevron_right_rounded,
-                                color: Colors.grey.shade500,
-                              ),
-                            ],
-                          ),
+                            // --------------------------------
+                            // TYPE / ID
+                            // --------------------------------
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 6,
+                              children: [
+                                if (partner.tipPartner != null)
+                                  _PartnerInfoChip(
+                                    label: 'Type ${partner.tipPartner}',
+                                  ),
+
+                                if (partner.id != null)
+                                  _PartnerInfoChip(label: 'ID ${partner.id}'),
+                              ],
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            const Divider(height: 1),
+
+                            const SizedBox(height: 12),
+
+                            // --------------------------------
+                            // PARTNER ACTIONS
+                            // --------------------------------
+                            Row(
+                              children: [
+                                // ----------------------------
+                                // CONNECTIONS
+                                // ----------------------------
+
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    onPressed: () {
+                                      final tp = partner.tipPartner;
+                                      final p = partner.id;
+
+                                      // p / ID cannot be 0.
+                                      if (tp == null || p == null || p < 1) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Connections are not available for this partner.',
+                                                ),
+                                              ),
+                                            );
+
+                                        return;
+                                      }
+
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => BlocProvider(
+                                            create: (_) =>
+                                                PartnerConnectionsBloc(
+                                                  context
+                                                      .read<DataRepository>(),
+                                                )..add(
+                                                  PartnerConnectionsRequested(
+                                                    tp: tp,
+                                                    p: p,
+                                                  ),
+                                                ),
+                                            child: PartnerConnectionsScreen(
+                                              tp: tp,
+                                              p: p,
+                                              partnerName:
+                                                  partner.naziv ?? 'Partner',
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.lan_outlined,
+                                      size: 18,
+                                    ),
+                                    label: const Text('Connections'),
+                                  ),
+                                ),
+
+                                const SizedBox(width: 10),
+
+                                // ----------------------------
+                                // AGREEMENTS
+                                // ----------------------------
+                                Expanded(
+                                  child: FilledButton.icon(
+                                    onPressed: () {
+                                      final tp = partner.tipPartner;
+                                      final p = partner.id;
+
+                                      // Same backend rule:
+                                      // partner ID / p must be > 0.
+                                      if (tp == null || p == null || p < 1) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Agreements are not available for this partner.',
+                                                ),
+                                              ),
+                                            );
+
+                                        return;
+                                      }
+
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => BlocProvider(
+                                            create: (_) =>
+                                                PartnerAgreementsBloc(
+                                                  context
+                                                      .read<DataRepository>(),
+                                                )..add(
+                                                  PartnerAgreementsRequested(
+                                                    tp: tp,
+                                                    p: p,
+                                                  ),
+                                                ),
+                                            child: PartnerAgreementsScreen(
+                                              tp: tp,
+                                              p: p,
+                                              partnerName:
+                                                  partner.naziv ?? 'Partner',
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.description_outlined,
+                                      size: 18,
+                                    ),
+                                    label: const Text('Agreements'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     );
