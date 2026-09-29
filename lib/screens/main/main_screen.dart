@@ -33,29 +33,19 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      const HomeScreen(),
-
-      BlocProvider(
-        create: (_) => ServicesBloc()..add(const ServicesRequested()),
-        child: const ServicesScreen(),
-      ),
-
-      BlocProvider(
-        create: (_) => NotificationsBloc()..add(const NotificationsRequested()),
-        child: const NotificationsScreen(),
-      ),
-
-      const ProfileScreen(),
-    ];
-
     return BlocListener<UserBloc, UserState>(
       listenWhen: (previous, current) {
-        return previous.logoutSuccess != current.logoutSuccess;
+        if (previous.authStatus == current.authStatus) {
+          return false;
+        }
+
+        return current.authStatus == AuthStatus.unauthenticated ||
+            current.authStatus == AuthStatus.sessionExpired;
       },
 
       listener: (context, state) {
-        if (state.logoutSuccess) {
+        if (state.authStatus == AuthStatus.unauthenticated ||
+            state.authStatus == AuthStatus.sessionExpired) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => LoginScreen()),
             (route) => false,
@@ -63,15 +53,41 @@ class MainScreen extends StatelessWidget {
         }
       },
 
-      child: BlocProvider(
-        create: (_) => NavigationBloc(),
+      // --------------------------------------------------------
+      // MAIN SCREEN BLOCS
+      //
+      // These are created ONCE for the lifetime of MainScreen.
+      // --------------------------------------------------------
+      child: MultiBlocProvider(
+        providers: [
+          // ----------------------------------------------------
+          // NAVIGATION
+          // ----------------------------------------------------
+
+          BlocProvider(create: (_) => NavigationBloc()),
+
+          // ----------------------------------------------------
+          // SERVICES
+          // ----------------------------------------------------
+          BlocProvider(
+            create: (_) => ServicesBloc()..add(const ServicesRequested()),
+          ),
+
+          // ----------------------------------------------------
+          // NOTIFICATIONS
+          // ----------------------------------------------------
+          BlocProvider(
+            create: (_) =>
+                NotificationsBloc()..add(const NotificationsRequested()),
+          ),
+        ],
 
         child: BlocBuilder<NavigationBloc, NavigationState>(
           builder: (context, state) {
             return Scaffold(
-              // ============================================
+              // ==================================================
               // APP BAR
-              // ============================================
+              // ==================================================
 
               appBar: AppBar(
                 title: const Text('CODEX Computers'),
@@ -95,19 +111,31 @@ class MainScreen extends StatelessWidget {
                 ],
               ),
 
-              // ============================================
-              // RIGHT-SIDE DRAWER
-              // ============================================
+              // ==================================================
+              // RIGHT DRAWER
+              // ==================================================
               endDrawer: _AppDrawer(selectedIndex: state.selectedIndex),
 
-              // ============================================
-              // PAGE
-              // ============================================
-              body: pages[state.selectedIndex],
+              // ==================================================
+              // PAGES
+              //
+              // IndexedStack keeps every screen alive.
+              // Switching tabs does NOT destroy/recreate them.
+              // ==================================================
+              body: IndexedStack(
+                index: state.selectedIndex,
 
-              // ============================================
+                children: const [
+                  HomeScreen(),
+                  ServicesScreen(),
+                  NotificationsScreen(),
+                  ProfileScreen(),
+                ],
+              ),
+
+              // ==================================================
               // BOTTOM NAVIGATION
-              // ============================================
+              // ==================================================
               bottomNavigationBar: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -115,6 +143,7 @@ class MainScreen extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       blurRadius: 20,
+
                       color: Colors.black.withValues(alpha: 0.08),
                     ),
                   ],
@@ -182,7 +211,7 @@ class MainScreen extends StatelessWidget {
 }
 
 // ============================================================
-// RIGHT SIDE DRAWER
+// RIGHT-SIDE DRAWER
 // ============================================================
 
 class _AppDrawer extends StatelessWidget {
@@ -196,9 +225,9 @@ class _AppDrawer extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // ==============================================
+            // ==================================================
             // HEADER
-            // ==============================================
+            // ==================================================
 
             Container(
               width: double.infinity,
@@ -233,6 +262,7 @@ class _AppDrawer extends StatelessWidget {
                       children: [
                         Text(
                           'CODEX',
+
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -243,6 +273,7 @@ class _AppDrawer extends StatelessWidget {
 
                         Text(
                           'Navigation',
+
                           style: TextStyle(fontSize: 13, color: Colors.grey),
                         ),
                       ],
@@ -254,17 +285,17 @@ class _AppDrawer extends StatelessWidget {
 
             const Divider(height: 1),
 
-            // ==============================================
-            // NAVIGATION
-            // ==============================================
+            // ==================================================
+            // NAVIGATION ITEMS
+            // ==================================================
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 12),
 
                 children: [
-                  // ----------------------------------------
+                  // ------------------------------------------------
                   // DASHBOARD
-                  // ----------------------------------------
+                  // ------------------------------------------------
 
                   _DrawerItem(
                     icon: Icons.dashboard_outlined,
@@ -278,9 +309,9 @@ class _AppDrawer extends StatelessWidget {
                     },
                   ),
 
-                  // ----------------------------------------
+                  // ------------------------------------------------
                   // PARTNERS
-                  // ----------------------------------------
+                  // ------------------------------------------------
                   _DrawerItem(
                     icon: Icons.business_outlined,
 
@@ -291,9 +322,9 @@ class _AppDrawer extends StatelessWidget {
                     },
                   ),
 
-                  // ----------------------------------------
+                  // ------------------------------------------------
                   // SERVICES
-                  // ----------------------------------------
+                  // ------------------------------------------------
                   _DrawerItem(
                     icon: Icons.grid_view_rounded,
 
@@ -306,9 +337,9 @@ class _AppDrawer extends StatelessWidget {
                     },
                   ),
 
-                  // ----------------------------------------
+                  // ------------------------------------------------
                   // NOTIFICATIONS
-                  // ----------------------------------------
+                  // ------------------------------------------------
                   _DrawerItem(
                     icon: Icons.notifications_outlined,
 
@@ -327,23 +358,24 @@ class _AppDrawer extends StatelessWidget {
                     child: Divider(),
                   ),
 
-                  // ========================================
-                  // SETTINGS TREE
-                  // ========================================
+                  // ==================================================
+                  // SETTINGS
+                  // ==================================================
                   ExpansionTile(
                     leading: const Icon(Icons.settings_outlined),
 
                     title: const Text(
                       'Settings',
+
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
 
                     childrenPadding: const EdgeInsets.only(left: 18),
 
                     children: [
-                      // ------------------------------------
+                      // ------------------------------------------------
                       // PROFILE
-                      // ------------------------------------
+                      // ------------------------------------------------
 
                       ListTile(
                         leading: const Icon(Icons.person_outline),
@@ -357,33 +389,45 @@ class _AppDrawer extends StatelessWidget {
                         },
                       ),
 
-                      // ------------------------------------
+                      // ------------------------------------------------
                       // PREFERENCES
-                      // ------------------------------------
+                      // ------------------------------------------------
                       ListTile(
                         leading: const Icon(Icons.tune_rounded),
 
                         title: const Text('Preferences'),
 
                         onTap: () {
+                          final messenger = ScaffoldMessenger.of(context);
+
                           Navigator.pop(context);
 
-                          _showComingSoon(context, 'Preferences');
+                          messenger.showSnackBar(
+                            const SnackBar(
+                              content: Text('Preferences screen coming soon.'),
+                            ),
+                          );
                         },
                       ),
 
-                      // ------------------------------------
+                      // ------------------------------------------------
                       // SECURITY
-                      // ------------------------------------
+                      // ------------------------------------------------
                       ListTile(
                         leading: const Icon(Icons.security_outlined),
 
                         title: const Text('Security'),
 
                         onTap: () {
+                          final messenger = ScaffoldMessenger.of(context);
+
                           Navigator.pop(context);
 
-                          _showComingSoon(context, 'Security');
+                          messenger.showSnackBar(
+                            const SnackBar(
+                              content: Text('Security screen coming soon.'),
+                            ),
+                          );
                         },
                       ),
                     ],
@@ -392,9 +436,9 @@ class _AppDrawer extends StatelessWidget {
               ),
             ),
 
-            // ==============================================
+            // ==================================================
             // LOGOUT
-            // ==============================================
+            // ==================================================
             const Divider(height: 1),
 
             Padding(
@@ -417,9 +461,12 @@ class _AppDrawer extends StatelessWidget {
                 ),
 
                 onTap: () {
+                  // Read BLoC before closing the drawer.
+                  final userBloc = context.read<UserBloc>();
+
                   Navigator.pop(context);
 
-                  context.read<UserBloc>().add(const UserLogoutRequested());
+                  userBloc.add(const UserLogoutRequested());
                 },
               ),
             ),
@@ -429,22 +476,31 @@ class _AppDrawer extends StatelessWidget {
     );
   }
 
-  // ----------------------------------------------------------
-  // OPEN BOTTOM NAV TAB
-  // ----------------------------------------------------------
+  // ==========================================================
+  // OPEN BOTTOM NAVIGATION TAB
+  // ==========================================================
 
   void _openBottomTab(BuildContext context, int index) {
-    // Close drawer first.
+    // Get reference before drawer is removed.
+    final navigationBloc = context.read<NavigationBloc>();
+
+    // Close drawer.
     Navigator.pop(context);
 
-    context.read<NavigationBloc>().add(NavigationTabChanged(index));
+    // Change page.
+    navigationBloc.add(NavigationTabChanged(index));
   }
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // OPEN PARTNERS
-  // ----------------------------------------------------------
+  // ==========================================================
 
   void _openPartners(BuildContext context) {
+    // Partners stays lazy-loaded.
+    //
+    // We do NOT create PartnersBloc in MainScreen because
+    // that would immediately load thousands of partners.
+
     final repository = context.read<DataRepository>();
 
     final navigator = Navigator.of(context);
@@ -452,6 +508,7 @@ class _AppDrawer extends StatelessWidget {
     // Close drawer.
     navigator.pop();
 
+    // Open Partners and create its BLoC only now.
     navigator.push(
       MaterialPageRoute(
         builder: (_) => BlocProvider(
@@ -462,15 +519,6 @@ class _AppDrawer extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  // ----------------------------------------------------------
-  // COMING SOON
-  // ----------------------------------------------------------
-
-  void _showComingSoon(BuildContext context, String feature) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('$feature screen coming soon.')));
   }
 }
 

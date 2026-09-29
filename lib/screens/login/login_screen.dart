@@ -35,33 +35,30 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<UserBloc, UserState>(
       listenWhen: (previous, current) {
-        return previous.loginSuccess != current.loginSuccess ||
-            previous.errorMessage != current.errorMessage;
+        final becameAuthenticated =
+            previous.authStatus != current.authStatus &&
+            current.authStatus == AuthStatus.authenticated;
+
+        final errorChanged = previous.errorMessage != current.errorMessage;
+
+        return becameAuthenticated || errorChanged;
       },
 
       listener: (context, state) {
-        // ----------------------------------------------------
-        // SUCCESS
-        // ----------------------------------------------------
-
-        if (state.loginSuccess) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const MainScreen()),
-          );
-
-          return;
-        }
-
-        // ----------------------------------------------------
-        // ERROR
-        // ----------------------------------------------------
-
         if (state.errorMessage != null) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+
+          return;
+        }
+
+        if (state.authStatus == AuthStatus.authenticated) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const MainScreen()),
+          );
         }
       },
 

@@ -2,31 +2,34 @@ import 'package:equatable/equatable.dart';
 
 import '../../models/user.dart';
 
+enum AuthStatus { initial, authenticated, unauthenticated, sessionExpired }
+
 class UserState extends Equatable {
   final bool isLoading;
-  final bool loginSuccess;
+
+  final AuthStatus authStatus;
+
   final bool obscurePassword;
-  final bool logoutSuccess;
 
   final bool rememberMe;
 
-  // Remembered credentials exist locally.
+  // Remembered account exists locally.
   final bool hasRememberedAccount;
 
-  // Valid token/session currently exists.
+  // Remembered account currently has an active token.
   final bool hasRememberedSession;
 
-  // --------------------------------------------------------
-  // BIOMETRIC AVAILABILITY
-  // --------------------------------------------------------
+  // ----------------------------------------------------------
+  // BIOMETRICS
+  // ----------------------------------------------------------
 
   final bool hasFingerprint;
   final bool hasFaceAuthentication;
   final bool hasIrisAuthentication;
 
-  // --------------------------------------------------------
-  // LOGIN INFORMATION
-  // --------------------------------------------------------
+  // ----------------------------------------------------------
+  // USER / LOGIN DATA
+  // ----------------------------------------------------------
 
   final String authenticatedUsername;
 
@@ -37,15 +40,17 @@ class UserState extends Equatable {
   final String rememberedPassword;
 
   final User? user;
+
   final List<User> users;
 
   final String? errorMessage;
 
   const UserState({
     this.isLoading = false,
-    this.loginSuccess = false,
+
+    this.authStatus = AuthStatus.initial,
+
     this.obscurePassword = true,
-    this.logoutSuccess = false,
 
     this.rememberMe = false,
 
@@ -65,6 +70,7 @@ class UserState extends Equatable {
     this.rememberedPassword = '',
 
     this.user,
+
     this.users = const [],
 
     this.errorMessage,
@@ -72,9 +78,10 @@ class UserState extends Equatable {
 
   UserState copyWith({
     bool? isLoading,
-    bool? loginSuccess,
+
+    AuthStatus? authStatus,
+
     bool? obscurePassword,
-    bool? logoutSuccess,
 
     bool? rememberMe,
 
@@ -94,6 +101,7 @@ class UserState extends Equatable {
     String? rememberedPassword,
 
     User? user,
+
     List<User>? users,
 
     String? errorMessage,
@@ -104,11 +112,9 @@ class UserState extends Equatable {
     return UserState(
       isLoading: isLoading ?? this.isLoading,
 
-      loginSuccess: loginSuccess ?? this.loginSuccess,
+      authStatus: authStatus ?? this.authStatus,
 
       obscurePassword: obscurePassword ?? this.obscurePassword,
-
-      logoutSuccess: logoutSuccess ?? this.logoutSuccess,
 
       rememberMe: rememberMe ?? this.rememberMe,
 
@@ -139,16 +145,17 @@ class UserState extends Equatable {
 
       users: users ?? this.users,
 
-      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
     );
   }
 
   @override
   List<Object?> get props => [
     isLoading,
-    loginSuccess,
+
+    authStatus,
+
     obscurePassword,
-    logoutSuccess,
 
     rememberMe,
 
@@ -168,6 +175,7 @@ class UserState extends Equatable {
     rememberedPassword,
 
     user,
+
     users,
 
     errorMessage,
