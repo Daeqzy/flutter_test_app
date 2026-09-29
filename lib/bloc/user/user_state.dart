@@ -7,13 +7,34 @@ class UserState extends Equatable {
   final bool loginSuccess;
   final bool obscurePassword;
   final bool logoutSuccess;
+
   final bool rememberMe;
+
+  // Remembered credentials exist locally.
+  final bool hasRememberedAccount;
+
+  // Valid token/session currently exists.
   final bool hasRememberedSession;
 
+  // --------------------------------------------------------
+  // BIOMETRIC AVAILABILITY
+  // --------------------------------------------------------
+
+  final bool hasFingerprint;
+  final bool hasFaceAuthentication;
+  final bool hasIrisAuthentication;
+
+  // --------------------------------------------------------
+  // LOGIN INFORMATION
+  // --------------------------------------------------------
+
   final String authenticatedUsername;
+
   final String username;
   final String password;
+
   final String rememberedUsername;
+  final String rememberedPassword;
 
   final User? user;
   final List<User> users;
@@ -25,15 +46,28 @@ class UserState extends Equatable {
     this.loginSuccess = false,
     this.obscurePassword = true,
     this.logoutSuccess = false,
+
     this.rememberMe = false,
-    this.username = '',
+
+    this.hasRememberedAccount = false,
+    this.hasRememberedSession = false,
+
+    this.hasFingerprint = false,
+    this.hasFaceAuthentication = false,
+    this.hasIrisAuthentication = false,
+
     this.authenticatedUsername = '',
+
+    this.username = '',
     this.password = '',
+
+    this.rememberedUsername = '',
+    this.rememberedPassword = '',
+
     this.user,
     this.users = const [],
+
     this.errorMessage,
-    this.hasRememberedSession = false,
-    this.rememberedUsername = '',
   });
 
   UserState copyWith({
@@ -41,33 +75,71 @@ class UserState extends Equatable {
     bool? loginSuccess,
     bool? obscurePassword,
     bool? logoutSuccess,
+
     bool? rememberMe,
-    bool? hasRememberedSession = false,
-    String? username,
+
+    bool? hasRememberedAccount,
+    bool? hasRememberedSession,
+
+    bool? hasFingerprint,
+    bool? hasFaceAuthentication,
+    bool? hasIrisAuthentication,
+
     String? authenticatedUsername,
+
+    String? username,
     String? password,
+
     String? rememberedUsername,
+    String? rememberedPassword,
+
     User? user,
     List<User>? users,
+
     String? errorMessage,
+
     bool clearUser = false,
     bool clearError = false,
   }) {
     return UserState(
       isLoading: isLoading ?? this.isLoading,
+
       loginSuccess: loginSuccess ?? this.loginSuccess,
+
       obscurePassword: obscurePassword ?? this.obscurePassword,
+
       logoutSuccess: logoutSuccess ?? this.logoutSuccess,
+
       rememberMe: rememberMe ?? this.rememberMe,
-      username: username ?? this.username,
+
+      hasRememberedAccount: hasRememberedAccount ?? this.hasRememberedAccount,
+
+      hasRememberedSession: hasRememberedSession ?? this.hasRememberedSession,
+
+      hasFingerprint: hasFingerprint ?? this.hasFingerprint,
+
+      hasFaceAuthentication:
+          hasFaceAuthentication ?? this.hasFaceAuthentication,
+
+      hasIrisAuthentication:
+          hasIrisAuthentication ?? this.hasIrisAuthentication,
+
       authenticatedUsername:
           authenticatedUsername ?? this.authenticatedUsername,
+
+      username: username ?? this.username,
+
       password: password ?? this.password,
-      user: clearUser ? null : (user ?? this.user),
-      users: users ?? this.users,
-      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-      hasRememberedSession: hasRememberedSession ?? this.hasRememberedSession,
+
       rememberedUsername: rememberedUsername ?? this.rememberedUsername,
+
+      rememberedPassword: rememberedPassword ?? this.rememberedPassword,
+
+      user: clearUser ? null : (user ?? this.user),
+
+      users: users ?? this.users,
+
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
 
@@ -77,14 +149,27 @@ class UserState extends Equatable {
     loginSuccess,
     obscurePassword,
     logoutSuccess,
+
     rememberMe,
-    username,
+
+    hasRememberedAccount,
+    hasRememberedSession,
+
+    hasFingerprint,
+    hasFaceAuthentication,
+    hasIrisAuthentication,
+
     authenticatedUsername,
+
+    username,
     password,
+
+    rememberedUsername,
+    rememberedPassword,
+
     user,
     users,
+
     errorMessage,
-    hasRememberedSession,
-    rememberedUsername,
   ];
 }

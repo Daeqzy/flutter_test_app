@@ -7,6 +7,10 @@ abstract class UserEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+// ----------------------------------------------------------
+// LOGIN
+// ----------------------------------------------------------
+
 class UserLoginRequested extends UserEvent {
   final String username;
   final String password;
@@ -17,9 +21,17 @@ class UserLoginRequested extends UserEvent {
   List<Object?> get props => [username, password];
 }
 
+// ----------------------------------------------------------
+// GET USERS
+// ----------------------------------------------------------
+
 class GetUsersRequested extends UserEvent {
   const GetUsersRequested();
 }
+
+// ----------------------------------------------------------
+// ADD USER
+// ----------------------------------------------------------
 
 class AddUserRequested extends UserEvent {
   final String username;
@@ -31,18 +43,17 @@ class AddUserRequested extends UserEvent {
   List<Object?> get props => [username, email];
 }
 
-class DeleteUserRequested extends UserEvent {
-  final int userId;
-
-  const DeleteUserRequested({required this.userId});
-
-  @override
-  List<Object?> get props => [userId];
-}
+// ----------------------------------------------------------
+// PASSWORD VISIBILITY
+// ----------------------------------------------------------
 
 class TogglePasswordVisibility extends UserEvent {
   const TogglePasswordVisibility();
 }
+
+// ----------------------------------------------------------
+// USERNAME
+// ----------------------------------------------------------
 
 class UsernameChanged extends UserEvent {
   final String username;
@@ -53,6 +64,10 @@ class UsernameChanged extends UserEvent {
   List<Object?> get props => [username];
 }
 
+// ----------------------------------------------------------
+// PASSWORD
+// ----------------------------------------------------------
+
 class PasswordChanged extends UserEvent {
   final String password;
 
@@ -62,9 +77,9 @@ class PasswordChanged extends UserEvent {
   List<Object?> get props => [password];
 }
 
-class UserLogoutRequested extends UserEvent {
-  const UserLogoutRequested();
-}
+// ----------------------------------------------------------
+// REMEMBER ME
+// ----------------------------------------------------------
 
 class RememberMeChanged extends UserEvent {
   final bool rememberMe;
@@ -75,9 +90,33 @@ class RememberMeChanged extends UserEvent {
   List<Object?> get props => [rememberMe];
 }
 
+// ----------------------------------------------------------
+// LOGOUT
+// ----------------------------------------------------------
+
+class UserLogoutRequested extends UserEvent {
+  const UserLogoutRequested();
+}
+
+// ----------------------------------------------------------
+// CHECK REMEMBERED ACCOUNT
+// ----------------------------------------------------------
+
 class CheckRememberedSession extends UserEvent {
   const CheckRememberedSession();
 }
+
+// ----------------------------------------------------------
+// CHECK DEVICE BIOMETRICS
+// ----------------------------------------------------------
+
+class CheckBiometricAvailability extends UserEvent {
+  const CheckBiometricAvailability();
+}
+
+// ----------------------------------------------------------
+// BIOMETRIC LOGIN
+// ----------------------------------------------------------
 
 class BiometricAuthRequested extends UserEvent {
   const BiometricAuthRequested();

@@ -28,8 +28,8 @@ class UserRepository {
     return dataRepository.logout();
   }
 
-  Future<void> saveRememberMe(String username) async {
-    await dataRepository.saveRememberMe(username);
+  Future<void> saveRememberMe(String username, String password) async {
+    await dataRepository.saveRememberMe(username, password);
   }
 
   Future<void> clearRememberMe() async {
@@ -42,5 +42,13 @@ class UserRepository {
 
   Future<String?> getRememberedUsername() async {
     return await dataRepository.getRememberedUsername();
+  }
+
+  Future<String?> getRememberedPassword() async {
+    return await dataRepository.getRememberedPassword();
+  }
+
+  Future<bool> hasRememberedAccount() async {
+    return await dataRepository.hasRememberedAccount();
   }
 }
