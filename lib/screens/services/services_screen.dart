@@ -4,6 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/services/services_bloc.dart';
 import '../../bloc/services/services_event.dart';
 import '../../bloc/services/services_state.dart';
+import '../../widgets/common/app_loading_view.dart';
+import '../../widgets/common/app_error_view.dart';
+import '../../widgets/common/app_empty_view.dart';
+
+import '../../theme/app_theme.dart';
+import '../../widgets/common/app_section_header.dart';
 
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({super.key});
@@ -12,136 +18,85 @@ class ServicesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ServicesBloc, ServicesState>(
       builder: (context, state) {
-        return Container(
-          color: const Color(0xFFF8FAFC),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // TITLE
-                  const Text(
-                    'Services',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
-                    ),
+        return SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ==================================================
+                // HERO
+                // ==================================================
+
+                const _ServicesHero(),
+
+                const SizedBox(height: 28),
+
+                // ==================================================
+                // SEARCH SECTION
+                // ==================================================
+                const AppSectionHeader(
+                  title: 'Service catalog',
+                  subtitle: 'Find services available in your workspace',
+                ),
+
+                const SizedBox(height: 14),
+
+                TextField(
+                  onChanged: (value) {
+                    context.read<ServicesBloc>().add(
+                      ServicesSearchChanged(value),
+                    );
+                  },
+                  decoration: const InputDecoration(
+                    hintText: 'Search services...',
+                    prefixIcon: Icon(Icons.search_rounded),
                   ),
+                ),
 
-                  const SizedBox(height: 6),
+                const SizedBox(height: 28),
 
-                  const Text(
-                    'Explore available services',
-                    style: TextStyle(fontSize: 15, color: Color(0xFF64748B)),
-                  ),
+                // ==================================================
+                // AVAILABLE SERVICES
+                // ==================================================
+                const AppSectionHeader(
+                  title: 'Available services',
+                  subtitle: 'Your CODEX tools will appear below',
+                ),
 
-                  const SizedBox(height: 28),
+                const SizedBox(height: 14),
 
-                  // SEARCH FIELD
-                  TextField(
-                    onChanged: (value) {
+                // ==================================================
+                // LOADING
+                // ==================================================
+                if (state.isLoading)
+                  const AppLoadingView(
+                    title: 'Loading services',
+                    message: 'Checking for available workspace services...',
+                    boxed: true,
+                  )
+                else if (state.errorMessage != null)
+                  AppErrorView(
+                    title: 'Unable to load services',
+                    message: state.errorMessage!,
+                    boxed: true,
+                    onRetry: () {
                       context.read<ServicesBloc>().add(
-                        ServicesSearchChanged(value),
+                        const ServicesRequested(),
                       );
                     },
-                    decoration: InputDecoration(
-                      hintText: 'Search services...',
-                      prefixIcon: const Icon(
-                        Icons.search_rounded,
-                        color: Color(0xFF64748B),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF2563EB),
-                          width: 1.5,
-                        ),
-                      ),
-                    ),
+                  )
+                else
+                  const AppEmptyView(
+                    icon: Icons.widgets_outlined,
+                    title: 'No services available yet',
+                    message: 'Services provided by the application will appear here when they become available.',
+                    boxed: true,
+                    badgeText: 'Nothing to display',
+                    badgeIcon: Icons.info_outline_rounded,
                   ),
-
-                  const SizedBox(height: 28),
-
-                  // AVAILABLE SERVICES TITLE
-                  const Text(
-                    'Available Services',
-                    style: TextStyle(
-                      fontSize: 19,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF0F172A),
-                    ),
-                  ),
-
-                  const SizedBox(height: 14),
-
-                  // LOADING / EMPTY STATE
-                  if (state.isLoading)
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(40),
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  else if (state.errorMessage != null)
-                    _ErrorState(
-                      message: state.errorMessage!,
-                      onRetry: () {
-                        context.read<ServicesBloc>().add(
-                          const ServicesRequested(),
-                        );
-                      },
-                    )
-                  else
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 40,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                      ),
-                      child: const Column(
-                        children: [
-                          _ServiceIcon(),
-
-                          SizedBox(height: 18),
-
-                          Text(
-                            'No services loaded yet',
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF334155),
-                            ),
-                          ),
-
-                          SizedBox(height: 6),
-
-                          Text(
-                            'Available services will appear here.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Color(0xFF94A3B8),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
+              ],
             ),
           ),
         );
@@ -150,88 +105,154 @@ class ServicesScreen extends StatelessWidget {
   }
 }
 
-class _ServiceIcon extends StatelessWidget {
-  const _ServiceIcon();
+// ============================================================
+// HERO
+// ============================================================
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 64,
-      height: 64,
-      decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: const Icon(Icons.apps_rounded, size: 30, color: Color(0xFF2563EB)),
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorState({required this.message, required this.onRetry});
+class _ServicesHero extends StatelessWidget {
+  const _ServicesHero();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+
+      padding: const EdgeInsets.all(22),
+
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.primary, AppColors.primaryDark],
+        ),
+
+        borderRadius: BorderRadius.circular(26),
+
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.20),
+            blurRadius: 28,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
-      child: Column(
+
+      child: Stack(
         children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFEF2F2),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: const Icon(
-              Icons.error_outline_rounded,
-              size: 30,
-              color: Color(0xFFDC2626),
-            ),
-          ),
+          // ----------------------------------------------------
+          // BACKGROUND DECORATION
+          // ----------------------------------------------------
 
-          const SizedBox(height: 18),
-
-          const Text(
-            'Something went wrong',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF334155),
-            ),
-          ),
-
-          const SizedBox(height: 6),
-
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-          ),
-
-          const SizedBox(height: 20),
-
-          ElevatedButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Try Again'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2563EB),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          Positioned(
+            right: -35,
+            top: -45,
+            child: Container(
+              width: 135,
+              height: 135,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.07),
+                shape: BoxShape.circle,
               ),
             ),
+          ),
+
+          Positioned(
+            right: 35,
+            bottom: -55,
+            child: Container(
+              width: 110,
+              height: 110,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+
+          // ----------------------------------------------------
+          // CONTENT
+          // ----------------------------------------------------
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+
+                    child: const Icon(
+                      Icons.grid_view_rounded,
+                      color: Colors.white,
+                      size: 23,
+                    ),
+                  ),
+
+                  const Spacer(),
+
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.14),
+
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.apps_rounded, color: Colors.white, size: 14),
+
+                        SizedBox(width: 5),
+
+                        Text(
+                          'Services',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              const Text(
+                'CODEX Services',
+                style: TextStyle(
+                  fontSize: 27,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.7,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                'Access tools and services available in your workspace.',
+                style: TextStyle(
+                  height: 1.4,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white.withValues(alpha: 0.78),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -21,6 +21,8 @@ import '../../bloc/partners/partners_event.dart';
 
 import '../../repositories/data_repository.dart';
 
+import '../../theme/app_theme.dart';
+
 import '../login/login_screen.dart';
 import '../home/home_screen.dart';
 import '../services/services_screen.dart';
@@ -31,9 +33,20 @@ import '../home/partners_screen.dart';
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
+  static const List<String> _pageTitles = [
+    'Dashboard',
+    'Services',
+    'Notifications',
+    'Profile',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<UserBloc, UserState>(
+      // ========================================================
+      // AUTHENTICATION / SESSION LISTENER
+      // ========================================================
+
       listenWhen: (previous, current) {
         if (previous.authStatus == current.authStatus) {
           return false;
@@ -53,29 +66,17 @@ class MainScreen extends StatelessWidget {
         }
       },
 
-      // --------------------------------------------------------
+      // ========================================================
       // MAIN SCREEN BLOCS
-      //
-      // These are created ONCE for the lifetime of MainScreen.
-      // --------------------------------------------------------
+      // ========================================================
       child: MultiBlocProvider(
         providers: [
-          // ----------------------------------------------------
-          // NAVIGATION
-          // ----------------------------------------------------
-
           BlocProvider(create: (_) => NavigationBloc()),
 
-          // ----------------------------------------------------
-          // SERVICES
-          // ----------------------------------------------------
           BlocProvider(
             create: (_) => ServicesBloc()..add(const ServicesRequested()),
           ),
 
-          // ----------------------------------------------------
-          // NOTIFICATIONS
-          // ----------------------------------------------------
           BlocProvider(
             create: (_) =>
                 NotificationsBloc()..add(const NotificationsRequested()),
@@ -84,30 +85,128 @@ class MainScreen extends StatelessWidget {
 
         child: BlocBuilder<NavigationBloc, NavigationState>(
           builder: (context, state) {
+            final pageTitle = _pageTitles[state.selectedIndex];
+
             return Scaffold(
+              backgroundColor: AppColors.background,
+
               // ==================================================
               // APP BAR
               // ==================================================
-
               appBar: AppBar(
-                title: const Text('CODEX Computers'),
+                toolbarHeight: 76,
+
+                titleSpacing: 20,
+
+                title: Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [AppColors.primary, AppColors.primaryDark],
+                        ),
+
+                        borderRadius: BorderRadius.circular(13),
+
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(alpha: 0.18),
+                            blurRadius: 14,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+
+                      child: const Icon(
+                        Icons.business_center_rounded,
+                        color: Colors.white,
+                        size: 21,
+                      ),
+                    ),
+
+                    const SizedBox(width: 13),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+
+                        mainAxisSize: MainAxisSize.min,
+
+                        children: [
+                          const Text(
+                            'CODEX',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.textPrimary,
+                              letterSpacing: -0.4,
+                            ),
+                          ),
+
+                          const SizedBox(height: 1),
+
+                          Text(
+                            pageTitle,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
 
                 actions: [
+                  // ==============================================
+                  // MENU BUTTON
+                  // ==============================================
+
                   Builder(
                     builder: (context) {
-                      return IconButton(
-                        tooltip: 'Menu',
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 14),
 
-                        icon: const Icon(Icons.menu_rounded),
+                        child: Material(
+                          color: AppColors.surface,
 
-                        onPressed: () {
-                          Scaffold.of(context).openEndDrawer();
-                        },
+                          borderRadius: BorderRadius.circular(14),
+
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(14),
+
+                            onTap: () {
+                              Scaffold.of(context).openEndDrawer();
+                            },
+
+                            child: Container(
+                              width: 44,
+                              height: 44,
+
+                              decoration: BoxDecoration(
+                                border: Border.all(color: AppColors.border),
+
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+
+                              child: const Icon(
+                                Icons.menu_rounded,
+                                color: AppColors.textPrimary,
+                                size: 22,
+                              ),
+                            ),
+                          ),
+                        ),
                       );
                     },
                   ),
-
-                  const SizedBox(width: 6),
                 ],
               ),
 
@@ -118,9 +217,6 @@ class MainScreen extends StatelessWidget {
 
               // ==================================================
               // PAGES
-              //
-              // IndexedStack keeps every screen alive.
-              // Switching tabs does NOT destroy/recreate them.
               // ==================================================
               body: IndexedStack(
                 index: state.selectedIndex,
@@ -134,48 +230,69 @@ class MainScreen extends StatelessWidget {
               ),
 
               // ==================================================
-              // BOTTOM NAVIGATION
+              // MODERN BOTTOM NAVIGATION
               // ==================================================
-              bottomNavigationBar: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
+              bottomNavigationBar: SafeArea(
+                top: false,
 
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 20,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 6, 14, 12),
 
-                      color: Colors.black.withValues(alpha: 0.08),
-                    ),
-                  ],
-                ),
-
-                child: SafeArea(
-                  child: Padding(
+                  child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+
+                      borderRadius: BorderRadius.circular(24),
+
+                      border: Border.all(color: AppColors.border),
+
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.07),
+
+                          blurRadius: 28,
+
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
 
                     child: GNav(
                       selectedIndex: state.selectedIndex,
 
-                      gap: 8,
+                      gap: 7,
 
-                      iconSize: 24,
+                      iconSize: 22,
 
-                      color: const Color(0xFF64748B),
+                      color: AppColors.textSecondary,
 
-                      activeColor: const Color(0xFF2563EB),
+                      activeColor: AppColors.primary,
 
-                      tabBackgroundColor: const Color(0xFF2563EB)
-                          .withValues(alpha: 0.10),
+                      tabBackgroundColor: AppColors.primary.withValues(
+                        alpha: 0.09,
+                      ),
+
+                      tabBorderRadius: 17,
 
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
+                        horizontal: 15,
                         vertical: 12,
                       ),
 
-                      duration: const Duration(milliseconds: 350),
+                      duration: const Duration(milliseconds: 300),
+
+                      curve: Curves.easeOutCubic,
+
+                      textStyle: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
 
                       tabs: const [
                         GButton(icon: Icons.home_outlined, text: 'Home'),
@@ -186,11 +303,14 @@ class MainScreen extends StatelessWidget {
                         ),
 
                         GButton(
-                          icon: Icons.notifications_outlined,
-                          text: 'Notifications',
+                          icon: Icons.notifications_none_rounded,
+                          text: 'Alerts',
                         ),
 
-                        GButton(icon: Icons.person_outline, text: 'Profile'),
+                        GButton(
+                          icon: Icons.person_outline_rounded,
+                          text: 'Profile',
+                        ),
                       ],
 
                       onTabChange: (index) {
@@ -211,7 +331,7 @@ class MainScreen extends StatelessWidget {
 }
 
 // ============================================================
-// RIGHT-SIDE DRAWER
+// RIGHT DRAWER
 // ============================================================
 
 class _AppDrawer extends StatelessWidget {
@@ -222,83 +342,170 @@ class _AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: AppColors.surface,
+
       child: SafeArea(
         child: Column(
           children: [
             // ==================================================
-            // HEADER
+            // DRAWER HEADER
             // ==================================================
 
-            Container(
-              width: double.infinity,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
 
-              padding: const EdgeInsets.all(24),
+              child: Container(
+                width: double.infinity,
 
-              child: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
+                padding: const EdgeInsets.all(18),
 
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2563EB).withValues(alpha: 0.12),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
 
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-
-                    child: const Icon(
-                      Icons.business_center_outlined,
-
-                      color: Color(0xFF2563EB),
-                    ),
+                    colors: [AppColors.primary, AppColors.primaryDark],
                   ),
 
-                  const SizedBox(width: 14),
+                  borderRadius: BorderRadius.circular(24),
 
-                  const Expanded(
-                    child: Column(
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.18),
+
+                      blurRadius: 22,
+
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+
+                child: BlocBuilder<UserBloc, UserState>(
+                  buildWhen: (previous, current) {
+                    return previous.authenticatedUsername !=
+                        current.authenticatedUsername;
+                  },
+
+                  builder: (context, state) {
+                    final username =
+                        state.authenticatedUsername.trim().isNotEmpty
+                        ? state.authenticatedUsername
+                        : 'CODEX User';
+
+                    return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
 
                       children: [
-                        Text(
-                          'CODEX',
+                        Row(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
 
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.16),
+
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+
+                              child: const Icon(
+                                Icons.business_center_rounded,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+
+                            const Spacer(),
+
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.15),
+
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+
+                                children: [
+                                  Icon(
+                                    Icons.circle,
+                                    size: 7,
+                                    color: Color(0xFF86EFAC),
+                                  ),
+
+                                  SizedBox(width: 6),
+
+                                  Text(
+                                    'Online',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        const Text(
+                          'CODEX Workspace',
                           style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: -0.4,
                           ),
                         ),
 
-                        SizedBox(height: 2),
+                        const SizedBox(height: 4),
 
                         Text(
-                          'Navigation',
+                          username,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
 
-                          style: TextStyle(fontSize: 13, color: Colors.grey),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white.withValues(alpha: 0.78),
+                          ),
                         ),
                       ],
-                    ),
-                  ),
-                ],
+                    );
+                  },
+                ),
               ),
             ),
 
-            const Divider(height: 1),
-
             // ==================================================
-            // NAVIGATION ITEMS
+            // NAVIGATION
             // ==================================================
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.fromLTRB(10, 4, 10, 12),
 
                 children: [
-                  // ------------------------------------------------
-                  // DASHBOARD
-                  // ------------------------------------------------
+                  const _DrawerSectionLabel(label: 'WORKSPACE'),
 
+                  const SizedBox(height: 6),
+
+                  // --------------------------------------------
+                  // DASHBOARD
+                  // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.dashboard_outlined,
+
+                    selectedIcon: Icons.dashboard_rounded,
 
                     title: 'Dashboard',
 
@@ -309,11 +516,13 @@ class _AppDrawer extends StatelessWidget {
                     },
                   ),
 
-                  // ------------------------------------------------
+                  // --------------------------------------------
                   // PARTNERS
-                  // ------------------------------------------------
+                  // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.business_outlined,
+
+                    selectedIcon: Icons.business_rounded,
 
                     title: 'Partners',
 
@@ -322,11 +531,13 @@ class _AppDrawer extends StatelessWidget {
                     },
                   ),
 
-                  // ------------------------------------------------
+                  // --------------------------------------------
                   // SERVICES
-                  // ------------------------------------------------
+                  // --------------------------------------------
                   _DrawerItem(
-                    icon: Icons.grid_view_rounded,
+                    icon: Icons.grid_view_outlined,
+
+                    selectedIcon: Icons.grid_view_rounded,
 
                     title: 'Services',
 
@@ -337,11 +548,13 @@ class _AppDrawer extends StatelessWidget {
                     },
                   ),
 
-                  // ------------------------------------------------
+                  // --------------------------------------------
                   // NOTIFICATIONS
-                  // ------------------------------------------------
+                  // --------------------------------------------
                   _DrawerItem(
-                    icon: Icons.notifications_outlined,
+                    icon: Icons.notifications_none_rounded,
+
+                    selectedIcon: Icons.notifications_rounded,
 
                     title: 'Notifications',
 
@@ -352,85 +565,117 @@ class _AppDrawer extends StatelessWidget {
                     },
                   ),
 
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(16, 14, 16, 8),
+                  const SizedBox(height: 20),
 
-                    child: Divider(),
+                  const _DrawerSectionLabel(label: 'ACCOUNT'),
+
+                  const SizedBox(height: 6),
+
+                  // --------------------------------------------
+                  // PROFILE
+                  // --------------------------------------------
+                  _DrawerItem(
+                    icon: Icons.person_outline_rounded,
+
+                    selectedIcon: Icons.person_rounded,
+
+                    title: 'Profile',
+
+                    selected: selectedIndex == 3,
+
+                    onTap: () {
+                      _openBottomTab(context, 3);
+                    },
                   ),
 
-                  // ==================================================
+                  // --------------------------------------------
                   // SETTINGS
-                  // ==================================================
-                  ExpansionTile(
-                    leading: const Icon(Icons.settings_outlined),
-
-                    title: const Text(
-                      'Settings',
-
-                      style: TextStyle(fontWeight: FontWeight.w500),
+                  // --------------------------------------------
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 3,
                     ),
 
-                    childrenPadding: const EdgeInsets.only(left: 18),
+                    child: ExpansionTile(
+                      tilePadding: const EdgeInsets.symmetric(horizontal: 13),
 
-                    children: [
-                      // ------------------------------------------------
-                      // PROFILE
-                      // ------------------------------------------------
+                      childrenPadding: const EdgeInsets.fromLTRB(14, 0, 6, 6),
 
-                      ListTile(
-                        leading: const Icon(Icons.person_outline),
-
-                        title: const Text('Profile'),
-
-                        selected: selectedIndex == 3,
-
-                        onTap: () {
-                          _openBottomTab(context, 3);
-                        },
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
 
-                      // ------------------------------------------------
-                      // PREFERENCES
-                      // ------------------------------------------------
-                      ListTile(
-                        leading: const Icon(Icons.tune_rounded),
-
-                        title: const Text('Preferences'),
-
-                        onTap: () {
-                          final messenger = ScaffoldMessenger.of(context);
-
-                          Navigator.pop(context);
-
-                          messenger.showSnackBar(
-                            const SnackBar(
-                              content: Text('Preferences screen coming soon.'),
-                            ),
-                          );
-                        },
+                      collapsedShape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
 
-                      // ------------------------------------------------
-                      // SECURITY
-                      // ------------------------------------------------
-                      ListTile(
-                        leading: const Icon(Icons.security_outlined),
+                      leading: Container(
+                        width: 38,
+                        height: 38,
 
-                        title: const Text('Security'),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3F4F6),
 
-                        onTap: () {
-                          final messenger = ScaffoldMessenger.of(context);
+                          borderRadius: BorderRadius.circular(12),
+                        ),
 
-                          Navigator.pop(context);
-
-                          messenger.showSnackBar(
-                            const SnackBar(
-                              content: Text('Security screen coming soon.'),
-                            ),
-                          );
-                        },
+                        child: const Icon(
+                          Icons.settings_outlined,
+                          size: 20,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
-                    ],
+
+                      title: const Text(
+                        'Settings',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+
+                      children: [
+                        _DrawerSubItem(
+                          icon: Icons.tune_rounded,
+
+                          title: 'Preferences',
+
+                          onTap: () {
+                            final messenger = ScaffoldMessenger.of(context);
+
+                            Navigator.pop(context);
+
+                            messenger.showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Preferences screen coming soon.',
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+
+                        _DrawerSubItem(
+                          icon: Icons.shield_outlined,
+
+                          title: 'Security',
+
+                          onTap: () {
+                            final messenger = ScaffoldMessenger.of(context);
+
+                            Navigator.pop(context);
+
+                            messenger.showSnackBar(
+                              const SnackBar(
+                                content: Text('Security screen coming soon.'),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -439,35 +684,58 @@ class _AppDrawer extends StatelessWidget {
             // ==================================================
             // LOGOUT
             // ==================================================
-            const Divider(height: 1),
-
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 18),
 
-              child: ListTile(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+              child: Material(
+                color: const Color(0xFFFFF5F5),
 
-                leading: const Icon(Icons.logout_rounded, color: Colors.red),
+                borderRadius: BorderRadius.circular(16),
 
-                title: const Text(
-                  'Logout',
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
 
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.w600,
+                  onTap: () {
+                    final userBloc = context.read<UserBloc>();
+
+                    Navigator.pop(context);
+
+                    userBloc.add(const UserLogoutRequested());
+                  },
+
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.logout_rounded,
+                          color: AppColors.error,
+                          size: 20,
+                        ),
+
+                        SizedBox(width: 12),
+
+                        Expanded(
+                          child: Text(
+                            'Sign out',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.error,
+                            ),
+                          ),
+                        ),
+
+                        Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 13,
+                          color: AppColors.error,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-
-                onTap: () {
-                  // Read BLoC before closing the drawer.
-                  final userBloc = context.read<UserBloc>();
-
-                  Navigator.pop(context);
-
-                  userBloc.add(const UserLogoutRequested());
-                },
               ),
             ),
           ],
@@ -477,17 +745,14 @@ class _AppDrawer extends StatelessWidget {
   }
 
   // ==========================================================
-  // OPEN BOTTOM NAVIGATION TAB
+  // OPEN BOTTOM TAB
   // ==========================================================
 
   void _openBottomTab(BuildContext context, int index) {
-    // Get reference before drawer is removed.
     final navigationBloc = context.read<NavigationBloc>();
 
-    // Close drawer.
     Navigator.pop(context);
 
-    // Change page.
     navigationBloc.add(NavigationTabChanged(index));
   }
 
@@ -496,11 +761,6 @@ class _AppDrawer extends StatelessWidget {
   // ==========================================================
 
   void _openPartners(BuildContext context) {
-    // Partners stays lazy-loaded.
-    //
-    // We do NOT create PartnersBloc in MainScreen because
-    // that would immediately load thousands of partners.
-
     final repository = context.read<DataRepository>();
 
     final navigator = Navigator.of(context);
@@ -508,7 +768,7 @@ class _AppDrawer extends StatelessWidget {
     // Close drawer.
     navigator.pop();
 
-    // Open Partners and create its BLoC only now.
+    // Partners stays lazy-loaded.
     navigator.push(
       MaterialPageRoute(
         builder: (_) => BlocProvider(
@@ -523,17 +783,49 @@ class _AppDrawer extends StatelessWidget {
 }
 
 // ============================================================
+// DRAWER SECTION LABEL
+// ============================================================
+
+class _DrawerSectionLabel extends StatelessWidget {
+  final String label;
+
+  const _DrawerSectionLabel({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.15,
+          color: AppColors.textSecondary,
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
 // DRAWER ITEM
 // ============================================================
 
 class _DrawerItem extends StatelessWidget {
   final IconData icon;
+  final IconData selectedIcon;
+
   final String title;
+
   final VoidCallback onTap;
+
   final bool selected;
 
   const _DrawerItem({
     required this.icon,
+    required this.selectedIcon,
     required this.title,
     required this.onTap,
     this.selected = false,
@@ -542,29 +834,125 @@ class _DrawerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
 
-      child: ListTile(
-        selected: selected,
+      child: Material(
+        color: selected
+            ? AppColors.primary.withValues(alpha: 0.08)
+            : Colors.transparent,
 
-        selectedColor: const Color(0xFF2563EB),
+        borderRadius: BorderRadius.circular(16),
 
-        selectedTileColor: const Color(0xFF2563EB).withValues(alpha: 0.08),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
 
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          onTap: onTap,
 
-        leading: Icon(icon),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
 
-        title: Text(
-          title,
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
 
-          style: TextStyle(
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? AppColors.primary.withValues(alpha: 0.10)
+                        : const Color(0xFFF3F4F6),
+
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+
+                  child: Icon(
+                    selected ? selectedIcon : icon,
+
+                    size: 20,
+
+                    color: selected
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: Text(
+                    title,
+
+                    style: TextStyle(
+                      fontSize: 14,
+
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+
+                      color: selected
+                          ? AppColors.primary
+                          : AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+
+                if (selected)
+                  Container(
+                    width: 6,
+                    height: 6,
+
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
-
-        onTap: onTap,
       ),
+    );
+  }
+}
+
+// ============================================================
+// DRAWER SUB ITEM
+// ============================================================
+
+class _DrawerSubItem extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+
+  const _DrawerSubItem({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      dense: true,
+
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+
+      leading: Icon(icon, size: 19, color: AppColors.textSecondary),
+
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary,
+        ),
+      ),
+
+      trailing: const Icon(
+        Icons.arrow_forward_ios_rounded,
+        size: 11,
+        color: AppColors.textSecondary,
+      ),
+
+      onTap: onTap,
     );
   }
 }

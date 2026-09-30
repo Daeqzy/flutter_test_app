@@ -5,6 +5,13 @@ import '../bloc/partner_connections/partner_connections_bloc.dart';
 import '../bloc/partner_connections/partner_connections_event.dart';
 import '../bloc/partner_connections/partner_connections_state.dart';
 
+import '../theme/app_theme.dart';
+import '../widgets/common/app_loading_view.dart';
+import '../widgets/common/app_error_view.dart';
+import '../widgets/common/app_empty_view.dart';
+
+import '../widgets/common/app_summary_card.dart';
+
 class PartnerConnectionsScreen extends StatelessWidget {
   final int tp;
   final int p;
@@ -20,24 +27,97 @@ class PartnerConnectionsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(partnerName)),
+      backgroundColor: AppColors.background,
 
+      // ========================================================
+      // APP BAR
+      // ========================================================
+      appBar: AppBar(
+        toolbarHeight: 72,
+        titleSpacing: 8,
+
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              partnerName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 19,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+              ),
+            ),
+
+            const SizedBox(height: 2),
+
+            const Text(
+              'Connections',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 14),
+            child: Material(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(14),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: () {
+                  context.read<PartnerConnectionsBloc>().add(
+                    PartnerConnectionsRequested(tp: tp, p: p),
+                  );
+                },
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.border),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(
+                    Icons.refresh_rounded,
+                    size: 21,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+
+      // ========================================================
+      // CONTENT
+      // ========================================================
       body: BlocBuilder<PartnerConnectionsBloc, PartnerConnectionsState>(
         builder: (context, state) {
-          // ------------------------------------------------
+          // ----------------------------------------------------
           // LOADING
-          // ------------------------------------------------
+          // ----------------------------------------------------
 
           if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const AppLoadingView(
+              title: 'Loading connections',
+              message: 'Retrieving connection records...',
+            );
           }
 
-          // ------------------------------------------------
+          // ----------------------------------------------------
           // ERROR
-          // ------------------------------------------------
+          // ----------------------------------------------------
 
           if (state.errorMessage != null) {
-            return _ErrorView(
+            return AppErrorView(
+              title: 'Unable to load connections',
               message: state.errorMessage!,
               onRetry: () {
                 context.read<PartnerConnectionsBloc>().add(
@@ -47,62 +127,71 @@ class PartnerConnectionsScreen extends StatelessWidget {
             );
           }
 
-          // ------------------------------------------------
+          // ----------------------------------------------------
           // EMPTY
-          // ------------------------------------------------
+          // ----------------------------------------------------
 
           if (state.connections.isEmpty) {
-            return _EmptyView(partnerName: partnerName);
+            return AppEmptyView(
+              icon: Icons.hub_outlined,
+              title: 'No connections found',
+              message: '$partnerName currently has no connection records.',
+            );
           }
 
-          // ------------------------------------------------
+          // ----------------------------------------------------
           // SUCCESS
-          // ------------------------------------------------
+          // ----------------------------------------------------
 
           return Column(
             children: [
-              // --------------------------------------------
-              // HEADER
-              // --------------------------------------------
+              // ==================================================
+              // SUMMARY
+              // ==================================================
 
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-
-                  children: [
-                    Text(
-                      'Connections',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+                child: AppSummaryCard(
+                  icon: Icons.hub_outlined,
+                  title: 'Connection records',
+                  subtitle:
+                      '${state.connections.length} connection${state.connections.length == 1 ? '' : 's'} available',
+                  detail: partnerName,
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 7,
                     ),
-
-                    const SizedBox(height: 4),
-
-                    Text(
-                      '${state.connections.length} '
-                      'connection${state.connections.length == 1 ? '' : 's'} found',
-
-                      style: Theme.of(context).textTheme.bodyMedium
-                          ?.copyWith(color: Colors.grey.shade600),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(18),
                     ),
-
-                    const SizedBox(height: 4),
-
-                    Text(
-                      'Tap a connection to view details',
-                      style: Theme.of(context).textTheme.bodySmall
-                          ?.copyWith(color: Colors.grey.shade500),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.touch_app_outlined,
+                          size: 13,
+                          color: Colors.white,
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          'Tap to expand',
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
 
-              // --------------------------------------------
-              // CONNECTION LIST
-              // --------------------------------------------
+              // ==================================================
+              // LIST
+              // ==================================================
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
@@ -112,7 +201,7 @@ class PartnerConnectionsScreen extends StatelessWidget {
                   },
 
                   child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
 
                     itemCount: state.connections.length,
 
@@ -129,192 +218,179 @@ class PartnerConnectionsScreen extends StatelessWidget {
                         os: connection.osInfo,
                       );
 
-                      return Card(
-                        elevation: 1,
-                        margin: EdgeInsets.zero,
-                        clipBehavior: Clip.antiAlias,
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(color: AppColors.border),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.025),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
 
-                        child: ExpansionTile(
-                          // Keeps expansion state
-                          // while scrolling.
-                          key: PageStorageKey(
-                            'connection_'
-                            '${connection.id ?? index}_'
-                            '$index',
-                          ),
+                        child: Theme(
+                          data: Theme.of(context)
+                              .copyWith(dividerColor: Colors.transparent),
 
-                          maintainState: true,
-
-                          tilePadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-
-                          childrenPadding: const EdgeInsets.fromLTRB(
-                            16,
-                            0,
-                            16,
-                            16,
-                          ),
-
-                          // ----------------------------
-                          // CONNECTION ICON
-                          // ----------------------------
-                          leading: Container(
-                            width: 46,
-                            height: 46,
-
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .primaryContainer,
-
-                              borderRadius: BorderRadius.circular(12),
+                          child: ExpansionTile(
+                            // IMPORTANT:
+                            // preserves expansion while scrolling
+                            key: PageStorageKey(
+                              'connection_'
+                              '${connection.id ?? index}_'
+                              '$index',
                             ),
 
-                            child: Icon(
-                              _getConnectionIcon(connection.naziv),
+                            maintainState: true,
 
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onPrimaryContainer,
+                            tilePadding: const EdgeInsets.fromLTRB(
+                              15,
+                              10,
+                              14,
+                              10,
                             ),
-                          ),
 
-                          // ----------------------------
-                          // CONNECTION NAME
-                          // ----------------------------
-                          title: Text(
-                            connection.naziv ?? 'Unnamed connection',
-
-                            maxLines: 2,
-
-                            overflow: TextOverflow.ellipsis,
-
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
+                            childrenPadding: const EdgeInsets.fromLTRB(
+                              16,
+                              0,
+                              16,
+                              17,
                             ),
-                          ),
 
-                          // ----------------------------
-                          // ID + STATUS
-                          // ----------------------------
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 6),
-
-                            child: Wrap(
-                              spacing: 8,
-                              runSpacing: 6,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-
-                              children: [
-                                if (connection.id != null)
-                                  Text(
-                                    'Connection #${connection.id}',
-
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-
-                                _StatusBadge(
-                                  isActive: connection.aktivenBool == true,
-
-                                  text:
-                                      connection.aktivenString ??
-                                      (connection.aktivenBool == true
-                                          ? 'Active'
-                                          : 'Inactive'),
-                                ),
-                              ],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(22),
                             ),
-                          ),
 
-                          // ----------------------------
-                          // EXPANDED CONTENT
-                          // ----------------------------
-                          children: [
-                            if (hasDetails) ...[
-                              const Divider(),
+                            collapsedShape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(22),
+                            ),
 
-                              const SizedBox(height: 8),
+                            // ==================================
+                            // ICON
+                            // ==================================
+                            leading: Container(
+                              width: 48,
+                              height: 48,
 
-                              if (_hasText(connection.adresa))
-                                _ConnectionInfoRow(
-                                  icon: Icons.location_on_outlined,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
 
-                                  label: 'Address',
-
-                                  value: connection.adresa!,
-                                ),
-
-                              if (_hasText(connection.publicIp))
-                                _ConnectionInfoRow(
-                                  icon: Icons.public,
-
-                                  label: 'Public IP',
-
-                                  value: connection.publicIp!,
-                                ),
-
-                              if (_hasText(connection.ddnsName))
-                                _ConnectionInfoRow(
-                                  icon: Icons.language,
-
-                                  label: 'DDNS',
-
-                                  value: connection.ddnsName!,
-                                ),
-
-                              if (_hasText(connection.lanInfo))
-                                _ConnectionInfoRow(
-                                  icon: Icons.lan_outlined,
-
-                                  label: 'LAN',
-
-                                  value: connection.lanInfo!,
-                                ),
-
-                              if (_hasText(connection.osInfo))
-                                _ConnectionInfoRow(
-                                  icon: Icons.desktop_windows_outlined,
-
-                                  label: 'OS',
-
-                                  value: connection.osInfo!,
-
-                                  isLast: true,
-                                ),
-                            ] else
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 8,
-                                  bottom: 4,
-                                ),
-
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.info_outline_rounded,
-                                      size: 18,
-                                      color: Colors.grey.shade500,
-                                    ),
-
-                                    const SizedBox(width: 8),
-
-                                    Text(
-                                      'No additional details available.',
-
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                      ),
-                                    ),
+                                  colors: [
+                                    AppColors.primary.withValues(alpha: 0.14),
+                                    AppColors.primary.withValues(alpha: 0.06),
                                   ],
                                 ),
+
+                                borderRadius: BorderRadius.circular(15),
                               ),
-                          ],
+
+                              child: Icon(
+                                _getConnectionIcon(connection.naziv),
+                                color: AppColors.primary,
+                                size: 22,
+                              ),
+                            ),
+
+                            // ==================================
+                            // NAME
+                            // ==================================
+                            title: Text(
+                              connection.naziv ?? 'Unnamed connection',
+
+                              maxLines: 2,
+
+                              overflow: TextOverflow.ellipsis,
+
+                              style: const TextStyle(
+                                fontSize: 15,
+                                height: 1.25,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+
+                            // ==================================
+                            // ID + STATUS
+                            // ==================================
+                            subtitle: Padding(
+                              padding: const EdgeInsets.only(top: 7),
+
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 6,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+
+                                children: [
+                                  if (connection.id != null)
+                                    _IdBadge(id: connection.id!),
+
+                                  _StatusBadge(
+                                    isActive: connection.aktivenBool == true,
+
+                                    text:
+                                        connection.aktivenString ??
+                                        (connection.aktivenBool == true
+                                            ? 'Active'
+                                            : 'Inactive'),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // ==================================
+                            // EXPANDED DETAILS
+                            // ==================================
+                            children: [
+                              const Divider(),
+
+                              const SizedBox(height: 12),
+
+                              if (hasDetails) ...[
+                                if (_hasText(connection.adresa))
+                                  _ConnectionInfoRow(
+                                    icon: Icons.location_on_outlined,
+                                    label: 'Address',
+                                    value: connection.adresa!,
+                                  ),
+
+                                if (_hasText(connection.publicIp))
+                                  _ConnectionInfoRow(
+                                    icon: Icons.public_rounded,
+                                    label: 'Public IP',
+                                    value: connection.publicIp!,
+                                  ),
+
+                                if (_hasText(connection.ddnsName))
+                                  _ConnectionInfoRow(
+                                    icon: Icons.language_rounded,
+                                    label: 'DDNS',
+                                    value: connection.ddnsName!,
+                                  ),
+
+                                if (_hasText(connection.lanInfo))
+                                  _ConnectionInfoRow(
+                                    icon: Icons.lan_outlined,
+                                    label: 'LAN',
+                                    value: connection.lanInfo!,
+                                  ),
+
+                                if (_hasText(connection.osInfo))
+                                  _ConnectionInfoRow(
+                                    icon: Icons.desktop_windows_outlined,
+                                    label: 'OS',
+                                    value: connection.osInfo!,
+                                    isLast: true,
+                                  ),
+                              ] else
+                                const _NoDetailsView(),
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -328,17 +404,17 @@ class PartnerConnectionsScreen extends StatelessWidget {
     );
   }
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // HAS TEXT
-  // ----------------------------------------------------------
+  // ==========================================================
 
   bool _hasText(String? value) {
     return value != null && value.trim().isNotEmpty;
   }
 
-  // ----------------------------------------------------------
-  // HAS CONNECTION DETAILS
-  // ----------------------------------------------------------
+  // ==========================================================
+  // HAS DETAILS
+  // ==========================================================
 
   bool _hasConnectionDetails({
     required String? address,
@@ -354,9 +430,9 @@ class PartnerConnectionsScreen extends StatelessWidget {
         _hasText(os);
   }
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // CONNECTION ICON
-  // ----------------------------------------------------------
+  // ==========================================================
 
   IconData _getConnectionIcon(String? name) {
     final value = name?.toLowerCase() ?? '';
@@ -377,9 +453,55 @@ class PartnerConnectionsScreen extends StatelessWidget {
   }
 }
 
-// ----------------------------------------------------------
+// ============================================================
+// ID BADGE
+// ============================================================
+
+class _IdBadge extends StatelessWidget {
+  final int id;
+
+  const _IdBadge({required this.id});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F7FB),
+
+        borderRadius: BorderRadius.circular(20),
+      ),
+
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+
+        children: [
+          const Icon(
+            Icons.tag_rounded,
+            size: 12,
+            color: AppColors.textSecondary,
+          ),
+
+          const SizedBox(width: 4),
+
+          Text(
+            '$id',
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
 // STATUS BADGE
-// ----------------------------------------------------------
+// ============================================================
 
 class _StatusBadge extends StatelessWidget {
   final bool isActive;
@@ -389,13 +511,13 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isActive ? Colors.green : Colors.grey;
+    final color = isActive ? AppColors.success : AppColors.textSecondary;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
 
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: color.withValues(alpha: 0.09),
 
         borderRadius: BorderRadius.circular(20),
       ),
@@ -404,22 +526,26 @@ class _StatusBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
 
         children: [
-          Icon(
-            isActive ? Icons.check_circle : Icons.cancel_outlined,
+          Container(
+            width: 6,
+            height: 6,
 
-            size: 14,
-            color: color,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
 
-          const SizedBox(width: 4),
+          const SizedBox(width: 5),
 
           Text(
             text.trim(),
 
+            maxLines: 1,
+
+            overflow: TextOverflow.ellipsis,
+
             style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
               color: color,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -428,9 +554,9 @@ class _StatusBadge extends StatelessWidget {
   }
 }
 
-// ----------------------------------------------------------
-// CONNECTION INFORMATION ROW
-// ----------------------------------------------------------
+// ============================================================
+// CONNECTION DETAIL ROW
+// ============================================================
 
 class _ConnectionInfoRow extends StatelessWidget {
   final IconData icon;
@@ -448,172 +574,113 @@ class _ConnectionInfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
 
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Container(
+        width: double.infinity,
 
-        children: [
-          Icon(icon, size: 19, color: Colors.grey.shade600),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
 
-          const SizedBox(width: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF7F9FC),
 
-          SizedBox(
-            width: 75,
+          borderRadius: BorderRadius.circular(14),
+        ),
 
-            child: Text(
-              label,
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w500,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.08),
+
+                borderRadius: BorderRadius.circular(10),
+              ),
+
+              child: Icon(icon, size: 17, color: AppColors.primary),
+            ),
+
+            const SizedBox(width: 11),
+
+            SizedBox(
+              width: 72,
+
+              child: Padding(
+                padding: const EdgeInsets.only(top: 2),
+
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
               ),
             ),
+
+            const SizedBox(width: 6),
+
+            Expanded(
+              child: Text(
+                value.trim(),
+
+                style: const TextStyle(
+                  fontSize: 12,
+                  height: 1.4,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// NO DETAILS
+// ============================================================
+
+class _NoDetailsView extends StatelessWidget {
+  const _NoDetailsView();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.all(14),
+
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F9FC),
+
+        borderRadius: BorderRadius.circular(14),
+      ),
+
+      child: const Row(
+        children: [
+          Icon(
+            Icons.info_outline_rounded,
+            size: 18,
+            color: AppColors.textSecondary,
           ),
 
-          const SizedBox(width: 8),
+          SizedBox(width: 9),
 
           Expanded(
             child: Text(
-              value.trim(),
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              'No additional details available for this connection.',
+              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ----------------------------------------------------------
-// EMPTY VIEW
-// ----------------------------------------------------------
-
-class _EmptyView extends StatelessWidget {
-  final String partnerName;
-
-  const _EmptyView({required this.partnerName});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-
-                shape: BoxShape.circle,
-              ),
-
-              child: Icon(
-                Icons.link_off_rounded,
-
-                size: 38,
-
-                color: Colors.grey.shade600,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              'No connections found',
-
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 8),
-
-            Text(
-              '$partnerName currently has no connection records.',
-
-              textAlign: TextAlign.center,
-
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ----------------------------------------------------------
-// ERROR VIEW
-// ----------------------------------------------------------
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorView({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.08),
-
-                shape: BoxShape.circle,
-              ),
-
-              child: const Icon(
-                Icons.error_outline_rounded,
-
-                size: 40,
-
-                color: Colors.red,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            const Text(
-              'Unable to load connections',
-
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 8),
-
-            Text(
-              message,
-
-              textAlign: TextAlign.center,
-
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-
-            const SizedBox(height: 20),
-
-            FilledButton.icon(
-              onPressed: onRetry,
-
-              icon: const Icon(Icons.refresh),
-
-              label: const Text('Try again'),
-            ),
-          ],
-        ),
       ),
     );
   }
