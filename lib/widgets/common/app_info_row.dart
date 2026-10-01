@@ -38,7 +38,6 @@ class AppInfoRow extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // ICON
             Container(
               width: 36,
               height: 36,
@@ -51,7 +50,6 @@ class AppInfoRow extends StatelessWidget {
 
             const SizedBox(width: 11),
 
-            // LABEL + VALUE
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,7 +89,6 @@ class AppInfoRow extends StatelessWidget {
               ),
             ),
 
-            // OPTIONAL ACTION
             if (onTap != null) ...[
               const SizedBox(width: 8),
 

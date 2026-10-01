@@ -9,8 +9,9 @@ import '../theme/app_theme.dart';
 import '../widgets/common/app_loading_view.dart';
 import '../widgets/common/app_error_view.dart';
 import '../widgets/common/app_empty_view.dart';
-
 import '../widgets/common/app_summary_card.dart';
+import '../widgets/common/app_info_row.dart';
+import '../widgets/common/app_status_badge.dart';
 
 class PartnerConnectionsScreen extends StatelessWidget {
   final int tp;
@@ -330,14 +331,20 @@ class PartnerConnectionsScreen extends StatelessWidget {
                                   if (connection.id != null)
                                     _IdBadge(id: connection.id!),
 
-                                  _StatusBadge(
-                                    isActive: connection.aktivenBool == true,
-
+                                  AppStatusBadge(
                                     text:
-                                        connection.aktivenString ??
-                                        (connection.aktivenBool == true
-                                            ? 'Active'
-                                            : 'Inactive'),
+                                        connection.aktivenString
+                                                ?.trim()
+                                                .isNotEmpty ==
+                                            true
+                                        ? connection.aktivenString!
+                                        : (connection.aktivenBool == true
+                                              ? 'Active'
+                                              : 'Inactive'),
+                                    color: connection.aktivenBool == true
+                                        ? AppColors.success
+                                        : AppColors.textSecondary,
+                                    showDot: true,
                                   ),
                                 ],
                               ),
@@ -353,36 +360,36 @@ class PartnerConnectionsScreen extends StatelessWidget {
 
                               if (hasDetails) ...[
                                 if (_hasText(connection.adresa))
-                                  _ConnectionInfoRow(
+                                  AppInfoRow(
                                     icon: Icons.location_on_outlined,
                                     label: 'Address',
                                     value: connection.adresa!,
                                   ),
 
                                 if (_hasText(connection.publicIp))
-                                  _ConnectionInfoRow(
+                                  AppInfoRow(
                                     icon: Icons.public_rounded,
                                     label: 'Public IP',
                                     value: connection.publicIp!,
                                   ),
 
                                 if (_hasText(connection.ddnsName))
-                                  _ConnectionInfoRow(
+                                  AppInfoRow(
                                     icon: Icons.language_rounded,
                                     label: 'DDNS',
                                     value: connection.ddnsName!,
                                   ),
 
                                 if (_hasText(connection.lanInfo))
-                                  _ConnectionInfoRow(
+                                  AppInfoRow(
                                     icon: Icons.lan_outlined,
                                     label: 'LAN',
                                     value: connection.lanInfo!,
                                   ),
 
                                 if (_hasText(connection.osInfo))
-                                  _ConnectionInfoRow(
-                                    icon: Icons.desktop_windows_outlined,
+                                  AppInfoRow(
+                                    icon: Icons.computer_outlined,
                                     label: 'OS',
                                     value: connection.osInfo!,
                                     isLast: true,
@@ -494,151 +501,6 @@ class _IdBadge extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ============================================================
-// STATUS BADGE
-// ============================================================
-
-class _StatusBadge extends StatelessWidget {
-  final bool isActive;
-  final String text;
-
-  const _StatusBadge({required this.isActive, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isActive ? AppColors.success : AppColors.textSecondary;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.09),
-
-        borderRadius: BorderRadius.circular(20),
-      ),
-
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-
-          const SizedBox(width: 5),
-
-          Text(
-            text.trim(),
-
-            maxLines: 1,
-
-            overflow: TextOverflow.ellipsis,
-
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================
-// CONNECTION DETAIL ROW
-// ============================================================
-
-class _ConnectionInfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool isLast;
-
-  const _ConnectionInfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.isLast = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
-
-      child: Container(
-        width: double.infinity,
-
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-
-        decoration: BoxDecoration(
-          color: const Color(0xFFF7F9FC),
-
-          borderRadius: BorderRadius.circular(14),
-        ),
-
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-
-          children: [
-            Container(
-              width: 34,
-              height: 34,
-
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
-
-                borderRadius: BorderRadius.circular(10),
-              ),
-
-              child: Icon(icon, size: 17, color: AppColors.primary),
-            ),
-
-            const SizedBox(width: 11),
-
-            SizedBox(
-              width: 72,
-
-              child: Padding(
-                padding: const EdgeInsets.only(top: 2),
-
-                child: Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(width: 6),
-
-            Expanded(
-              child: Text(
-                value.trim(),
-
-                style: const TextStyle(
-                  fontSize: 12,
-                  height: 1.4,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

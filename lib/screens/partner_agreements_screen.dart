@@ -12,6 +12,7 @@ import '../widgets/common/app_error_view.dart';
 import '../widgets/common/app_empty_view.dart';
 import '../widgets/common/app_summary_card.dart';
 import '../widgets/common/app_info_row.dart';
+import '../widgets/common/app_status_badge.dart';
 
 class PartnerAgreementsScreen extends StatelessWidget {
   final int tp;
@@ -319,7 +320,13 @@ class PartnerAgreementsScreen extends StatelessWidget {
                                 if (status.isNotEmpty) ...[
                                   const SizedBox(width: 8),
 
-                                  _StatusBadge(status: status),
+                                  AppStatusBadge(
+                                    text: status,
+                                    color: _isValidStatus(status)
+                                        ? AppColors.success
+                                        : AppColors.error,
+                                    showDot: true,
+                                  ),
                                 ],
                               ],
                             ),
@@ -334,7 +341,7 @@ class PartnerAgreementsScreen extends StatelessWidget {
                             // TYPE
                             // ==================================
                             if (_hasText(agreement.vidDogovorShow))
-                              _AgreementInfoRow(
+                              AppInfoRow(
                                 icon: Icons.category_outlined,
                                 label: 'Type',
                                 value: agreement.vidDogovorShow!,
@@ -344,7 +351,7 @@ class PartnerAgreementsScreen extends StatelessWidget {
                             // DESCRIPTION
                             // ==================================
                             if (_hasText(agreement.opis))
-                              _AgreementInfoRow(
+                              AppInfoRow(
                                 icon: Icons.notes_outlined,
                                 label: 'Description',
                                 value: agreement.opis!,
@@ -354,21 +361,21 @@ class PartnerAgreementsScreen extends StatelessWidget {
                             // DATES
                             // ==================================
                             if (agreement.datumPotpis != null)
-                              _AgreementInfoRow(
+                              AppInfoRow(
                                 icon: Icons.edit_calendar_outlined,
                                 label: 'Signed',
                                 value: _formatDate(agreement.datumPotpis!),
                               ),
 
                             if (agreement.datumOd != null)
-                              _AgreementInfoRow(
+                              AppInfoRow(
                                 icon: Icons.play_circle_outline_rounded,
                                 label: 'From',
                                 value: _formatDate(agreement.datumOd!),
                               ),
 
                             if (agreement.datumDo != null)
-                              _AgreementInfoRow(
+                              AppInfoRow(
                                 icon: Icons.event_available_outlined,
                                 label: 'Until',
                                 value: _formatDate(agreement.datumDo!),
@@ -461,162 +468,6 @@ class _AgreementNumberBadge extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ============================================================
-// STATUS BADGE
-// ============================================================
-
-class _StatusBadge extends StatelessWidget {
-  final String status;
-
-  const _StatusBadge({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final normalized = status.trim().toUpperCase();
-
-    // IMPORTANT:
-    // exact comparison because НЕВАЖЕЧКИ
-    // also contains the word ВАЖЕЧКИ.
-    final isValid = normalized == 'ВАЖЕЧКИ';
-
-    final color = isValid ? AppColors.success : AppColors.error;
-
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 110),
-
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.09),
-
-        borderRadius: BorderRadius.circular(20),
-      ),
-
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-
-          const SizedBox(width: 5),
-
-          Flexible(
-            child: Text(
-              status.trim(),
-
-              maxLines: 1,
-
-              overflow: TextOverflow.ellipsis,
-
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================
-// AGREEMENT INFO ROW
-// ============================================================
-
-class _AgreementInfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool isLast;
-
-  const _AgreementInfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.isLast = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
-
-      child: Container(
-        width: double.infinity,
-
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-
-        decoration: BoxDecoration(
-          color: const Color(0xFFF7F9FC),
-
-          borderRadius: BorderRadius.circular(14),
-        ),
-
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-
-          children: [
-            Container(
-              width: 34,
-              height: 34,
-
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
-
-                borderRadius: BorderRadius.circular(10),
-              ),
-
-              child: Icon(icon, size: 17, color: AppColors.primary),
-            ),
-
-            const SizedBox(width: 11),
-
-            SizedBox(
-              width: 78,
-
-              child: Padding(
-                padding: const EdgeInsets.only(top: 2),
-
-                child: Text(
-                  label,
-
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(width: 6),
-
-            Expanded(
-              child: Text(
-                value.trim(),
-
-                style: const TextStyle(
-                  fontSize: 12,
-                  height: 1.4,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

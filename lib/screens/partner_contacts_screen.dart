@@ -10,6 +10,7 @@ import '../widgets/common/app_summary_card.dart';
 import '../widgets/common/app_loading_view.dart';
 import '../widgets/common/app_error_view.dart';
 import '../widgets/common/app_empty_view.dart';
+import '../widgets/common/app_info_row.dart';
 
 import '../theme/app_theme.dart';
 
@@ -326,10 +327,11 @@ class PartnerContactsScreen extends StatelessWidget {
                             // PHONE
                             // ==================================
                             if (_hasText(contact.tel))
-                              _ContactInfoRow(
+                              AppInfoRow(
                                 icon: Icons.phone_outlined,
                                 label: 'Phone',
                                 value: contact.tel!,
+                                selectable: true,
                                 actionIcon: Icons.call_rounded,
                                 onTap: () {
                                   _openPhone(context, contact.tel!);
@@ -340,10 +342,11 @@ class PartnerContactsScreen extends StatelessWidget {
                             // MOBILE
                             // ==================================
                             if (_hasText(contact.mobilen))
-                              _ContactInfoRow(
+                              AppInfoRow(
                                 icon: Icons.smartphone_outlined,
                                 label: 'Mobile',
                                 value: contact.mobilen!,
+                                selectable: true,
                                 actionIcon: Icons.call_rounded,
                                 onTap: () {
                                   _openPhone(context, contact.mobilen!);
@@ -354,10 +357,11 @@ class PartnerContactsScreen extends StatelessWidget {
                             // EMAIL
                             // ==================================
                             if (_hasText(contact.mail))
-                              _ContactInfoRow(
+                              AppInfoRow(
                                 icon: Icons.email_outlined,
                                 label: 'Email',
                                 value: contact.mail!,
+                                selectable: true,
                                 actionIcon: Icons.send_outlined,
                                 onTap: () {
                                   _openEmail(context, contact.mail!);
@@ -368,10 +372,11 @@ class PartnerContactsScreen extends StatelessWidget {
                             // DESCRIPTION
                             // ==================================
                             if (_hasText(contact.opis))
-                              _ContactInfoRow(
+                              AppInfoRow(
                                 icon: Icons.notes_outlined,
                                 label: 'Description',
                                 value: contact.opis!,
+                                selectable: true,
                                 isLast: true,
                               ),
                           ],
@@ -509,128 +514,6 @@ class _ContactIdBadge extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ============================================================
-// CONTACT INFORMATION ROW
-// ============================================================
-
-class _ContactInfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-
-  final IconData? actionIcon;
-  final VoidCallback? onTap;
-
-  final bool isLast;
-
-  const _ContactInfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.actionIcon,
-    this.onTap,
-    this.isLast = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
-
-      child: Container(
-        width: double.infinity,
-
-        padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
-
-        decoration: BoxDecoration(
-          color: const Color(0xFFF7F9FC),
-
-          borderRadius: BorderRadius.circular(14),
-        ),
-
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // --------------------------------------------------
-            // ICON
-            // --------------------------------------------------
-
-            Container(
-              width: 36,
-              height: 36,
-
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(11),
-              ),
-
-              child: Icon(icon, size: 17, color: AppColors.primary),
-            ),
-
-            const SizedBox(width: 11),
-
-            // --------------------------------------------------
-            // LABEL + VALUE
-            // --------------------------------------------------
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-
-                  const SizedBox(height: 3),
-
-                  SelectableText(
-                    value.trim(),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      height: 1.35,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // --------------------------------------------------
-            // ACTION
-            // --------------------------------------------------
-            if (onTap != null) ...[
-              const SizedBox(width: 8),
-
-              Material(
-                color: AppColors.primary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: onTap,
-                  child: SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: Icon(
-                      actionIcon ?? Icons.arrow_outward_rounded,
-                      size: 18,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
       ),
     );
   }
