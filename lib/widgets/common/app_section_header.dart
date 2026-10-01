@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
-
 class AppSectionHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
@@ -10,15 +8,17 @@ class AppSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
+            color: colors.onSurface,
             letterSpacing: -0.4,
           ),
         ),
@@ -28,10 +28,7 @@ class AppSectionHeader extends StatelessWidget {
 
           Text(
             subtitle!,
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.textSecondary,
-            ),
+            style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
           ),
         ],
       ],

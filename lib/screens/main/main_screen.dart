@@ -29,6 +29,7 @@ import '../services/services_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../profile/profile_screen.dart';
 import '../home/partners_screen.dart';
+import '../preferences/preferences_screen.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -87,19 +88,24 @@ class MainScreen extends StatelessWidget {
           builder: (context, state) {
             final pageTitle = _pageTitles[state.selectedIndex];
 
+            final colors = Theme.of(context).colorScheme;
+
             return Scaffold(
-              backgroundColor: AppColors.background,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
               // ==================================================
               // APP BAR
               // ==================================================
               appBar: AppBar(
                 toolbarHeight: 76,
-
                 titleSpacing: 20,
 
                 title: Row(
                   children: [
+                    // ------------------------------------------------
+                    // CODEX ICON
+                    // ------------------------------------------------
+
                     Container(
                       width: 42,
                       height: 42,
@@ -131,19 +137,21 @@ class MainScreen extends StatelessWidget {
 
                     const SizedBox(width: 13),
 
+                    // ------------------------------------------------
+                    // APP TITLE
+                    // ------------------------------------------------
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-
                         mainAxisSize: MainAxisSize.min,
 
                         children: [
-                          const Text(
+                          Text(
                             'CODEX',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
+                              color: colors.onSurface,
                               letterSpacing: -0.4,
                             ),
                           ),
@@ -152,10 +160,10 @@ class MainScreen extends StatelessWidget {
 
                           Text(
                             pageTitle,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary,
+                              color: colors.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -175,7 +183,7 @@ class MainScreen extends StatelessWidget {
                         padding: const EdgeInsets.only(right: 14),
 
                         child: Material(
-                          color: AppColors.surface,
+                          color: colors.surface,
 
                           borderRadius: BorderRadius.circular(14),
 
@@ -191,14 +199,16 @@ class MainScreen extends StatelessWidget {
                               height: 44,
 
                               decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.border),
+                                border: Border.all(
+                                  color: colors.outlineVariant,
+                                ),
 
                                 borderRadius: BorderRadius.circular(14),
                               ),
 
-                              child: const Icon(
+                              child: Icon(
                                 Icons.menu_rounded,
-                                color: AppColors.textPrimary,
+                                color: colors.onSurface,
                                 size: 22,
                               ),
                             ),
@@ -245,18 +255,21 @@ class MainScreen extends StatelessWidget {
                     ),
 
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: colors.surface,
 
                       borderRadius: BorderRadius.circular(24),
 
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: colors.outlineVariant),
 
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.07),
-
+                          color: Colors.black.withValues(
+                            alpha:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? 0.20
+                                : 0.07,
+                          ),
                           blurRadius: 28,
-
                           offset: const Offset(0, 10),
                         ),
                       ],
@@ -269,12 +282,12 @@ class MainScreen extends StatelessWidget {
 
                       iconSize: 22,
 
-                      color: AppColors.textSecondary,
+                      color: colors.onSurfaceVariant,
 
-                      activeColor: AppColors.primary,
+                      activeColor: colors.primary,
 
-                      tabBackgroundColor: AppColors.primary.withValues(
-                        alpha: 0.09,
+                      tabBackgroundColor: colors.primary.withValues(
+                        alpha: 0.10,
                       ),
 
                       tabBorderRadius: 17,
@@ -288,8 +301,8 @@ class MainScreen extends StatelessWidget {
 
                       curve: Curves.easeOutCubic,
 
-                      textStyle: const TextStyle(
-                        color: AppColors.primary,
+                      textStyle: TextStyle(
+                        color: colors.primary,
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                       ),
@@ -341,8 +354,10 @@ class _AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Drawer(
-      backgroundColor: AppColors.surface,
+      backgroundColor: colors.surface,
 
       child: SafeArea(
         child: Column(
@@ -363,7 +378,6 @@ class _AppDrawer extends StatelessWidget {
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-
                     colors: [AppColors.primary, AppColors.primaryDark],
                   ),
 
@@ -372,9 +386,7 @@ class _AppDrawer extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.primary.withValues(alpha: 0.18),
-
                       blurRadius: 22,
-
                       offset: const Offset(0, 8),
                     ),
                   ],
@@ -404,7 +416,6 @@ class _AppDrawer extends StatelessWidget {
 
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.16),
-
                                 borderRadius: BorderRadius.circular(15),
                               ),
 
@@ -425,7 +436,6 @@ class _AppDrawer extends StatelessWidget {
 
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.15),
-
                                 borderRadius: BorderRadius.circular(20),
                               ),
 
@@ -504,11 +514,8 @@ class _AppDrawer extends StatelessWidget {
                   // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.dashboard_outlined,
-
                     selectedIcon: Icons.dashboard_rounded,
-
                     title: 'Dashboard',
-
                     selected: selectedIndex == 0,
 
                     onTap: () {
@@ -521,9 +528,7 @@ class _AppDrawer extends StatelessWidget {
                   // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.business_outlined,
-
                     selectedIcon: Icons.business_rounded,
-
                     title: 'Partners',
 
                     onTap: () {
@@ -536,11 +541,8 @@ class _AppDrawer extends StatelessWidget {
                   // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.grid_view_outlined,
-
                     selectedIcon: Icons.grid_view_rounded,
-
                     title: 'Services',
-
                     selected: selectedIndex == 1,
 
                     onTap: () {
@@ -553,11 +555,8 @@ class _AppDrawer extends StatelessWidget {
                   // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.notifications_none_rounded,
-
                     selectedIcon: Icons.notifications_rounded,
-
                     title: 'Notifications',
-
                     selected: selectedIndex == 2,
 
                     onTap: () {
@@ -576,11 +575,8 @@ class _AppDrawer extends StatelessWidget {
                   // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.person_outline_rounded,
-
                     selectedIcon: Icons.person_rounded,
-
                     title: 'Profile',
-
                     selected: selectedIndex == 3,
 
                     onTap: () {
@@ -597,84 +593,98 @@ class _AppDrawer extends StatelessWidget {
                       vertical: 3,
                     ),
 
-                    child: ExpansionTile(
-                      tilePadding: const EdgeInsets.symmetric(horizontal: 13),
+                    child: Theme(
+                      data: Theme.of(context)
+                          .copyWith(dividerColor: Colors.transparent),
 
-                      childrenPadding: const EdgeInsets.fromLTRB(14, 0, 6, 6),
+                      child: ExpansionTile(
+                        tilePadding: const EdgeInsets.symmetric(horizontal: 13),
 
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                        childrenPadding: const EdgeInsets.fromLTRB(14, 0, 6, 6),
 
-                      collapsedShape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-
-                      leading: Container(
-                        width: 38,
-                        height: 38,
-
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF3F4F6),
-
-                          borderRadius: BorderRadius.circular(12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
 
-                        child: const Icon(
-                          Icons.settings_outlined,
-                          size: 20,
-                          color: AppColors.textSecondary,
+                        collapsedShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                      ),
 
-                      title: const Text(
-                        'Settings',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                        leading: Container(
+                          width: 38,
+                          height: 38,
+
+                          decoration: BoxDecoration(
+                            color: colors.surfaceContainerHighest,
+
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+
+                          child: Icon(
+                            Icons.settings_outlined,
+                            size: 20,
+                            color: colors.onSurfaceVariant,
+                          ),
                         ),
-                      ),
 
-                      children: [
-                        _DrawerSubItem(
-                          icon: Icons.tune_rounded,
+                        title: Text(
+                          'Settings',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: colors.onSurface,
+                          ),
+                        ),
 
-                          title: 'Preferences',
+                        iconColor: colors.onSurfaceVariant,
 
-                          onTap: () {
-                            final messenger = ScaffoldMessenger.of(context);
+                        collapsedIconColor: colors.onSurfaceVariant,
 
-                            Navigator.pop(context);
+                        children: [
+                          // ====================================
+                          // PREFERENCES
+                          // ====================================
 
-                            messenger.showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Preferences screen coming soon.',
+                          _DrawerSubItem(
+                            icon: Icons.tune_rounded,
+                            title: 'Preferences',
+
+                            onTap: () {
+                              final navigator = Navigator.of(context);
+
+                              // Close drawer.
+                              navigator.pop();
+
+                              // Open Preferences.
+                              navigator.push(
+                                MaterialPageRoute(
+                                  builder: (_) => const PreferencesScreen(),
                                 ),
-                              ),
-                            );
-                          },
-                        ),
+                              );
+                            },
+                          ),
 
-                        _DrawerSubItem(
-                          icon: Icons.shield_outlined,
+                          // ====================================
+                          // SECURITY
+                          // ====================================
+                          _DrawerSubItem(
+                            icon: Icons.shield_outlined,
+                            title: 'Security',
 
-                          title: 'Security',
+                            onTap: () {
+                              final messenger = ScaffoldMessenger.of(context);
 
-                          onTap: () {
-                            final messenger = ScaffoldMessenger.of(context);
+                              Navigator.pop(context);
 
-                            Navigator.pop(context);
-
-                            messenger.showSnackBar(
-                              const SnackBar(
-                                content: Text('Security screen coming soon.'),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+                              messenger.showSnackBar(
+                                const SnackBar(
+                                  content: Text('Security screen coming soon.'),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -688,7 +698,7 @@ class _AppDrawer extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 18),
 
               child: Material(
-                color: const Color(0xFFFFF5F5),
+                color: colors.error.withValues(alpha: 0.08),
 
                 borderRadius: BorderRadius.circular(16),
 
@@ -703,18 +713,21 @@ class _AppDrawer extends StatelessWidget {
                     userBloc.add(const UserLogoutRequested());
                   },
 
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 13,
+                    ),
 
                     child: Row(
                       children: [
                         Icon(
                           Icons.logout_rounded,
-                          color: AppColors.error,
+                          color: colors.error,
                           size: 20,
                         ),
 
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
 
                         Expanded(
                           child: Text(
@@ -722,7 +735,7 @@ class _AppDrawer extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.error,
+                              color: colors.error,
                             ),
                           ),
                         ),
@@ -730,7 +743,7 @@ class _AppDrawer extends StatelessWidget {
                         Icon(
                           Icons.arrow_forward_ios_rounded,
                           size: 13,
-                          color: AppColors.error,
+                          color: colors.error,
                         ),
                       ],
                     ),
@@ -793,16 +806,19 @@ class _DrawerSectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
 
       child: Text(
         label,
-        style: const TextStyle(
+
+        style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w800,
           letterSpacing: 1.15,
-          color: AppColors.textSecondary,
+          color: colors.onSurfaceVariant,
         ),
       ),
     );
@@ -833,12 +849,14 @@ class _DrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
 
       child: Material(
         color: selected
-            ? AppColors.primary.withValues(alpha: 0.08)
+            ? colors.primary.withValues(alpha: 0.10)
             : Colors.transparent,
 
         borderRadius: BorderRadius.circular(16),
@@ -859,8 +877,8 @@ class _DrawerItem extends StatelessWidget {
 
                   decoration: BoxDecoration(
                     color: selected
-                        ? AppColors.primary.withValues(alpha: 0.10)
-                        : const Color(0xFFF3F4F6),
+                        ? colors.primary.withValues(alpha: 0.12)
+                        : colors.surfaceContainerHighest,
 
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -870,9 +888,7 @@ class _DrawerItem extends StatelessWidget {
 
                     size: 20,
 
-                    color: selected
-                        ? AppColors.primary
-                        : AppColors.textSecondary,
+                    color: selected ? colors.primary : colors.onSurfaceVariant,
                   ),
                 ),
 
@@ -887,9 +903,7 @@ class _DrawerItem extends StatelessWidget {
 
                       fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
 
-                      color: selected
-                          ? AppColors.primary
-                          : AppColors.textPrimary,
+                      color: selected ? colors.primary : colors.onSurface,
                     ),
                   ),
                 ),
@@ -899,8 +913,8 @@ class _DrawerItem extends StatelessWidget {
                     width: 6,
                     height: 6,
 
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
+                    decoration: BoxDecoration(
+                      color: colors.primary,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -930,26 +944,28 @@ class _DrawerSubItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return ListTile(
       dense: true,
 
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
 
-      leading: Icon(icon, size: 19, color: AppColors.textSecondary),
+      leading: Icon(icon, size: 19, color: colors.onSurfaceVariant),
 
       title: Text(
         title,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
+          color: colors.onSurface,
         ),
       ),
 
-      trailing: const Icon(
+      trailing: Icon(
         Icons.arrow_forward_ios_rounded,
         size: 11,
-        color: AppColors.textSecondary,
+        color: colors.onSurfaceVariant,
       ),
 
       onTap: onTap,

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
-
 class AppInfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -26,13 +24,15 @@ class AppInfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Padding(
       padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
         decoration: BoxDecoration(
-          color: const Color(0xFFF7F9FC),
+          color: colors.surfaceContainerHighest.withValues(alpha: 0.55),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
@@ -42,10 +42,10 @@ class AppInfoRow extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
+                color: colors.primary.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(11),
               ),
-              child: Icon(icon, size: 17, color: AppColors.primary),
+              child: Icon(icon, size: 17, color: colors.primary),
             ),
 
             const SizedBox(width: 11),
@@ -56,10 +56,10 @@ class AppInfoRow extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.textSecondary,
+                      color: colors.onSurfaceVariant,
                     ),
                   ),
 
@@ -68,21 +68,21 @@ class AppInfoRow extends StatelessWidget {
                   if (selectable)
                     SelectableText(
                       value.trim(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         height: 1.4,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: colors.onSurface,
                       ),
                     )
                   else
                     Text(
                       value.trim(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         height: 1.4,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: colors.onSurface,
                       ),
                     ),
                 ],
@@ -93,7 +93,7 @@ class AppInfoRow extends StatelessWidget {
               const SizedBox(width: 8),
 
               Material(
-                color: AppColors.primary.withValues(alpha: 0.08),
+                color: colors.primary.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(12),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(12),
@@ -104,7 +104,7 @@ class AppInfoRow extends StatelessWidget {
                     child: Icon(
                       actionIcon ?? Icons.arrow_outward_rounded,
                       size: 18,
-                      color: AppColors.primary,
+                      color: colors.primary,
                     ),
                   ),
                 ),

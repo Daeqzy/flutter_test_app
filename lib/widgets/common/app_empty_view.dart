@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
-
 class AppEmptyView extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -26,7 +24,9 @@ class AppEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedBadgeColor = badgeColor ?? AppColors.primary;
+    final colors = Theme.of(context).colorScheme;
+
+    final resolvedBadgeColor = badgeColor ?? colors.primary;
 
     final content = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 38),
@@ -37,10 +37,10 @@ class AppEmptyView extends StatelessWidget {
             width: 68,
             height: 68,
             decoration: BoxDecoration(
-              color: const Color(0xFFF4F7FB),
+              color: colors.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Icon(icon, size: 30, color: AppColors.textSecondary),
+            child: Icon(icon, size: 30, color: colors.onSurfaceVariant),
           ),
 
           const SizedBox(height: 18),
@@ -48,10 +48,10 @@ class AppEmptyView extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: colors.onSurface,
             ),
           ),
 
@@ -60,10 +60,10 @@ class AppEmptyView extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               height: 1.5,
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color: colors.onSurfaceVariant,
             ),
           ),
 
@@ -73,7 +73,7 @@ class AppEmptyView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: resolvedBadgeColor.withValues(alpha: 0.08),
+                color: resolvedBadgeColor.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -81,6 +81,7 @@ class AppEmptyView extends StatelessWidget {
                 children: [
                   if (badgeIcon != null) ...[
                     Icon(badgeIcon, size: 15, color: resolvedBadgeColor),
+
                     const SizedBox(width: 6),
                   ],
 
@@ -107,9 +108,9 @@ class AppEmptyView extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: colors.outlineVariant),
       ),
       child: content,
     );

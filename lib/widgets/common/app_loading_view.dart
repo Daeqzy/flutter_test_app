@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
-
 class AppLoadingView extends StatelessWidget {
   final String title;
   final String message;
@@ -16,6 +14,8 @@ class AppLoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     final content = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 38),
       child: Column(
@@ -25,11 +25,14 @@ class AppLoadingView extends StatelessWidget {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.08),
+              color: colors.primary.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(22),
             ),
-            child: const Center(
-              child: CircularProgressIndicator(strokeWidth: 2.5),
+            child: Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: colors.primary,
+              ),
             ),
           ),
 
@@ -38,10 +41,10 @@ class AppLoadingView extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+              color: colors.onSurface,
             ),
           ),
 
@@ -50,10 +53,10 @@ class AppLoadingView extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               height: 1.4,
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color: colors.onSurfaceVariant,
             ),
           ),
         ],
@@ -67,9 +70,9 @@ class AppLoadingView extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: colors.outlineVariant),
       ),
       child: content,
     );

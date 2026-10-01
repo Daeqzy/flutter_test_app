@@ -9,6 +9,10 @@ import 'data_sources/user_data_sources.dart';
 import 'bloc/user/user_bloc.dart';
 import 'bloc/user/user_event.dart';
 
+import 'bloc/preferences/preferences_bloc.dart';
+import 'bloc/preferences/preferences_event.dart';
+import 'bloc/preferences/preferences_state.dart';
+
 import 'repositories/user_repository.dart';
 import 'repositories/data_repository.dart';
 
@@ -17,6 +21,7 @@ import 'network_service/auth_interceptor.dart';
 
 import 'services/biometric_service.dart';
 import 'services/auth_session_service.dart';
+import 'services/preferences_service.dart';
 
 import 'screens/login/login_screen.dart';
 
@@ -69,14 +74,29 @@ void main() {
     RepositoryProvider<DataRepository>.value(
       value: dataRepository,
 
-      child: BlocProvider(
-        create: (_) => UserBloc(
-          UserRepository(UserDataSource(), dataRepository),
+      child: MultiBlocProvider(
+        providers: [
+          // ------------------------------------------------------
+          // USER BLOC
+          // ------------------------------------------------------
 
-          BiometricService(),
+          BlocProvider(
+            create: (_) => UserBloc(
+              UserRepository(UserDataSource(), dataRepository),
+              BiometricService(),
+              authSessionService,
+            )..add(const CheckRememberedSession()),
+          ),
 
-          authSessionService,
-        )..add(const CheckRememberedSession()),
+          // ------------------------------------------------------
+          // PREFERENCES BLOC
+          // ------------------------------------------------------
+          BlocProvider(
+            create: (_) =>
+                PreferencesBloc(preferencesService: PreferencesService())
+                  ..add(const PreferencesStarted()),
+          ),
+        ],
 
         child: const MyApp(),
       ),
@@ -89,14 +109,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
+    return BlocBuilder<PreferencesBloc, PreferencesState>(
+      buildWhen: (previous, current) {
+        return previous.themeMode != current.themeMode;
+      },
+      builder: (context, state) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'CODEX Computers',
 
-      title: 'CODEX Computers',
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: state.themeMode,
 
-      theme: AppTheme.light,
-
-      home: LoginScreen(),
+          home: LoginScreen(),
+        );
+      },
     );
   }
 }

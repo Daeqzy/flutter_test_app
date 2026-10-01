@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_theme.dart';
-
 class AppErrorView extends StatelessWidget {
   final String title;
   final String message;
@@ -18,6 +16,8 @@ class AppErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     final content = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 38),
       child: Column(
@@ -27,14 +27,10 @@ class AppErrorView extends StatelessWidget {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: AppColors.error.withValues(alpha: 0.08),
+              color: colors.error.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(22),
             ),
-            child: const Icon(
-              Icons.cloud_off_rounded,
-              size: 32,
-              color: AppColors.error,
-            ),
+            child: Icon(Icons.cloud_off_rounded, size: 32, color: colors.error),
           ),
 
           const SizedBox(height: 18),
@@ -42,10 +38,10 @@ class AppErrorView extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: colors.onSurface,
             ),
           ),
 
@@ -54,10 +50,10 @@ class AppErrorView extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               height: 1.4,
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color: colors.onSurfaceVariant,
             ),
           ),
 
@@ -82,9 +78,9 @@ class AppErrorView extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: colors.outlineVariant),
       ),
       child: content,
     );

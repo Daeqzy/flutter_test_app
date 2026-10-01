@@ -14,6 +14,9 @@ import '../../repositories/data_repository.dart';
 
 import '../../theme/app_theme.dart';
 
+import '../../widgets/common/app_section_header.dart';
+import '../../widgets/common/app_status_badge.dart';
+
 import 'partners_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -23,10 +26,13 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       top: false,
+
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             // ==================================================
             // WELCOME HERO
@@ -37,6 +43,7 @@ class HomeScreen extends StatelessWidget {
                 return previous.authenticatedUsername !=
                     current.authenticatedUsername;
               },
+
               builder: (context, state) {
                 final username = state.authenticatedUsername.trim().isNotEmpty
                     ? state.authenticatedUsername
@@ -49,30 +56,34 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 28),
 
             // ==================================================
-            // QUICK ACCESS HEADER
+            // QUICK ACCESS
             // ==================================================
-            const _SectionHeader(
+            const AppSectionHeader(
               title: 'Quick access',
               subtitle: 'Jump straight into your workspace',
             ),
 
             const SizedBox(height: 14),
 
-            // ==================================================
-            // QUICK ACTIONS
-            // ==================================================
             GridView.count(
               crossAxisCount: 2,
+
               shrinkWrap: true,
+
               physics: const NeverScrollableScrollPhysics(),
+
               mainAxisSpacing: 12,
+
               crossAxisSpacing: 12,
+
               childAspectRatio: 1.15,
+
               children: [
                 _QuickActionCard(
                   icon: Icons.business_rounded,
                   title: 'Partners',
                   subtitle: 'Company directory',
+
                   onTap: () {
                     _openPartners(context);
                   },
@@ -82,6 +93,7 @@ class HomeScreen extends StatelessWidget {
                   icon: Icons.grid_view_rounded,
                   title: 'Services',
                   subtitle: 'Application tools',
+
                   onTap: () {
                     context.read<NavigationBloc>().add(
                       const NavigationTabChanged(1),
@@ -93,6 +105,7 @@ class HomeScreen extends StatelessWidget {
                   icon: Icons.notifications_none_rounded,
                   title: 'Notifications',
                   subtitle: 'Updates & alerts',
+
                   onTap: () {
                     context.read<NavigationBloc>().add(
                       const NavigationTabChanged(2),
@@ -104,6 +117,7 @@ class HomeScreen extends StatelessWidget {
                   icon: Icons.person_rounded,
                   title: 'Profile',
                   subtitle: 'Your account',
+
                   onTap: () {
                     context.read<NavigationBloc>().add(
                       const NavigationTabChanged(3),
@@ -118,7 +132,7 @@ class HomeScreen extends StatelessWidget {
             // ==================================================
             // WORKSPACE
             // ==================================================
-            const _SectionHeader(
+            const AppSectionHeader(
               title: 'Workspace',
               subtitle: 'Your CODEX environment at a glance',
             ),
@@ -132,7 +146,7 @@ class HomeScreen extends StatelessWidget {
             // ==================================================
             // RECENT ACTIVITY
             // ==================================================
-            const _SectionHeader(
+            const AppSectionHeader(
               title: 'Recent activity',
               subtitle: 'Your latest workspace actions',
             ),
@@ -158,6 +172,7 @@ class HomeScreen extends StatelessWidget {
         builder: (_) => BlocProvider(
           create: (_) =>
               PartnersBloc(repository)..add(const PartnersRequested()),
+
           child: const PartnersScreen(),
         ),
       ),
@@ -178,22 +193,30 @@ class _WelcomeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+
       padding: const EdgeInsets.all(22),
+
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
+
           colors: [AppColors.primary, AppColors.primaryDark],
         ),
+
         borderRadius: BorderRadius.circular(26),
+
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.22),
+
             blurRadius: 28,
+
             offset: const Offset(0, 12),
           ),
         ],
       ),
+
       child: Stack(
         children: [
           // ----------------------------------------------------
@@ -203,11 +226,14 @@ class _WelcomeCard extends StatelessWidget {
           Positioned(
             right: -35,
             top: -40,
+
             child: Container(
               width: 135,
               height: 135,
+
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.07),
+
                 shape: BoxShape.circle,
               ),
             ),
@@ -216,11 +242,14 @@ class _WelcomeCard extends StatelessWidget {
           Positioned(
             right: 35,
             bottom: -55,
+
             child: Container(
               width: 115,
               height: 115,
+
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.05),
+
                 shape: BoxShape.circle,
               ),
             ),
@@ -231,16 +260,20 @@ class _WelcomeCard extends StatelessWidget {
           // ----------------------------------------------------
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               Row(
                 children: [
                   Container(
                     width: 46,
                     height: 46,
+
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.15),
+
                       borderRadius: BorderRadius.circular(15),
                     ),
+
                     child: const Icon(
                       Icons.waving_hand_rounded,
                       color: Colors.white,
@@ -255,17 +288,24 @@ class _WelcomeCard extends StatelessWidget {
                       horizontal: 10,
                       vertical: 6,
                     ),
+
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.14),
+
                       borderRadius: BorderRadius.circular(20),
                     ),
+
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
+
                       children: [
                         Icon(Icons.circle, size: 7, color: Color(0xFF86EFAC)),
+
                         SizedBox(width: 6),
+
                         Text(
                           'Connected',
+
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 11,
@@ -282,9 +322,11 @@ class _WelcomeCard extends StatelessWidget {
 
               Text(
                 'Welcome back,',
+
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
+
                   color: Colors.white.withValues(alpha: 0.78),
                 ),
               ),
@@ -293,8 +335,11 @@ class _WelcomeCard extends StatelessWidget {
 
               Text(
                 username,
+
                 maxLines: 1,
+
                 overflow: TextOverflow.ellipsis,
+
                 style: const TextStyle(
                   fontSize: 27,
                   fontWeight: FontWeight.w800,
@@ -307,10 +352,12 @@ class _WelcomeCard extends StatelessWidget {
 
               Text(
                 'Everything you need for your CODEX workspace is ready.',
+
                 style: TextStyle(
                   height: 1.4,
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
+
                   color: Colors.white.withValues(alpha: 0.78),
                 ),
               ),
@@ -318,42 +365,6 @@ class _WelcomeCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-// ============================================================
-// SECTION HEADER
-// ============================================================
-
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  final String subtitle;
-
-  const _SectionHeader({required this.title, required this.subtitle});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w800,
-            color: AppColors.textPrimary,
-            letterSpacing: -0.4,
-          ),
-        ),
-
-        const SizedBox(height: 4),
-
-        Text(
-          subtitle,
-          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
-        ),
-      ],
     );
   }
 }
@@ -377,39 +388,78 @@ class _QuickActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Material(
-      color: AppColors.surface,
+      color: colors.surfaceContainer,
+
       borderRadius: BorderRadius.circular(20),
+
       child: InkWell(
         onTap: onTap,
+
         borderRadius: BorderRadius.circular(20),
+
         child: Container(
           padding: const EdgeInsets.all(16),
+
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.border),
+
+            border: Border.all(color: colors.outlineVariant),
+
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.035),
+
+                blurRadius: isDark ? 14 : 10,
+
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
+
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               Row(
                 children: [
+                  // ============================================
+                  // ICON TILE
+                  // ============================================
+
                   Container(
                     width: 44,
                     height: 44,
+
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.09),
+                      color: colors.primary.withValues(
+                        alpha: isDark ? 0.18 : 0.09,
+                      ),
+
                       borderRadius: BorderRadius.circular(14),
+
+                      border: Border.all(
+                        color: colors.primary.withValues(
+                          alpha: isDark ? 0.20 : 0.08,
+                        ),
+                      ),
                     ),
-                    child: Icon(icon, size: 22, color: AppColors.primary),
+
+                    child: Icon(icon, size: 22, color: colors.primary),
                   ),
 
                   const Spacer(),
 
-                  const Icon(
+                  Icon(
                     Icons.arrow_outward_rounded,
+
                     size: 18,
-                    color: AppColors.textSecondary,
+
+                    color: colors.onSurfaceVariant,
                   ),
                 ],
               ),
@@ -418,10 +468,12 @@ class _QuickActionCard extends StatelessWidget {
 
               Text(
                 title,
-                style: const TextStyle(
+
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+
+                  color: colors.onSurface,
                 ),
               ),
 
@@ -429,12 +481,12 @@ class _QuickActionCard extends StatelessWidget {
 
               Text(
                 subtitle,
+
                 maxLines: 1,
+
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.textSecondary,
-                ),
+
+                style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
               ),
             ],
           ),
@@ -453,48 +505,81 @@ class _WorkspaceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
+
       padding: const EdgeInsets.all(18),
+
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surfaceContainer,
+
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
+
+        border: Border.all(color: colors.outlineVariant),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.025),
+
+            blurRadius: isDark ? 16 : 10,
+
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
+
       child: Column(
         children: [
           const _WorkspaceRow(
             icon: Icons.shield_outlined,
             title: 'Secure session',
             subtitle: 'Authentication is active',
-            trailing: _StatusBadge(text: 'Active', positive: true),
+
+            trailing: AppStatusBadge(
+              text: 'Active',
+              color: AppColors.success,
+              showDot: true,
+            ),
           ),
 
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 14),
-            child: Divider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+
+            child: Divider(color: colors.outlineVariant),
           ),
 
           const _WorkspaceRow(
             icon: Icons.cloud_done_outlined,
             title: 'Backend connection',
             subtitle: 'CODEX services available',
-            trailing: _StatusBadge(text: 'Online', positive: true),
+
+            trailing: AppStatusBadge(
+              text: 'Online',
+              color: AppColors.success,
+              showDot: true,
+            ),
           ),
 
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 14),
-            child: Divider(),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+
+            child: Divider(color: colors.outlineVariant),
           ),
 
           _WorkspaceRow(
             icon: Icons.business_outlined,
             title: 'Partner directory',
             subtitle: 'Loaded only when you need it',
-            trailing: const Icon(
+
+            trailing: Icon(
               Icons.chevron_right_rounded,
-              color: AppColors.textSecondary,
+              color: colors.onSurfaceVariant,
             ),
+
             onTap: () {
               final repository = context.read<DataRepository>();
 
@@ -504,6 +589,7 @@ class _WorkspaceCard extends StatelessWidget {
                     create: (_) =>
                         PartnersBloc(repository)
                           ..add(const PartnersRequested()),
+
                     child: const PartnersScreen(),
                   ),
                 ),
@@ -537,21 +623,39 @@ class _WorkspaceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return InkWell(
       onTap: onTap,
+
       borderRadius: BorderRadius.circular(14),
+
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
+
         child: Row(
           children: [
+            // ================================================
+            // ICON
+            // ================================================
+
             Container(
               width: 44,
               height: 44,
+
               decoration: BoxDecoration(
-                color: const Color(0xFFF4F7FB),
+                color: colors.primary.withValues(alpha: isDark ? 0.17 : 0.08),
+
                 borderRadius: BorderRadius.circular(14),
+
+                border: Border.all(
+                  color: colors.primary.withValues(alpha: isDark ? 0.20 : 0.05),
+                ),
               ),
-              child: Icon(icon, size: 21, color: AppColors.primary),
+
+              child: Icon(icon, size: 21, color: colors.primary),
             ),
 
             const SizedBox(width: 13),
@@ -559,13 +663,16 @@ class _WorkspaceRow extends StatelessWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
+
+                      color: colors.onSurface,
                     ),
                   ),
 
@@ -573,9 +680,11 @@ class _WorkspaceRow extends StatelessWidget {
 
                   Text(
                     subtitle,
-                    style: const TextStyle(
+
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+
+                      color: colors.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -593,51 +702,6 @@ class _WorkspaceRow extends StatelessWidget {
 }
 
 // ============================================================
-// STATUS BADGE
-// ============================================================
-
-class _StatusBadge extends StatelessWidget {
-  final String text;
-  final bool positive;
-
-  const _StatusBadge({required this.text, required this.positive});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = positive ? AppColors.success : AppColors.warning;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.09),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-
-          const SizedBox(width: 5),
-
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================
 // EMPTY RECENT ACTIVITY
 // ============================================================
 
@@ -646,51 +710,77 @@ class _EmptyActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
+
       padding: const EdgeInsets.all(22),
+
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surfaceContainer,
+
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border),
+
+        border: Border.all(color: colors.outlineVariant),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.025),
+
+            blurRadius: isDark ? 16 : 10,
+
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
+
       child: Column(
         children: [
           Container(
             width: 58,
             height: 58,
+
             decoration: BoxDecoration(
-              color: const Color(0xFFF4F7FB),
+              color: colors.surfaceContainerHighest,
+
               borderRadius: BorderRadius.circular(18),
+
+              border: Border.all(color: colors.outlineVariant),
             ),
-            child: const Icon(
-              Icons.history_rounded,
-              size: 27,
-              color: AppColors.textSecondary,
-            ),
+
+            child: Icon(Icons.history_rounded, size: 27, color: colors.primary),
           ),
 
           const SizedBox(height: 14),
 
-          const Text(
+          Text(
             'No recent activity yet',
+
             textAlign: TextAlign.center,
+
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
-              color: AppColors.textPrimary,
+
+              color: colors.onSurface,
             ),
           ),
 
           const SizedBox(height: 5),
 
-          const Text(
+          Text(
             'Your latest workspace actions will appear here.',
+
             textAlign: TextAlign.center,
+
             style: TextStyle(
               height: 1.4,
               fontSize: 12,
-              color: AppColors.textSecondary,
+
+              color: colors.onSurfaceVariant,
             ),
           ),
         ],
