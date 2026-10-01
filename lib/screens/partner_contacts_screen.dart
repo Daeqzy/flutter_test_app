@@ -28,8 +28,12 @@ class PartnerContactsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       // ========================================================
       // APP BAR
@@ -40,26 +44,32 @@ class PartnerContactsScreen extends StatelessWidget {
 
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Text(
               partnerName,
+
               maxLines: 1,
+
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+
+              style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.3,
+                color: colors.onSurface,
               ),
             ),
 
             const SizedBox(height: 2),
 
-            const Text(
+            Text(
               'Contacts',
+
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
+                color: colors.onSurfaceVariant,
               ),
             ),
           ],
@@ -68,27 +78,35 @@ class PartnerContactsScreen extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),
+
             child: Material(
-              color: AppColors.surface,
+              color: isDark ? colors.surfaceContainerHigh : colors.surface,
+
               borderRadius: BorderRadius.circular(14),
+
               child: InkWell(
                 borderRadius: BorderRadius.circular(14),
+
                 onTap: () {
                   context.read<PartnerContactsBloc>().add(
                     PartnerContactsRequested(tp: tp, p: p),
                   );
                 },
+
                 child: Container(
                   width: 44,
                   height: 44,
+
                   decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: colors.outlineVariant),
+
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(
+
+                  child: Icon(
                     Icons.refresh_rounded,
                     size: 21,
-                    color: AppColors.textPrimary,
+                    color: colors.onSurface,
                   ),
                 ),
               ),
@@ -109,6 +127,7 @@ class PartnerContactsScreen extends StatelessWidget {
           if (state.isLoading) {
             return const AppLoadingView(
               title: 'Loading contacts',
+
               message: 'Retrieving contact records...',
             );
           }
@@ -120,7 +139,9 @@ class PartnerContactsScreen extends StatelessWidget {
           if (state.errorMessage != null) {
             return AppErrorView(
               title: 'Unable to load contacts',
+
               message: state.errorMessage!,
+
               onRetry: () {
                 context.read<PartnerContactsBloc>().add(
                   PartnerContactsRequested(tp: tp, p: p),
@@ -136,7 +157,9 @@ class PartnerContactsScreen extends StatelessWidget {
           if (state.contacts.isEmpty) {
             return AppEmptyView(
               icon: Icons.people_outline_rounded,
+
               title: 'No contacts found',
+
               message: '$partnerName currently has no contact records.',
             );
           }
@@ -153,19 +176,29 @@ class PartnerContactsScreen extends StatelessWidget {
 
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+
                 child: AppSummaryCard(
                   icon: Icons.people_alt_outlined,
+
                   title: 'Contact directory',
+
                   subtitle:
-                      '${state.contacts.length} contact${state.contacts.length == 1 ? '' : 's'} available',
+                      '${state.contacts.length} '
+                      'contact${state.contacts.length == 1 ? '' : 's'} '
+                      'available',
+
                   detail: partnerName,
+
                   trailing: Container(
                     width: 40,
                     height: 40,
+
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.14),
+
                       borderRadius: BorderRadius.circular(13),
                     ),
+
                     child: const Icon(
                       Icons.contact_phone_outlined,
                       size: 19,
@@ -200,23 +233,30 @@ class PartnerContactsScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(16),
 
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: isDark
+                              ? colors.surfaceContainerHigh
+                              : colors.surface,
 
                           borderRadius: BorderRadius.circular(22),
 
-                          border: Border.all(color: AppColors.border),
+                          border: Border.all(color: colors.outlineVariant),
 
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.025),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
+                              color: Colors.black.withValues(
+                                alpha: isDark ? 0.24 : 0.025,
+                              ),
+
+                              blurRadius: isDark ? 18 : 12,
+
+                              offset: const Offset(0, 5),
                             ),
                           ],
                         ),
 
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             // ==================================
                             // CONTACT HEADER
@@ -232,14 +272,22 @@ class PartnerContactsScreen extends StatelessWidget {
                                     gradient: LinearGradient(
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
+
                                       colors: [
-                                        AppColors.primary.withValues(
-                                          alpha: 0.14,
+                                        colors.primary.withValues(
+                                          alpha: isDark ? 0.24 : 0.14,
                                         ),
-                                        AppColors.primary.withValues(
-                                          alpha: 0.06,
+
+                                        colors.primary.withValues(
+                                          alpha: isDark ? 0.12 : 0.06,
                                         ),
                                       ],
+                                    ),
+
+                                    border: Border.all(
+                                      color: colors.primary.withValues(
+                                        alpha: isDark ? 0.24 : 0.08,
+                                      ),
                                     ),
 
                                     borderRadius: BorderRadius.circular(16),
@@ -248,10 +296,13 @@ class PartnerContactsScreen extends StatelessWidget {
                                   child: Center(
                                     child: Text(
                                       _getInitial(contact.naziv),
-                                      style: const TextStyle(
+
+                                      style: TextStyle(
                                         fontSize: 20,
+
                                         fontWeight: FontWeight.w800,
-                                        color: AppColors.primary,
+
+                                        color: colors.primary,
                                       ),
                                     ),
                                   ),
@@ -263,6 +314,7 @@ class PartnerContactsScreen extends StatelessWidget {
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+
                                     children: [
                                       Text(
                                         contact.naziv ?? 'Unnamed contact',
@@ -271,11 +323,11 @@ class PartnerContactsScreen extends StatelessWidget {
 
                                         overflow: TextOverflow.ellipsis,
 
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 15,
                                           height: 1.25,
                                           fontWeight: FontWeight.w700,
-                                          color: AppColors.textPrimary,
+                                          color: colors.onSurface,
                                         ),
                                       ),
 
@@ -293,15 +345,23 @@ class PartnerContactsScreen extends StatelessWidget {
                                   height: 38,
 
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFF4F7FB),
+                                    color: colors.primary.withValues(
+                                      alpha: isDark ? 0.17 : 0.07,
+                                    ),
+
+                                    border: Border.all(
+                                      color: colors.primary.withValues(
+                                        alpha: isDark ? 0.20 : 0.05,
+                                      ),
+                                    ),
 
                                     borderRadius: BorderRadius.circular(12),
                                   ),
 
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.person_outline_rounded,
                                     size: 20,
-                                    color: AppColors.textSecondary,
+                                    color: colors.primary,
                                   ),
                                 ),
                               ],
@@ -318,7 +378,7 @@ class PartnerContactsScreen extends StatelessWidget {
                             )) ...[
                               const SizedBox(height: 16),
 
-                              const Divider(),
+                              Divider(color: colors.outlineVariant),
 
                               const SizedBox(height: 12),
                             ],
@@ -329,10 +389,15 @@ class PartnerContactsScreen extends StatelessWidget {
                             if (_hasText(contact.tel))
                               AppInfoRow(
                                 icon: Icons.phone_outlined,
+
                                 label: 'Phone',
+
                                 value: contact.tel!,
+
                                 selectable: true,
+
                                 actionIcon: Icons.call_rounded,
+
                                 onTap: () {
                                   _openPhone(context, contact.tel!);
                                 },
@@ -344,10 +409,15 @@ class PartnerContactsScreen extends StatelessWidget {
                             if (_hasText(contact.mobilen))
                               AppInfoRow(
                                 icon: Icons.smartphone_outlined,
+
                                 label: 'Mobile',
+
                                 value: contact.mobilen!,
+
                                 selectable: true,
+
                                 actionIcon: Icons.call_rounded,
+
                                 onTap: () {
                                   _openPhone(context, contact.mobilen!);
                                 },
@@ -359,10 +429,15 @@ class PartnerContactsScreen extends StatelessWidget {
                             if (_hasText(contact.mail))
                               AppInfoRow(
                                 icon: Icons.email_outlined,
+
                                 label: 'Email',
+
                                 value: contact.mail!,
+
                                 selectable: true,
+
                                 actionIcon: Icons.send_outlined,
+
                                 onTap: () {
                                   _openEmail(context, contact.mail!);
                                 },
@@ -374,9 +449,13 @@ class PartnerContactsScreen extends StatelessWidget {
                             if (_hasText(contact.opis))
                               AppInfoRow(
                                 icon: Icons.notes_outlined,
+
                                 label: 'Description',
+
                                 value: contact.opis!,
+
                                 selectable: true,
+
                                 isLast: true,
                               ),
                           ],
@@ -474,6 +553,7 @@ class PartnerContactsScreen extends StatelessWidget {
     return name.trim()[0].toUpperCase();
   }
 }
+
 // ============================================================
 // CONTACT ID BADGE
 // ============================================================
@@ -485,32 +565,40 @@ class _ContactIdBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F7FB),
+        color: isDark
+            ? colors.surfaceContainerHighest
+            : colors.surfaceContainerHighest.withValues(alpha: 0.55),
 
         borderRadius: BorderRadius.circular(20),
+
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: isDark ? 0.80 : 0.45),
+        ),
       ),
 
       child: Row(
         mainAxisSize: MainAxisSize.min,
+
         children: [
-          const Icon(
-            Icons.tag_rounded,
-            size: 12,
-            color: AppColors.textSecondary,
-          ),
+          Icon(Icons.tag_rounded, size: 12, color: colors.onSurfaceVariant),
 
           const SizedBox(width: 4),
 
           Text(
             '$id',
-            style: const TextStyle(
+
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: colors.onSurfaceVariant,
             ),
           ),
         ],

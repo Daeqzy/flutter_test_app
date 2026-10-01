@@ -15,40 +15,63 @@ class PreferencesScreen extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colors.surface,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
+      // ========================================================
+      // APP BAR
+      // ========================================================
       appBar: AppBar(
         toolbarHeight: 72,
-        title: const Column(
+
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Text(
               'Preferences',
+
               style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.3,
+
+                color: colors.onSurface,
               ),
             ),
-            SizedBox(height: 2),
+
+            const SizedBox(height: 2),
+
             Text(
               'Customize your workspace',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+
+                color: colors.onSurfaceVariant,
+              ),
             ),
           ],
         ),
       ),
 
+      // ========================================================
+      // CONTENT
+      // ========================================================
       body: BlocBuilder<PreferencesBloc, PreferencesState>(
         builder: (context, state) {
           if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: CircularProgressIndicator(color: colors.primary),
+            );
           }
 
           return SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
+
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
                 // ==================================================
                 // HERO
@@ -73,9 +96,13 @@ class PreferencesScreen extends StatelessWidget {
                     children: [
                       _ThemeOption(
                         icon: Icons.settings_suggest_outlined,
+
                         title: 'System',
+
                         subtitle: 'Follow your device appearance',
+
                         value: ThemeMode.system,
+
                         selected: state.themeMode == ThemeMode.system,
                       ),
 
@@ -83,9 +110,13 @@ class PreferencesScreen extends StatelessWidget {
 
                       _ThemeOption(
                         icon: Icons.light_mode_outlined,
+
                         title: 'Light',
+
                         subtitle: 'Always use the light theme',
+
                         value: ThemeMode.light,
+
                         selected: state.themeMode == ThemeMode.light,
                       ),
 
@@ -93,9 +124,13 @@ class PreferencesScreen extends StatelessWidget {
 
                       _ThemeOption(
                         icon: Icons.dark_mode_outlined,
+
                         title: 'Dark',
+
                         subtitle: 'Always use the dark theme',
+
                         value: ThemeMode.dark,
+
                         selected: state.themeMode == ThemeMode.dark,
                       ),
                     ],
@@ -145,18 +180,22 @@ class _PreferencesHero extends StatelessWidget {
 
     final modeIcon = switch (themeMode) {
       ThemeMode.system => Icons.settings_suggest_outlined,
+
       ThemeMode.light => Icons.light_mode_outlined,
+
       ThemeMode.dark => Icons.dark_mode_outlined,
     };
 
     return Container(
       width: double.infinity,
+
       padding: const EdgeInsets.all(22),
 
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
+
           colors: [colors.primary, colors.primary.withValues(alpha: 0.82)],
         ),
 
@@ -165,7 +204,9 @@ class _PreferencesHero extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: colors.primary.withValues(alpha: 0.20),
+
             blurRadius: 28,
+
             offset: const Offset(0, 12),
           ),
         ],
@@ -173,14 +214,21 @@ class _PreferencesHero extends StatelessWidget {
 
       child: Stack(
         children: [
+          // ----------------------------------------------------
+          // BACKGROUND DECORATION
+          // ----------------------------------------------------
+
           Positioned(
             right: -35,
             top: -45,
+
             child: Container(
               width: 135,
               height: 135,
+
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.07),
+
                 shape: BoxShape.circle,
               ),
             ),
@@ -189,31 +237,47 @@ class _PreferencesHero extends StatelessWidget {
           Positioned(
             right: 30,
             bottom: -55,
+
             child: Container(
               width: 110,
               height: 110,
+
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.05),
+
                 shape: BoxShape.circle,
               ),
             ),
           ),
 
+          // ----------------------------------------------------
+          // CONTENT
+          // ----------------------------------------------------
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               Row(
                 children: [
                   Container(
                     width: 48,
                     height: 48,
+
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.15),
+
                       borderRadius: BorderRadius.circular(15),
+
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
                     ),
+
                     child: const Icon(
                       Icons.tune_rounded,
+
                       color: Colors.white,
+
                       size: 23,
                     ),
                   ),
@@ -225,20 +289,29 @@ class _PreferencesHero extends StatelessWidget {
                       horizontal: 10,
                       vertical: 7,
                     ),
+
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.14),
+
                       borderRadius: BorderRadius.circular(20),
                     ),
+
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
+
                       children: [
                         Icon(modeIcon, size: 14, color: Colors.white),
+
                         const SizedBox(width: 5),
+
                         Text(
                           modeText,
+
                           style: const TextStyle(
                             fontSize: 10,
+
                             fontWeight: FontWeight.w700,
+
                             color: Colors.white,
                           ),
                         ),
@@ -252,10 +325,13 @@ class _PreferencesHero extends StatelessWidget {
 
               const Text(
                 'Your workspace',
+
                 style: TextStyle(
                   fontSize: 27,
                   fontWeight: FontWeight.w800,
+
                   color: Colors.white,
+
                   letterSpacing: -0.7,
                 ),
               ),
@@ -263,10 +339,14 @@ class _PreferencesHero extends StatelessWidget {
               const SizedBox(height: 8),
 
               Text(
-                'Personalize how the CODEX application looks and behaves.',
+                'Personalize how the CODEX application '
+                'looks and behaves.',
+
                 style: TextStyle(
                   height: 1.4,
+
                   fontSize: 13,
+
                   color: Colors.white.withValues(alpha: 0.78),
                 ),
               ),
@@ -291,13 +371,32 @@ class _PreferenceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
+
       decoration: BoxDecoration(
-        color: colors.surface,
+        // Important:
+        // visually separate the card from
+        // the dark page background.
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
+
         borderRadius: BorderRadius.circular(22),
+
         border: Border.all(color: colors.outlineVariant),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.025),
+
+            blurRadius: isDark ? 16 : 10,
+
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
+
       child: child,
     );
   }
@@ -327,47 +426,76 @@ class _ThemeOption extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Material(
-      color: Colors.transparent,
+      color: selected
+          ? colors.primary.withValues(alpha: isDark ? 0.055 : 0.025)
+          : Colors.transparent,
+
+      borderRadius: BorderRadius.circular(22),
+
       child: InkWell(
         onTap: () {
           context.read<PreferencesBloc>().add(ThemeModeChanged(value));
         },
+
         borderRadius: BorderRadius.circular(22),
+
         child: Padding(
           padding: const EdgeInsets.all(16),
+
           child: Row(
             children: [
+              // ================================================
+              // ICON TILE
+              // ================================================
+
               Container(
                 width: 44,
                 height: 44,
 
                 decoration: BoxDecoration(
                   color: selected
-                      ? colors.primary.withValues(alpha: 0.12)
-                      : colors.surfaceContainerHighest.withValues(alpha: 0.55),
+                      ? colors.primary.withValues(alpha: isDark ? 0.18 : 0.11)
+                      : colors.surfaceContainerHighest,
 
                   borderRadius: BorderRadius.circular(14),
+
+                  border: Border.all(
+                    color: selected
+                        ? colors.primary.withValues(alpha: isDark ? 0.24 : 0.10)
+                        : colors.outlineVariant,
+                  ),
                 ),
 
                 child: Icon(
                   icon,
+
                   size: 21,
+
                   color: selected ? colors.primary : colors.onSurfaceVariant,
                 ),
               ),
 
               const SizedBox(width: 14),
 
+              // ================================================
+              // TEXT
+              // ================================================
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: [
                     Text(
                       title,
+
                       style: TextStyle(
                         fontSize: 14,
+
                         fontWeight: FontWeight.w700,
+
                         color: colors.onSurface,
                       ),
                     ),
@@ -376,8 +504,10 @@ class _ThemeOption extends StatelessWidget {
 
                     Text(
                       subtitle,
+
                       style: TextStyle(
                         fontSize: 12,
+
                         color: colors.onSurfaceVariant,
                       ),
                     ),
@@ -387,8 +517,12 @@ class _ThemeOption extends StatelessWidget {
 
               const SizedBox(width: 10),
 
+              // ================================================
+              // SELECTION INDICATOR
+              // ================================================
               AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
+
                 width: 24,
                 height: 24,
 
@@ -399,6 +533,7 @@ class _ThemeOption extends StatelessWidget {
 
                   border: Border.all(
                     width: 2,
+
                     color: selected ? colors.primary : colors.outline,
                   ),
                 ),
@@ -406,7 +541,9 @@ class _ThemeOption extends StatelessWidget {
                 child: selected
                     ? const Icon(
                         Icons.check_rounded,
+
                         size: 15,
+
                         color: Colors.white,
                       )
                     : null,
@@ -445,31 +582,54 @@ class _LocalPreferencesInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
+
       padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
+
         borderRadius: BorderRadius.circular(22),
+
         border: Border.all(color: colors.outlineVariant),
+
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.025),
+
+            blurRadius: isDark ? 16 : 10,
+
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
 
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
           Container(
             width: 44,
             height: 44,
 
             decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.10),
+              color: colors.primary.withValues(alpha: isDark ? 0.17 : 0.10),
+
               borderRadius: BorderRadius.circular(14),
+
+              border: Border.all(
+                color: colors.primary.withValues(alpha: isDark ? 0.21 : 0.07),
+              ),
             ),
 
             child: Icon(
               Icons.phone_android_rounded,
+
               size: 21,
+
               color: colors.primary,
             ),
           ),
@@ -479,12 +639,16 @@ class _LocalPreferencesInfo extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
                 Text(
                   'Stored on this device',
+
                   style: TextStyle(
                     fontSize: 14,
+
                     fontWeight: FontWeight.w700,
+
                     color: colors.onSurface,
                   ),
                 ),
@@ -492,10 +656,14 @@ class _LocalPreferencesInfo extends StatelessWidget {
                 const SizedBox(height: 4),
 
                 Text(
-                  'Your appearance preferences are saved locally and restored when you reopen the app.',
+                  'Your appearance preferences are saved '
+                  'locally and restored when you reopen the app.',
+
                   style: TextStyle(
                     height: 1.45,
+
                     fontSize: 12,
+
                     color: colors.onSurfaceVariant,
                   ),
                 ),

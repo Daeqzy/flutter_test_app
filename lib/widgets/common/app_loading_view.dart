@@ -16,6 +16,8 @@ class AppLoadingView extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final content = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 38),
       child: Column(
@@ -25,8 +27,11 @@ class AppLoadingView extends StatelessWidget {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.10),
+              color: colors.primary.withValues(alpha: isDark ? 0.16 : 0.10),
               borderRadius: BorderRadius.circular(22),
+              border: Border.all(
+                color: colors.primary.withValues(alpha: isDark ? 0.20 : 0.05),
+              ),
             ),
             child: Center(
               child: CircularProgressIndicator(
@@ -70,9 +75,16 @@ class AppLoadingView extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: colors.outlineVariant),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.02),
+            blurRadius: isDark ? 16 : 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: content,
     );

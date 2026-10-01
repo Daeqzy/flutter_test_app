@@ -6,6 +6,7 @@ import '../bloc/partner_connections/partner_connections_event.dart';
 import '../bloc/partner_connections/partner_connections_state.dart';
 
 import '../theme/app_theme.dart';
+
 import '../widgets/common/app_loading_view.dart';
 import '../widgets/common/app_error_view.dart';
 import '../widgets/common/app_empty_view.dart';
@@ -27,8 +28,12 @@ class PartnerConnectionsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       // ========================================================
       // APP BAR
@@ -39,26 +44,32 @@ class PartnerConnectionsScreen extends StatelessWidget {
 
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Text(
               partnerName,
+
               maxLines: 1,
+
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+
+              style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.3,
+                color: colors.onSurface,
               ),
             ),
 
             const SizedBox(height: 2),
 
-            const Text(
+            Text(
               'Connections',
+
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
+                color: colors.onSurfaceVariant,
               ),
             ),
           ],
@@ -67,27 +78,35 @@ class PartnerConnectionsScreen extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),
+
             child: Material(
-              color: AppColors.surface,
+              color: isDark ? colors.surfaceContainerHigh : colors.surface,
+
               borderRadius: BorderRadius.circular(14),
+
               child: InkWell(
                 borderRadius: BorderRadius.circular(14),
+
                 onTap: () {
                   context.read<PartnerConnectionsBloc>().add(
                     PartnerConnectionsRequested(tp: tp, p: p),
                   );
                 },
+
                 child: Container(
                   width: 44,
                   height: 44,
+
                   decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: colors.outlineVariant),
+
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(
+
+                  child: Icon(
                     Icons.refresh_rounded,
                     size: 21,
-                    color: AppColors.textPrimary,
+                    color: colors.onSurface,
                   ),
                 ),
               ),
@@ -119,7 +138,9 @@ class PartnerConnectionsScreen extends StatelessWidget {
           if (state.errorMessage != null) {
             return AppErrorView(
               title: 'Unable to load connections',
+
               message: state.errorMessage!,
+
               onRetry: () {
                 context.read<PartnerConnectionsBloc>().add(
                   PartnerConnectionsRequested(tp: tp, p: p),
@@ -135,7 +156,9 @@ class PartnerConnectionsScreen extends StatelessWidget {
           if (state.connections.isEmpty) {
             return AppEmptyView(
               icon: Icons.hub_outlined,
+
               title: 'No connections found',
+
               message: '$partnerName currently has no connection records.',
             );
           }
@@ -152,32 +175,46 @@ class PartnerConnectionsScreen extends StatelessWidget {
 
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+
                 child: AppSummaryCard(
                   icon: Icons.hub_outlined,
+
                   title: 'Connection records',
+
                   subtitle:
-                      '${state.connections.length} connection${state.connections.length == 1 ? '' : 's'} available',
+                      '${state.connections.length} '
+                      'connection${state.connections.length == 1 ? '' : 's'} '
+                      'available',
+
                   detail: partnerName,
+
                   trailing: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 7,
                     ),
+
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.14),
+
                       borderRadius: BorderRadius.circular(18),
                     ),
+
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
+
                       children: [
                         Icon(
                           Icons.touch_app_outlined,
                           size: 13,
                           color: Colors.white,
                         ),
+
                         SizedBox(width: 5),
+
                         Text(
                           'Tap to expand',
+
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
@@ -221,14 +258,23 @@ class PartnerConnectionsScreen extends StatelessWidget {
 
                       return Container(
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: isDark
+                              ? colors.surfaceContainerHigh
+                              : colors.surface,
+
                           borderRadius: BorderRadius.circular(22),
-                          border: Border.all(color: AppColors.border),
+
+                          border: Border.all(color: colors.outlineVariant),
+
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.025),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
+                              color: Colors.black.withValues(
+                                alpha: isDark ? 0.24 : 0.025,
+                              ),
+
+                              blurRadius: isDark ? 18 : 12,
+
+                              offset: const Offset(0, 5),
                             ),
                           ],
                         ),
@@ -239,7 +285,7 @@ class PartnerConnectionsScreen extends StatelessWidget {
 
                           child: ExpansionTile(
                             // IMPORTANT:
-                            // preserves expansion while scrolling
+                            // Keep expansion state while scrolling.
                             key: PageStorageKey(
                               'connection_'
                               '${connection.id ?? index}_'
@@ -262,6 +308,10 @@ class PartnerConnectionsScreen extends StatelessWidget {
                               17,
                             ),
 
+                            iconColor: colors.onSurfaceVariant,
+
+                            collapsedIconColor: colors.onSurfaceVariant,
+
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(22),
                             ),
@@ -283,9 +333,20 @@ class PartnerConnectionsScreen extends StatelessWidget {
                                   end: Alignment.bottomRight,
 
                                   colors: [
-                                    AppColors.primary.withValues(alpha: 0.14),
-                                    AppColors.primary.withValues(alpha: 0.06),
+                                    colors.primary.withValues(
+                                      alpha: isDark ? 0.24 : 0.14,
+                                    ),
+
+                                    colors.primary.withValues(
+                                      alpha: isDark ? 0.12 : 0.06,
+                                    ),
                                   ],
+                                ),
+
+                                border: Border.all(
+                                  color: colors.primary.withValues(
+                                    alpha: isDark ? 0.24 : 0.08,
+                                  ),
                                 ),
 
                                 borderRadius: BorderRadius.circular(15),
@@ -293,7 +354,9 @@ class PartnerConnectionsScreen extends StatelessWidget {
 
                               child: Icon(
                                 _getConnectionIcon(connection.naziv),
-                                color: AppColors.primary,
+
+                                color: colors.primary,
+
                                 size: 22,
                               ),
                             ),
@@ -308,11 +371,11 @@ class PartnerConnectionsScreen extends StatelessWidget {
 
                               overflow: TextOverflow.ellipsis,
 
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
                                 height: 1.25,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
+                                color: colors.onSurface,
                               ),
                             ),
 
@@ -325,6 +388,7 @@ class PartnerConnectionsScreen extends StatelessWidget {
                               child: Wrap(
                                 spacing: 8,
                                 runSpacing: 6,
+
                                 crossAxisAlignment: WrapCrossAlignment.center,
 
                                 children: [
@@ -338,12 +402,14 @@ class PartnerConnectionsScreen extends StatelessWidget {
                                                 .isNotEmpty ==
                                             true
                                         ? connection.aktivenString!
-                                        : (connection.aktivenBool == true
-                                              ? 'Active'
-                                              : 'Inactive'),
+                                        : connection.aktivenBool == true
+                                        ? 'Active'
+                                        : 'Inactive',
+
                                     color: connection.aktivenBool == true
                                         ? AppColors.success
-                                        : AppColors.textSecondary,
+                                        : colors.onSurfaceVariant,
+
                                     showDot: true,
                                   ),
                                 ],
@@ -354,7 +420,7 @@ class PartnerConnectionsScreen extends StatelessWidget {
                             // EXPANDED DETAILS
                             // ==================================
                             children: [
-                              const Divider(),
+                              Divider(color: colors.outlineVariant),
 
                               const SizedBox(height: 12),
 
@@ -471,33 +537,40 @@ class _IdBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F7FB),
+        color: isDark
+            ? colors.surfaceContainerHighest
+            : colors.surfaceContainerHighest.withValues(alpha: 0.55),
 
         borderRadius: BorderRadius.circular(20),
+
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: isDark ? 0.80 : 0.45),
+        ),
       ),
 
       child: Row(
         mainAxisSize: MainAxisSize.min,
 
         children: [
-          const Icon(
-            Icons.tag_rounded,
-            size: 12,
-            color: AppColors.textSecondary,
-          ),
+          Icon(Icons.tag_rounded, size: 12, color: colors.onSurfaceVariant),
 
           const SizedBox(width: 4),
 
           Text(
             '$id',
-            style: const TextStyle(
+
+            style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: colors.onSurfaceVariant,
             ),
           ),
         ],
@@ -515,31 +588,32 @@ class _NoDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
 
       padding: const EdgeInsets.all(14),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF7F9FC),
+        color: colors.surfaceContainerHighest,
 
         borderRadius: BorderRadius.circular(14),
+
+        border: Border.all(color: colors.outlineVariant),
       ),
 
-      child: const Row(
+      child: Row(
         children: [
-          Icon(
-            Icons.info_outline_rounded,
-            size: 18,
-            color: AppColors.textSecondary,
-          ),
+          Icon(Icons.info_outline_rounded, size: 18, color: colors.primary),
 
-          SizedBox(width: 9),
+          const SizedBox(width: 9),
 
           Expanded(
             child: Text(
               'No additional details available for this connection.',
-              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+
+              style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
             ),
           ),
         ],

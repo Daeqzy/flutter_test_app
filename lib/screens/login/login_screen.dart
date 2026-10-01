@@ -5,8 +5,6 @@ import '../../bloc/user/user_bloc.dart';
 import '../../bloc/user/user_event.dart';
 import '../../bloc/user/user_state.dart';
 
-import '../../theme/app_theme.dart';
-
 import '../main/main_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -14,9 +12,9 @@ class LoginScreen extends StatelessWidget {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // ============================================================
-  // LOGIN
-  // ============================================================
+  // ==========================================================
+  // NORMAL LOGIN
+  // ==========================================================
 
   void _login(BuildContext context) {
     if (!_formKey.currentState!.validate()) {
@@ -35,6 +33,10 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return BlocListener<UserBloc, UserState>(
       listenWhen: (previous, current) {
         final becameAuthenticated =
@@ -65,793 +67,597 @@ class LoginScreen extends StatelessWidget {
       },
 
       child: Scaffold(
-        body: Stack(
-          children: [
-            // ==================================================
-            // BACKGROUND
-            // ==================================================
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
-            Positioned.fill(
-              child: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFF8FAFF),
-                      Color(0xFFF3F6FC),
-                      Color(0xFFEEF4FF),
+        // ======================================================
+        // APP BAR
+        // ======================================================
+        appBar: AppBar(
+          title: Text(
+            'CODEX Computers',
+            style: TextStyle(
+              color: colors.onSurface,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 460),
+
+                child: Container(
+                  width: double.infinity,
+
+                  padding: const EdgeInsets.fromLTRB(24, 28, 24, 26),
+
+                  decoration: BoxDecoration(
+                    color: isDark ? colors.surfaceContainer : colors.surface,
+
+                    borderRadius: BorderRadius.circular(26),
+
+                    border: Border.all(color: colors.outlineVariant),
+
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(
+                          alpha: isDark ? 0.24 : 0.055,
+                        ),
+
+                        blurRadius: isDark ? 24 : 20,
+
+                        offset: const Offset(0, 10),
+                      ),
                     ],
                   ),
-                ),
-              ),
-            ),
 
-            // ==================================================
-            // DECORATIVE BACKGROUND ELEMENTS
-            // ==================================================
-            Positioned(
-              top: -120,
-              right: -100,
-              child: Container(
-                width: 300,
-                height: 300,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.06),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
+                  child: Form(
+                    key: _formKey,
 
-            Positioned(
-              bottom: -150,
-              left: -110,
-              child: Container(
-                width: 340,
-                height: 340,
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.04),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
 
-            // ==================================================
-            // CONTENT
-            // ==================================================
-            SafeArea(
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 32,
-                  ),
+                      children: [
+                        // ======================================
+                        // LOGO
+                        // ======================================
 
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 480),
+                        Container(
+                          padding: const EdgeInsets.all(14),
 
-                    child: Form(
-                      key: _formKey,
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? colors.surfaceContainerHighest
+                                : colors.surfaceContainerLowest,
 
-                      child: Column(
-                        children: [
-                          // ====================================
-                          // LOGO AREA
-                          // ====================================
+                            borderRadius: BorderRadius.circular(24),
 
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 28,
-                              vertical: 18,
-                            ),
+                            border: Border.all(color: colors.outlineVariant),
+                          ),
 
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.9),
-
-                              borderRadius: BorderRadius.circular(24),
-
-                              border: Border.all(color: Colors.white),
-
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
-
-                                  blurRadius: 24,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                            ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(18),
 
                             child: Image.asset(
                               'assets/images/codex_logo.png',
-                              width: 210,
+
+                              width: 230,
+
                               fit: BoxFit.contain,
                             ),
                           ),
+                        ),
 
-                          const SizedBox(height: 28),
+                        const SizedBox(height: 28),
 
-                          // ====================================
-                          // LOGIN CARD
-                          // ====================================
-                          Container(
-                            width: double.infinity,
+                        // ======================================
+                        // TITLE
+                        // ======================================
+                        Text(
+                          'Welcome Back',
 
-                            padding: const EdgeInsets.all(28),
+                          textAlign: TextAlign.center,
 
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.96),
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w800,
 
-                              borderRadius: BorderRadius.circular(28),
+                            letterSpacing: -0.6,
 
-                              border: Border.all(color: Colors.white),
+                            color: colors.onSurface,
+                          ),
+                        ),
 
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF1E3A8A)
-                                      .withValues(alpha: 0.07),
+                        const SizedBox(height: 8),
 
-                                  blurRadius: 40,
+                        Text(
+                          'Sign in to continue',
 
-                                  offset: const Offset(0, 16),
+                          textAlign: TextAlign.center,
+
+                          style: TextStyle(
+                            fontSize: 14,
+
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+
+                        // ======================================
+                        // REMEMBERED ACCOUNT
+                        // ======================================
+                        BlocBuilder<UserBloc, UserState>(
+                          buildWhen: (previous, current) {
+                            return previous.hasRememberedAccount !=
+                                    current.hasRememberedAccount ||
+                                previous.rememberedUsername !=
+                                    current.rememberedUsername;
+                          },
+
+                          builder: (context, state) {
+                            if (!state.hasRememberedAccount) {
+                              return const SizedBox.shrink();
+                            }
+
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 22),
+
+                              child: Container(
+                                width: double.infinity,
+
+                                padding: const EdgeInsets.all(15),
+
+                                decoration: BoxDecoration(
+                                  color: colors.primary.withValues(
+                                    alpha: isDark ? 0.14 : 0.065,
+                                  ),
+
+                                  borderRadius: BorderRadius.circular(16),
+
+                                  border: Border.all(
+                                    color: colors.primary.withValues(
+                                      alpha: isDark ? 0.25 : 0.14,
+                                    ),
+                                  ),
                                 ),
-                              ],
-                            ),
 
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-
-                              children: [
-                                // ==============================
-                                // HEADER
-                                // ==============================
-
-                                Row(
+                                child: Row(
                                   children: [
                                     Container(
-                                      width: 46,
-                                      height: 46,
+                                      width: 44,
+                                      height: 44,
 
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFFEFF6FF),
+                                        color: colors.primary.withValues(
+                                          alpha: isDark ? 0.20 : 0.11,
+                                        ),
 
-                                        borderRadius: BorderRadius.circular(14),
+                                        shape: BoxShape.circle,
                                       ),
 
-                                      child: const Icon(
-                                        Icons.lock_person_rounded,
-                                        color: AppColors.primary,
-                                        size: 24,
+                                      child: Icon(
+                                        Icons.person_outline_rounded,
+
+                                        color: colors.primary,
+
+                                        size: 22,
                                       ),
                                     ),
 
-                                    const SizedBox(width: 14),
+                                    const SizedBox(width: 12),
 
-                                    const Expanded(
+                                    Expanded(
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
 
                                         children: [
                                           Text(
-                                            'Welcome back',
+                                            'Remembered account',
+
                                             style: TextStyle(
-                                              fontSize: 26,
-                                              fontWeight: FontWeight.w800,
-                                              color: AppColors.textPrimary,
-                                              letterSpacing: -0.6,
+                                              fontSize: 12,
+
+                                              fontWeight: FontWeight.w500,
+
+                                              color: colors.onSurfaceVariant,
                                             ),
                                           ),
 
-                                          SizedBox(height: 4),
+                                          const SizedBox(height: 2),
 
                                           Text(
-                                            'Sign in to your CODEX workspace',
+                                            state.rememberedUsername.isNotEmpty
+                                                ? state.rememberedUsername
+                                                : 'Saved user',
+
+                                            maxLines: 1,
+
+                                            overflow: TextOverflow.ellipsis,
+
                                             style: TextStyle(
-                                              fontSize: 14,
-                                              color: AppColors.textSecondary,
+                                              fontSize: 15,
+
+                                              fontWeight: FontWeight.w700,
+
+                                              color: colors.onSurface,
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
+
+                                    Icon(
+                                      Icons.check_circle_rounded,
+
+                                      color: colors.primary,
+
+                                      size: 22,
+                                    ),
                                   ],
                                 ),
+                              ),
+                            );
+                          },
+                        ),
 
-                                // ==============================
-                                // REMEMBERED ACCOUNT
-                                // ==============================
-                                BlocBuilder<UserBloc, UserState>(
-                                  buildWhen: (previous, current) {
-                                    return previous.hasRememberedAccount !=
-                                            current.hasRememberedAccount ||
-                                        previous.rememberedUsername !=
-                                            current.rememberedUsername;
-                                  },
+                        const SizedBox(height: 28),
 
-                                  builder: (context, state) {
-                                    if (!state.hasRememberedAccount) {
-                                      return const SizedBox(height: 28);
-                                    }
+                        // ======================================
+                        // USERNAME
+                        // ======================================
+                        BlocBuilder<UserBloc, UserState>(
+                          buildWhen: (previous, current) {
+                            return previous.rememberedUsername !=
+                                    current.rememberedUsername ||
+                                previous.hasRememberedAccount !=
+                                    current.hasRememberedAccount;
+                          },
 
-                                    return Padding(
-                                      padding: const EdgeInsets.only(
-                                        top: 24,
-                                        bottom: 2,
-                                      ),
+                          builder: (context, state) {
+                            return TextFormField(
+                              key: ValueKey(
+                                'username_${state.hasRememberedAccount}',
+                              ),
 
-                                      child: Container(
-                                        width: double.infinity,
+                              initialValue: state.username,
 
-                                        padding: const EdgeInsets.all(15),
+                              style: TextStyle(color: colors.onSurface),
 
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFF0F7FF),
+                              cursorColor: colors.primary,
 
-                                          borderRadius: BorderRadius.circular(
-                                            18,
-                                          ),
+                              onChanged: (value) {
+                                context.read<UserBloc>().add(
+                                  UsernameChanged(value),
+                                );
+                              },
 
-                                          border: Border.all(
-                                            color: const Color(0xFFD8E9FF),
-                                          ),
-                                        ),
+                              decoration: const InputDecoration(
+                                labelText: 'Username',
 
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              width: 44,
-                                              height: 44,
+                                prefixIcon: Icon(Icons.person_outline_rounded),
+                              ),
 
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Please enter your username';
+                                }
 
-                                                borderRadius:
-                                                    BorderRadius.circular(14),
-                                              ),
+                                return null;
+                              },
+                            );
+                          },
+                        ),
 
-                                              child: const Icon(
-                                                Icons.person_rounded,
-                                                color: AppColors.primary,
-                                              ),
-                                            ),
+                        const SizedBox(height: 18),
 
-                                            const SizedBox(width: 12),
+                        // ======================================
+                        // PASSWORD
+                        // ======================================
+                        BlocBuilder<UserBloc, UserState>(
+                          buildWhen: (previous, current) {
+                            return previous.obscurePassword !=
+                                    current.obscurePassword ||
+                                previous.rememberedPassword !=
+                                    current.rememberedPassword ||
+                                previous.hasRememberedAccount !=
+                                    current.hasRememberedAccount;
+                          },
 
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                          builder: (context, state) {
+                            return TextFormField(
+                              key: ValueKey(
+                                'password_${state.hasRememberedAccount}',
+                              ),
 
-                                                children: [
-                                                  const Text(
-                                                    'Remembered account',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: AppColors
-                                                          .textSecondary,
-                                                    ),
-                                                  ),
+                              initialValue: state.password,
 
-                                                  const SizedBox(height: 3),
+                              obscureText: state.obscurePassword,
 
-                                                  Text(
-                                                    state
-                                                            .rememberedUsername
-                                                            .isNotEmpty
-                                                        ? state
-                                                              .rememberedUsername
-                                                        : 'Saved user',
+                              style: TextStyle(color: colors.onSurface),
 
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
+                              cursorColor: colors.primary,
 
-                                                    style: const TextStyle(
-                                                      fontSize: 15,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color:
-                                                          AppColors.textPrimary,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
+                              onChanged: (value) {
+                                context.read<UserBloc>().add(
+                                  PasswordChanged(value),
+                                );
+                              },
 
-                                            const SizedBox(width: 10),
+                              decoration: InputDecoration(
+                                labelText: 'Password',
 
-                                            Container(
-                                              width: 30,
-                                              height: 30,
+                                prefixIcon: const Icon(
+                                  Icons.lock_outline_rounded,
+                                ),
 
-                                              decoration: BoxDecoration(
-                                                color: AppColors.primary,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    state.obscurePassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                  ),
 
-                                              child: const Icon(
-                                                Icons.check_rounded,
-                                                color: Colors.white,
-                                                size: 18,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                  onPressed: () {
+                                    context.read<UserBloc>().add(
+                                      const TogglePasswordVisibility(),
                                     );
                                   },
                                 ),
+                              ),
 
-                                const SizedBox(height: 26),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your password';
+                                }
 
-                                // ==============================
-                                // USERNAME
-                                // ==============================
-                                const _FieldLabel(text: 'Username'),
+                                return null;
+                              },
+                            );
+                          },
+                        ),
 
-                                const SizedBox(height: 8),
+                        const SizedBox(height: 10),
 
-                                BlocBuilder<UserBloc, UserState>(
-                                  buildWhen: (previous, current) {
-                                    return previous.rememberedUsername !=
-                                            current.rememberedUsername ||
-                                        previous.hasRememberedAccount !=
-                                            current.hasRememberedAccount;
-                                  },
+                        // ======================================
+                        // REMEMBER ME
+                        // ======================================
+                        BlocBuilder<UserBloc, UserState>(
+                          buildWhen: (previous, current) {
+                            return previous.rememberMe != current.rememberMe ||
+                                previous.isLoading != current.isLoading;
+                          },
 
-                                  builder: (context, state) {
-                                    return TextFormField(
-                                      key: ValueKey(
-                                        'username_${state.hasRememberedAccount}',
-                                      ),
+                          builder: (context, state) {
+                            return Row(
+                              children: [
+                                Checkbox(
+                                  value: state.rememberMe,
 
-                                      initialValue: state.username,
-
-                                      textInputAction: TextInputAction.next,
-
-                                      autofillHints: const [
-                                        AutofillHints.username,
-                                      ],
-
-                                      onChanged: (value) {
-                                        context.read<UserBloc>().add(
-                                          UsernameChanged(value),
-                                        );
-                                      },
-
-                                      decoration: const InputDecoration(
-                                        hintText: 'Enter your username',
-
-                                        prefixIcon: Icon(
-                                          Icons.person_outline_rounded,
-                                        ),
-                                      ),
-
-                                      validator: (value) {
-                                        if (value == null ||
-                                            value.trim().isEmpty) {
-                                          return 'Please enter your username';
-                                        }
-
-                                        return null;
-                                      },
-                                    );
-                                  },
+                                  onChanged: state.isLoading
+                                      ? null
+                                      : (value) {
+                                          context.read<UserBloc>().add(
+                                            RememberMeChanged(value ?? false),
+                                          );
+                                        },
                                 ),
 
-                                const SizedBox(height: 20),
+                                Text(
+                                  'Remember me',
 
-                                // ==============================
-                                // PASSWORD
-                                // ==============================
-                                const _FieldLabel(text: 'Password'),
+                                  style: TextStyle(
+                                    fontSize: 14,
 
-                                const SizedBox(height: 8),
-
-                                BlocBuilder<UserBloc, UserState>(
-                                  buildWhen: (previous, current) {
-                                    return previous.obscurePassword !=
-                                            current.obscurePassword ||
-                                        previous.rememberedPassword !=
-                                            current.rememberedPassword ||
-                                        previous.hasRememberedAccount !=
-                                            current.hasRememberedAccount;
-                                  },
-
-                                  builder: (context, state) {
-                                    return TextFormField(
-                                      key: ValueKey(
-                                        'password_${state.hasRememberedAccount}',
-                                      ),
-
-                                      initialValue: state.password,
-
-                                      obscureText: state.obscurePassword,
-
-                                      textInputAction: TextInputAction.done,
-
-                                      autofillHints: const [
-                                        AutofillHints.password,
-                                      ],
-
-                                      onFieldSubmitted: (_) {
-                                        if (!state.isLoading) {
-                                          _login(context);
-                                        }
-                                      },
-
-                                      onChanged: (value) {
-                                        context.read<UserBloc>().add(
-                                          PasswordChanged(value),
-                                        );
-                                      },
-
-                                      decoration: InputDecoration(
-                                        hintText: 'Enter your password',
-
-                                        prefixIcon: const Icon(
-                                          Icons.lock_outline_rounded,
-                                        ),
-
-                                        suffixIcon: IconButton(
-                                          tooltip: state.obscurePassword
-                                              ? 'Show password'
-                                              : 'Hide password',
-
-                                          onPressed: () {
-                                            context.read<UserBloc>().add(
-                                              const TogglePasswordVisibility(),
-                                            );
-                                          },
-
-                                          icon: Icon(
-                                            state.obscurePassword
-                                                ? Icons.visibility_outlined
-                                                : Icons.visibility_off_outlined,
-                                          ),
-                                        ),
-                                      ),
-
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Please enter your password';
-                                        }
-
-                                        return null;
-                                      },
-                                    );
-                                  },
+                                    color: colors.onSurfaceVariant,
+                                  ),
                                 ),
+                              ],
+                            );
+                          },
+                        ),
 
-                                const SizedBox(height: 10),
+                        const SizedBox(height: 16),
 
-                                // ==============================
-                                // REMEMBER ME
-                                // ==============================
-                                BlocBuilder<UserBloc, UserState>(
-                                  buildWhen: (previous, current) {
-                                    return previous.rememberMe !=
-                                            current.rememberMe ||
-                                        previous.isLoading != current.isLoading;
-                                  },
+                        // ======================================
+                        // SIGN IN
+                        // ======================================
+                        BlocBuilder<UserBloc, UserState>(
+                          buildWhen: (previous, current) {
+                            return previous.isLoading != current.isLoading;
+                          },
 
-                                  builder: (context, state) {
-                                    return InkWell(
-                                      borderRadius: BorderRadius.circular(12),
+                          builder: (context, state) {
+                            return SizedBox(
+                              width: double.infinity,
 
-                                      onTap: state.isLoading
-                                          ? null
-                                          : () {
-                                              context.read<UserBloc>().add(
-                                                RememberMeChanged(
-                                                  !state.rememberMe,
-                                                ),
-                                              );
-                                            },
+                              height: 54,
 
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 6,
+                              child: FilledButton(
+                                onPressed: state.isLoading
+                                    ? null
+                                    : () {
+                                        _login(context);
+                                      },
+
+                                child: state.isLoading
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+
+                                          color: Colors.white,
                                         ),
+                                      )
+                                    : const Text(
+                                        'Sign In',
 
-                                        child: Row(
-                                          children: [
-                                            Checkbox(
-                                              value: state.rememberMe,
+                                        style: TextStyle(
+                                          fontSize: 16,
 
-                                              onChanged: state.isLoading
-                                                  ? null
-                                                  : (value) {
-                                                      context
-                                                          .read<UserBloc>()
-                                                          .add(
-                                                            RememberMeChanged(
-                                                              value ?? false,
-                                                            ),
-                                                          );
-                                                    },
-                                            ),
-
-                                            const SizedBox(width: 2),
-
-                                            const Text(
-                                              'Remember me',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: AppColors.textSecondary,
-                                              ),
-                                            ),
-                                          ],
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
-                                    );
-                                  },
+                              ),
+                            );
+                          },
+                        ),
+
+                        // ======================================
+                        // BIOMETRICS
+                        // ======================================
+                        BlocBuilder<UserBloc, UserState>(
+                          buildWhen: (previous, current) {
+                            return previous.hasFingerprint !=
+                                    current.hasFingerprint ||
+                                previous.hasFaceAuthentication !=
+                                    current.hasFaceAuthentication ||
+                                previous.hasIrisAuthentication !=
+                                    current.hasIrisAuthentication ||
+                                previous.hasRememberedAccount !=
+                                    current.hasRememberedAccount ||
+                                previous.rememberedPassword !=
+                                    current.rememberedPassword ||
+                                previous.isLoading != current.isLoading;
+                          },
+
+                          builder: (context, state) {
+                            final hasBiometrics =
+                                state.hasFingerprint ||
+                                state.hasFaceAuthentication ||
+                                state.hasIrisAuthentication;
+
+                            final canUseRememberedBiometrics =
+                                state.hasRememberedAccount &&
+                                state.rememberedPassword.isNotEmpty &&
+                                hasBiometrics;
+
+                            if (!canUseRememberedBiometrics) {
+                              return const SizedBox.shrink();
+                            }
+
+                            return Column(
+                              children: [
+                                const SizedBox(height: 22),
+
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Divider(
+                                        color: colors.outlineVariant,
+                                      ),
+                                    ),
+
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                      ),
+
+                                      child: Text(
+                                        'or sign in with',
+
+                                        style: TextStyle(
+                                          fontSize: 12,
+
+                                          color: colors.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ),
+
+                                    Expanded(
+                                      child: Divider(
+                                        color: colors.outlineVariant,
+                                      ),
+                                    ),
+                                  ],
                                 ),
 
                                 const SizedBox(height: 16),
 
-                                // ==============================
-                                // SIGN IN BUTTON
-                                // ==============================
-                                BlocBuilder<UserBloc, UserState>(
-                                  buildWhen: (previous, current) {
-                                    return previous.isLoading !=
-                                        current.isLoading;
-                                  },
+                                Wrap(
+                                  alignment: WrapAlignment.center,
 
-                                  builder: (context, state) {
-                                    return FilledButton(
-                                      onPressed: state.isLoading
-                                          ? null
-                                          : () {
-                                              _login(context);
-                                            },
+                                  spacing: 18,
 
-                                      child: AnimatedSwitcher(
-                                        duration: const Duration(
-                                          milliseconds: 180,
-                                        ),
+                                  runSpacing: 12,
 
-                                        child: state.isLoading
-                                            ? const SizedBox(
-                                                key: ValueKey('loader'),
-                                                width: 22,
-                                                height: 22,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                      strokeWidth: 2.3,
-                                                      color: Colors.white,
-                                                    ),
-                                              )
-                                            : const Row(
-                                                key: ValueKey('signin'),
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Text('Sign In'),
-                                                  SizedBox(width: 8),
-                                                  Icon(
-                                                    Icons.arrow_forward_rounded,
-                                                    size: 19,
-                                                  ),
-                                                ],
-                                              ),
+                                  children: [
+                                    // --------------------------
+                                    // FINGERPRINT
+                                    // --------------------------
+
+                                    if (state.hasFingerprint)
+                                      _BiometricButton(
+                                        icon: Icons.fingerprint_rounded,
+
+                                        label: 'Fingerprint',
+
+                                        isLoading: state.isLoading,
+
+                                        onPressed: () {
+                                          context.read<UserBloc>().add(
+                                            const BiometricAuthRequested(),
+                                          );
+                                        },
                                       ),
-                                    );
-                                  },
-                                ),
 
-                                // ==============================
-                                // BIOMETRICS
-                                // ==============================
-                                BlocBuilder<UserBloc, UserState>(
-                                  buildWhen: (previous, current) {
-                                    return previous.hasFingerprint !=
-                                            current.hasFingerprint ||
-                                        previous.hasFaceAuthentication !=
-                                            current.hasFaceAuthentication ||
-                                        previous.hasIrisAuthentication !=
-                                            current.hasIrisAuthentication ||
-                                        previous.hasRememberedAccount !=
-                                            current.hasRememberedAccount ||
-                                        previous.rememberedPassword !=
-                                            current.rememberedPassword ||
-                                        previous.isLoading != current.isLoading;
-                                  },
+                                    // --------------------------
+                                    // FACE
+                                    // --------------------------
+                                    if (state.hasFaceAuthentication)
+                                      _BiometricButton(
+                                        icon: Icons.face_retouching_natural,
 
-                                  builder: (context, state) {
-                                    final hasBiometrics =
-                                        state.hasFingerprint ||
-                                        state.hasFaceAuthentication ||
-                                        state.hasIrisAuthentication;
+                                        label: 'Face ID',
 
-                                    final canUseBiometrics =
-                                        state.hasRememberedAccount &&
-                                        state.rememberedPassword.isNotEmpty &&
-                                        hasBiometrics;
+                                        isLoading: state.isLoading,
 
-                                    if (!canUseBiometrics) {
-                                      return const SizedBox.shrink();
-                                    }
+                                        onPressed: () {
+                                          context.read<UserBloc>().add(
+                                            const BiometricAuthRequested(),
+                                          );
+                                        },
+                                      ),
 
-                                    return Column(
-                                      children: [
-                                        const SizedBox(height: 26),
+                                    // --------------------------
+                                    // IRIS
+                                    // --------------------------
+                                    if (state.hasIrisAuthentication)
+                                      _BiometricButton(
+                                        icon: Icons.remove_red_eye_outlined,
 
-                                        const _AuthDivider(),
+                                        label: 'Iris',
 
-                                        const SizedBox(height: 20),
+                                        isLoading: state.isLoading,
 
-                                        const Text(
-                                          'Quick secure sign in',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.textSecondary,
-                                          ),
-                                        ),
-
-                                        const SizedBox(height: 14),
-
-                                        Wrap(
-                                          alignment: WrapAlignment.center,
-
-                                          spacing: 10,
-                                          runSpacing: 10,
-
-                                          children: [
-                                            if (state.hasFingerprint)
-                                              _BiometricButton(
-                                                icon: Icons.fingerprint_rounded,
-
-                                                label: 'Fingerprint',
-
-                                                isLoading: state.isLoading,
-
-                                                onPressed: () {
-                                                  context.read<UserBloc>().add(
-                                                    const BiometricAuthRequested(),
-                                                  );
-                                                },
-                                              ),
-
-                                            if (state.hasFaceAuthentication)
-                                              _BiometricButton(
-                                                icon: Icons
-                                                    .face_retouching_natural_rounded,
-
-                                                label: 'Face',
-
-                                                isLoading: state.isLoading,
-
-                                                onPressed: () {
-                                                  context.read<UserBloc>().add(
-                                                    const BiometricAuthRequested(),
-                                                  );
-                                                },
-                                              ),
-
-                                            if (state.hasIrisAuthentication)
-                                              _BiometricButton(
-                                                icon: Icons.visibility_rounded,
-
-                                                label: 'Iris',
-
-                                                isLoading: state.isLoading,
-
-                                                onPressed: () {
-                                                  context.read<UserBloc>().add(
-                                                    const BiometricAuthRequested(),
-                                                  );
-                                                },
-                                              ),
-                                          ],
-                                        ),
-                                      ],
-                                    );
-                                  },
+                                        onPressed: () {
+                                          context.read<UserBloc>().add(
+                                            const BiometricAuthRequested(),
+                                          );
+                                        },
+                                      ),
+                                  ],
                                 ),
                               ],
-                            ),
-                          ),
+                            );
+                          },
+                        ),
 
-                          const SizedBox(height: 24),
-
-                          // ====================================
-                          // FOOTER
-                          // ====================================
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-
-                            children: [
-                              Icon(
-                                Icons.verified_user_outlined,
-                                size: 15,
-                                color: AppColors.textSecondary,
-                              ),
-
-                              SizedBox(width: 6),
-
-                              Text(
-                                'Secure CODEX workspace',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 12),
-                        ],
-                      ),
+                        const SizedBox(height: 10),
+                      ],
                     ),
                   ),
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ============================================================
-// FIELD LABEL
-// ============================================================
-
-class _FieldLabel extends StatelessWidget {
-  final String text;
-
-  const _FieldLabel({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w700,
-        color: AppColors.textPrimary,
-      ),
-    );
-  }
-}
-
-// ============================================================
-// DIVIDER
-// ============================================================
-
-class _AuthDivider extends StatelessWidget {
-  const _AuthDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Row(
-      children: [
-        Expanded(child: Divider()),
-
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Text(
-            'OR',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1,
-              color: AppColors.textSecondary,
-            ),
           ),
         ),
-
-        Expanded(child: Divider()),
-      ],
+      ),
     );
   }
 }
@@ -875,39 +681,58 @@ class _BiometricButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: const Color(0xFFF5F8FF),
+    final colors = Theme.of(context).colorScheme;
 
-      borderRadius: BorderRadius.circular(16),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-      child: InkWell(
-        onTap: isLoading ? null : onPressed,
+    return Column(
+      children: [
+        Material(
+          color: colors.primary.withValues(alpha: isDark ? 0.17 : 0.075),
 
-        borderRadius: BorderRadius.circular(16),
+          shape: const CircleBorder(),
 
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: InkWell(
+            customBorder: const CircleBorder(),
 
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+            onTap: isLoading ? null : onPressed,
 
-            children: [
-              Icon(icon, size: 23, color: AppColors.primary),
+            child: Container(
+              padding: const EdgeInsets.all(14),
 
-              const SizedBox(width: 8),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
 
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
+                border: Border.all(
+                  color: colors.primary.withValues(alpha: isDark ? 0.24 : 0.11),
                 ),
               ),
-            ],
+
+              child: Icon(
+                icon,
+
+                size: 32,
+
+                color: isLoading ? colors.onSurfaceVariant : colors.primary,
+              ),
+            ),
           ),
         ),
-      ),
+
+        const SizedBox(height: 7),
+
+        Text(
+          label,
+
+          style: TextStyle(
+            fontSize: 12,
+
+            fontWeight: FontWeight.w600,
+
+            color: colors.onSurfaceVariant,
+          ),
+        ),
+      ],
     );
   }
 }

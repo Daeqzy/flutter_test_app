@@ -21,10 +21,13 @@ class NotificationsScreen extends StatelessWidget {
       builder: (context, state) {
         return SafeArea(
           top: false,
+
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
+
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
                 // ==================================================
                 // HERO
@@ -53,25 +56,40 @@ class NotificationsScreen extends StatelessWidget {
                     message: 'Checking for recent workspace activity...',
                     boxed: true,
                   )
+                // ==================================================
+                // ERROR
+                // ==================================================
                 else if (state.errorMessage != null)
                   AppErrorView(
                     title: 'Unable to load notifications',
                     message: state.errorMessage!,
                     boxed: true,
+
                     onRetry: () {
                       context.read<NotificationsBloc>().add(
                         const NotificationsRequested(),
                       );
                     },
                   )
+                // ==================================================
+                // EMPTY
+                // ==================================================
                 else
                   const AppEmptyView(
                     icon: Icons.notifications_none_rounded,
+
                     title: 'You’re all caught up',
-                    message: 'New notifications and workspace updates will appear here when they become available.',
+
+                    message:
+                        'New notifications and workspace updates '
+                        'will appear here when they become available.',
+
                     boxed: true,
+
                     badgeText: 'No new activity',
+
                     badgeIcon: Icons.check_circle_outline_rounded,
+
                     badgeColor: AppColors.success,
                   ),
               ],
@@ -101,6 +119,7 @@ class _NotificationsHero extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
+
           colors: [AppColors.primary, AppColors.primaryDark],
         ),
 
@@ -109,7 +128,9 @@ class _NotificationsHero extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.20),
+
             blurRadius: 28,
+
             offset: const Offset(0, 12),
           ),
         ],
@@ -124,12 +145,14 @@ class _NotificationsHero extends StatelessWidget {
           Positioned(
             right: -35,
             top: -45,
+
             child: Container(
               width: 135,
               height: 135,
 
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.07),
+
                 shape: BoxShape.circle,
               ),
             ),
@@ -138,12 +161,14 @@ class _NotificationsHero extends StatelessWidget {
           Positioned(
             right: 35,
             bottom: -55,
+
             child: Container(
               width: 110,
               height: 110,
 
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.05),
+
                 shape: BoxShape.circle,
               ),
             ),
@@ -154,6 +179,7 @@ class _NotificationsHero extends StatelessWidget {
           // ----------------------------------------------------
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               Row(
                 children: [
@@ -165,6 +191,10 @@ class _NotificationsHero extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.15),
 
                       borderRadius: BorderRadius.circular(15),
+
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
                     ),
 
                     child: const Icon(
@@ -190,6 +220,7 @@ class _NotificationsHero extends StatelessWidget {
 
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
+
                       children: [
                         Icon(
                           Icons.notifications_active_outlined,
@@ -201,6 +232,7 @@ class _NotificationsHero extends StatelessWidget {
 
                         Text(
                           'Notifications',
+
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -217,6 +249,7 @@ class _NotificationsHero extends StatelessWidget {
 
               const Text(
                 'Stay informed',
+
                 style: TextStyle(
                   fontSize: 27,
                   fontWeight: FontWeight.w800,
@@ -228,11 +261,14 @@ class _NotificationsHero extends StatelessWidget {
               const SizedBox(height: 8),
 
               Text(
-                'Important updates, alerts and workspace activity will appear here.',
+                'Important updates, alerts and workspace activity '
+                'will appear here.',
+
                 style: TextStyle(
                   height: 1.4,
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
+
                   color: Colors.white.withValues(alpha: 0.78),
                 ),
               ),

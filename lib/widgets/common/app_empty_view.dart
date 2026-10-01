@@ -26,6 +26,8 @@ class AppEmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final resolvedBadgeColor = badgeColor ?? colors.primary;
 
     final content = Padding(
@@ -39,6 +41,7 @@ class AppEmptyView extends StatelessWidget {
             decoration: BoxDecoration(
               color: colors.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: colors.outlineVariant),
             ),
             child: Icon(icon, size: 30, color: colors.onSurfaceVariant),
           ),
@@ -73,8 +76,15 @@ class AppEmptyView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: resolvedBadgeColor.withValues(alpha: 0.10),
+                color: resolvedBadgeColor.withValues(
+                  alpha: isDark ? 0.16 : 0.10,
+                ),
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: resolvedBadgeColor.withValues(
+                    alpha: isDark ? 0.20 : 0.06,
+                  ),
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -108,9 +118,16 @@ class AppEmptyView extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: colors.outlineVariant),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.02),
+            blurRadius: isDark ? 16 : 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: content,
     );

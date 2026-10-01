@@ -18,6 +18,8 @@ class AppErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final content = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 38),
       child: Column(
@@ -27,8 +29,11 @@ class AppErrorView extends StatelessWidget {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: colors.error.withValues(alpha: 0.10),
+              color: colors.error.withValues(alpha: isDark ? 0.16 : 0.10),
               borderRadius: BorderRadius.circular(22),
+              border: Border.all(
+                color: colors.error.withValues(alpha: isDark ? 0.20 : 0.05),
+              ),
             ),
             child: Icon(Icons.cloud_off_rounded, size: 32, color: colors.error),
           ),
@@ -78,9 +83,16 @@ class AppErrorView extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: colors.surface,
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(color: colors.outlineVariant),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.02),
+            blurRadius: isDark ? 16 : 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: content,
     );

@@ -16,20 +16,32 @@ class AppStatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       constraints: const BoxConstraints(maxWidth: 120),
+
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.09),
+        color: color.withValues(alpha: isDark ? 0.16 : 0.09),
+
         borderRadius: BorderRadius.circular(20),
+
+        border: Border.all(
+          color: color.withValues(alpha: isDark ? 0.21 : 0.05),
+        ),
       ),
+
       child: Row(
         mainAxisSize: MainAxisSize.min,
+
         children: [
           if (showDot)
             Container(
               width: 6,
               height: 6,
+
               decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             )
           else if (icon != null)
@@ -40,8 +52,11 @@ class AppStatusBadge extends StatelessWidget {
           Flexible(
             child: Text(
               text.trim(),
+
               maxLines: 1,
+
               overflow: TextOverflow.ellipsis,
+
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w700,

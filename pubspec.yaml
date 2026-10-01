@@ -44,6 +44,10 @@ dependencies:
   local_auth: ^3.0.2
   url_launcher: ^6.3.2
   shared_preferences: ^2.5.5
+  google_maps_flutter: ^2.18.2
+  geocoding: ^5.0.0
+  flutter_map: ^8.3.2
+  latlong2: ^0.10.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -28,8 +28,12 @@ class PartnerAgreementsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
       // ========================================================
       // APP BAR
@@ -40,24 +44,32 @@ class PartnerAgreementsScreen extends StatelessWidget {
 
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
             Text(
               partnerName,
+
               maxLines: 1,
+
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+
+              style: TextStyle(
                 fontSize: 19,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.3,
+                color: colors.onSurface,
               ),
             ),
+
             const SizedBox(height: 2),
-            const Text(
+
+            Text(
               'Agreements',
+
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
+                color: colors.onSurfaceVariant,
               ),
             ),
           ],
@@ -66,27 +78,35 @@ class PartnerAgreementsScreen extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 14),
+
             child: Material(
-              color: AppColors.surface,
+              color: isDark ? colors.surfaceContainerHigh : colors.surface,
+
               borderRadius: BorderRadius.circular(14),
+
               child: InkWell(
                 borderRadius: BorderRadius.circular(14),
+
                 onTap: () {
                   context.read<PartnerAgreementsBloc>().add(
                     PartnerAgreementsRequested(tp: tp, p: p),
                   );
                 },
+
                 child: Container(
                   width: 44,
                   height: 44,
+
                   decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: colors.outlineVariant),
+
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(
+
+                  child: Icon(
                     Icons.refresh_rounded,
                     size: 21,
-                    color: AppColors.textPrimary,
+                    color: colors.onSurface,
                   ),
                 ),
               ),
@@ -107,6 +127,7 @@ class PartnerAgreementsScreen extends StatelessWidget {
           if (state.isLoading) {
             return const AppLoadingView(
               title: 'Loading agreements',
+
               message: 'Retrieving agreement records...',
             );
           }
@@ -118,7 +139,9 @@ class PartnerAgreementsScreen extends StatelessWidget {
           if (state.errorMessage != null) {
             return AppErrorView(
               title: 'Unable to load agreements',
+
               message: state.errorMessage!,
+
               onRetry: () {
                 context.read<PartnerAgreementsBloc>().add(
                   PartnerAgreementsRequested(tp: tp, p: p),
@@ -134,13 +157,15 @@ class PartnerAgreementsScreen extends StatelessWidget {
           if (state.agreements.isEmpty) {
             return AppEmptyView(
               icon: Icons.description_outlined,
+
               title: 'No agreements found',
+
               message: '$partnerName currently has no agreement records.',
             );
           }
 
           // ----------------------------------------------------
-          // ACTIVE AGREEMENTS COUNT
+          // VALID AGREEMENTS COUNT
           // ----------------------------------------------------
 
           final validCount = state.agreements.where((agreement) {
@@ -159,34 +184,48 @@ class PartnerAgreementsScreen extends StatelessWidget {
 
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+
                 child: AppSummaryCard(
                   icon: Icons.description_outlined,
+
                   title: 'Agreement records',
+
                   subtitle:
-                      '${state.agreements.length} agreement${state.agreements.length == 1 ? '' : 's'} available',
+                      '${state.agreements.length} '
+                      'agreement${state.agreements.length == 1 ? '' : 's'} '
+                      'available',
+
                   detail: partnerName,
+
                   trailing: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 7,
                     ),
+
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.14),
+
                       borderRadius: BorderRadius.circular(18),
                     ),
+
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
+
                       children: [
                         Text(
                           '$validCount',
+
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w800,
                             color: Colors.white,
                           ),
                         ),
+
                         const Text(
                           'Valid',
+
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
@@ -226,17 +265,23 @@ class PartnerAgreementsScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(16),
 
                         decoration: BoxDecoration(
-                          color: AppColors.surface,
+                          color: isDark
+                              ? colors.surfaceContainerHigh
+                              : colors.surface,
 
                           borderRadius: BorderRadius.circular(22),
 
-                          border: Border.all(color: AppColors.border),
+                          border: Border.all(color: colors.outlineVariant),
 
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.025),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
+                              color: Colors.black.withValues(
+                                alpha: isDark ? 0.24 : 0.025,
+                              ),
+
+                              blurRadius: isDark ? 18 : 12,
+
+                              offset: const Offset(0, 5),
                             ),
                           ],
                         ),
@@ -263,22 +308,29 @@ class PartnerAgreementsScreen extends StatelessWidget {
                                       end: Alignment.bottomRight,
 
                                       colors: [
-                                        AppColors.primary.withValues(
-                                          alpha: 0.14,
+                                        colors.primary.withValues(
+                                          alpha: isDark ? 0.24 : 0.14,
                                         ),
-                                        AppColors.primary.withValues(
-                                          alpha: 0.06,
+
+                                        colors.primary.withValues(
+                                          alpha: isDark ? 0.12 : 0.06,
                                         ),
                                       ],
+                                    ),
+
+                                    border: Border.all(
+                                      color: colors.primary.withValues(
+                                        alpha: isDark ? 0.24 : 0.08,
+                                      ),
                                     ),
 
                                     borderRadius: BorderRadius.circular(15),
                                   ),
 
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.description_outlined,
                                     size: 23,
-                                    color: AppColors.primary,
+                                    color: colors.primary,
                                   ),
                                 ),
 
@@ -298,11 +350,11 @@ class PartnerAgreementsScreen extends StatelessWidget {
 
                                         overflow: TextOverflow.ellipsis,
 
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 15,
                                           height: 1.3,
                                           fontWeight: FontWeight.w700,
-                                          color: AppColors.textPrimary,
+                                          color: colors.onSurface,
                                         ),
                                       ),
 
@@ -322,9 +374,11 @@ class PartnerAgreementsScreen extends StatelessWidget {
 
                                   AppStatusBadge(
                                     text: status,
+
                                     color: _isValidStatus(status)
                                         ? AppColors.success
                                         : AppColors.error,
+
                                     showDot: true,
                                   ),
                                 ],
@@ -333,7 +387,7 @@ class PartnerAgreementsScreen extends StatelessWidget {
 
                             const SizedBox(height: 16),
 
-                            const Divider(),
+                            Divider(color: colors.outlineVariant),
 
                             const SizedBox(height: 12),
 
@@ -431,24 +485,30 @@ class _AgreementNumberBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
 
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F7FB),
+        color: isDark
+            ? colors.surfaceContainerHighest
+            : colors.surfaceContainerHighest.withValues(alpha: 0.55),
 
         borderRadius: BorderRadius.circular(20),
+
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: isDark ? 0.80 : 0.45),
+        ),
       ),
 
       child: Row(
         mainAxisSize: MainAxisSize.min,
 
         children: [
-          const Icon(
-            Icons.tag_rounded,
-            size: 12,
-            color: AppColors.textSecondary,
-          ),
+          Icon(Icons.tag_rounded, size: 12, color: colors.onSurfaceVariant),
 
           const SizedBox(width: 4),
 
@@ -460,10 +520,10 @@ class _AgreementNumberBadge extends StatelessWidget {
 
               overflow: TextOverflow.ellipsis,
 
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+                color: colors.onSurfaceVariant,
               ),
             ),
           ),

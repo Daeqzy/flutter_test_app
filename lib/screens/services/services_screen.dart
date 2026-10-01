@@ -4,26 +4,34 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/services/services_bloc.dart';
 import '../../bloc/services/services_event.dart';
 import '../../bloc/services/services_state.dart';
+
 import '../../widgets/common/app_loading_view.dart';
 import '../../widgets/common/app_error_view.dart';
 import '../../widgets/common/app_empty_view.dart';
+import '../../widgets/common/app_section_header.dart';
 
 import '../../theme/app_theme.dart';
-import '../../widgets/common/app_section_header.dart';
 
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return BlocBuilder<ServicesBloc, ServicesState>(
       builder: (context, state) {
         return SafeArea(
           top: false,
+
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
+
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
                 // ==================================================
                 // HERO
@@ -43,15 +51,80 @@ class ServicesScreen extends StatelessWidget {
 
                 const SizedBox(height: 14),
 
-                TextField(
-                  onChanged: (value) {
-                    context.read<ServicesBloc>().add(
-                      ServicesSearchChanged(value),
-                    );
-                  },
-                  decoration: const InputDecoration(
-                    hintText: 'Search services...',
-                    prefixIcon: Icon(Icons.search_rounded),
+                // ==================================================
+                // SEARCH
+                // ==================================================
+                Container(
+                  decoration: BoxDecoration(
+                    color: isDark ? colors.surfaceContainer : colors.surface,
+
+                    borderRadius: BorderRadius.circular(18),
+
+                    border: Border.all(color: colors.outlineVariant),
+
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(
+                          alpha: isDark ? 0.16 : 0.025,
+                        ),
+
+                        blurRadius: isDark ? 14 : 10,
+
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+
+                  child: TextField(
+                    style: TextStyle(
+                      color: colors.onSurface,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+
+                    cursorColor: colors.primary,
+
+                    onChanged: (value) {
+                      context.read<ServicesBloc>().add(
+                        ServicesSearchChanged(value),
+                      );
+                    },
+
+                    decoration: InputDecoration(
+                      hintText: 'Search services...',
+
+                      prefixIcon: Icon(
+                        Icons.search_rounded,
+                        color: colors.primary,
+                      ),
+
+                      suffixIcon: Icon(
+                        Icons.tune_rounded,
+                        size: 19,
+                        color: colors.onSurfaceVariant,
+                      ),
+
+                      // Container already provides the surface.
+                      fillColor: Colors.transparent,
+
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide.none,
+                      ),
+
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide(
+                          color: colors.primary,
+                          width: 1.4,
+                        ),
+                      ),
+
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
                   ),
                 ),
 
@@ -76,24 +149,38 @@ class ServicesScreen extends StatelessWidget {
                     message: 'Checking for available workspace services...',
                     boxed: true,
                   )
+                // ==================================================
+                // ERROR
+                // ==================================================
                 else if (state.errorMessage != null)
                   AppErrorView(
                     title: 'Unable to load services',
                     message: state.errorMessage!,
                     boxed: true,
+
                     onRetry: () {
                       context.read<ServicesBloc>().add(
                         const ServicesRequested(),
                       );
                     },
                   )
+                // ==================================================
+                // EMPTY
+                // ==================================================
                 else
                   const AppEmptyView(
                     icon: Icons.widgets_outlined,
+
                     title: 'No services available yet',
-                    message: 'Services provided by the application will appear here when they become available.',
+
+                    message:
+                        'Services provided by the application will appear '
+                        'here when they become available.',
+
                     boxed: true,
+
                     badgeText: 'Nothing to display',
+
                     badgeIcon: Icons.info_outline_rounded,
                   ),
               ],
@@ -123,6 +210,7 @@ class _ServicesHero extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
+
           colors: [AppColors.primary, AppColors.primaryDark],
         ),
 
@@ -131,7 +219,9 @@ class _ServicesHero extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withValues(alpha: 0.20),
+
             blurRadius: 28,
+
             offset: const Offset(0, 12),
           ),
         ],
@@ -146,11 +236,14 @@ class _ServicesHero extends StatelessWidget {
           Positioned(
             right: -35,
             top: -45,
+
             child: Container(
               width: 135,
               height: 135,
+
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.07),
+
                 shape: BoxShape.circle,
               ),
             ),
@@ -159,11 +252,14 @@ class _ServicesHero extends StatelessWidget {
           Positioned(
             right: 35,
             bottom: -55,
+
             child: Container(
               width: 110,
               height: 110,
+
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.05),
+
                 shape: BoxShape.circle,
               ),
             ),
@@ -174,6 +270,7 @@ class _ServicesHero extends StatelessWidget {
           // ----------------------------------------------------
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               Row(
                 children: [
@@ -185,6 +282,10 @@ class _ServicesHero extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.15),
 
                       borderRadius: BorderRadius.circular(15),
+
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
                     ),
 
                     child: const Icon(
@@ -210,6 +311,7 @@ class _ServicesHero extends StatelessWidget {
 
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
+
                       children: [
                         Icon(Icons.apps_rounded, color: Colors.white, size: 14),
 
@@ -217,6 +319,7 @@ class _ServicesHero extends StatelessWidget {
 
                         Text(
                           'Services',
+
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -233,6 +336,7 @@ class _ServicesHero extends StatelessWidget {
 
               const Text(
                 'CODEX Services',
+
                 style: TextStyle(
                   fontSize: 27,
                   fontWeight: FontWeight.w800,
@@ -245,10 +349,12 @@ class _ServicesHero extends StatelessWidget {
 
               Text(
                 'Access tools and services available in your workspace.',
+
                 style: TextStyle(
                   height: 1.4,
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
+
                   color: Colors.white.withValues(alpha: 0.78),
                 ),
               ),
