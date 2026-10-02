@@ -121,3 +121,7 @@ class CheckBiometricAvailability extends UserEvent {
 class BiometricAuthRequested extends UserEvent {
   const BiometricAuthRequested();
 }
+
+class AuthSessionExpired extends UserEvent {
+  const AuthSessionExpired();
+}

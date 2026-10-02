@@ -5,6 +5,13 @@ import '../../bloc/notifications/notifications_bloc.dart';
 import '../../bloc/notifications/notifications_event.dart';
 import '../../bloc/notifications/notifications_state.dart';
 
+import '../../widgets/common/app_loading_view.dart';
+import '../../widgets/common/app_error_view.dart';
+import '../../widgets/common/app_empty_view.dart';
+import '../../widgets/common/app_section_header.dart';
+
+import '../../theme/app_theme.dart';
+
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
 
@@ -12,52 +19,80 @@ class NotificationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<NotificationsBloc, NotificationsState>(
       builder: (context, state) {
-        return Container(
-          color: const Color(0xFFF8FAFC),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Notifications',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF0F172A),
-                    ),
+        return SafeArea(
+          top: false,
+
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
+
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                // ==================================================
+                // HERO
+                // ==================================================
+
+                const _NotificationsHero(),
+
+                const SizedBox(height: 28),
+
+                // ==================================================
+                // SECTION HEADER
+                // ==================================================
+                const AppSectionHeader(
+                  title: 'Activity center',
+                  subtitle: 'Updates and alerts from your workspace',
+                ),
+
+                const SizedBox(height: 14),
+
+                // ==================================================
+                // LOADING
+                // ==================================================
+                if (state.isLoading)
+                  const AppLoadingView(
+                    title: 'Loading notifications',
+                    message: 'Checking for recent workspace activity...',
+                    boxed: true,
+                  )
+                // ==================================================
+                // ERROR
+                // ==================================================
+                else if (state.errorMessage != null)
+                  AppErrorView(
+                    title: 'Unable to load notifications',
+                    message: state.errorMessage!,
+                    boxed: true,
+
+                    onRetry: () {
+                      context.read<NotificationsBloc>().add(
+                        const NotificationsRequested(),
+                      );
+                    },
+                  )
+                // ==================================================
+                // EMPTY
+                // ==================================================
+                else
+                  const AppEmptyView(
+                    icon: Icons.notifications_none_rounded,
+
+                    title: 'You’re all caught up',
+
+                    message:
+                        'New notifications and workspace updates '
+                        'will appear here when they become available.',
+
+                    boxed: true,
+
+                    badgeText: 'No new activity',
+
+                    badgeIcon: Icons.check_circle_outline_rounded,
+
+                    badgeColor: AppColors.success,
                   ),
-
-                  const SizedBox(height: 6),
-
-                  const Text(
-                    'Stay updated with the latest activity',
-                    style: TextStyle(fontSize: 15, color: Color(0xFF64748B)),
-                  ),
-
-                  const SizedBox(height: 28),
-
-                  if (state.isLoading)
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(40),
-                        child: CircularProgressIndicator(),
-                      ),
-                    )
-                  else if (state.errorMessage != null)
-                    _ErrorState(
-                      message: state.errorMessage!,
-                      onRetry: () {
-                        context.read<NotificationsBloc>().add(
-                          const NotificationsRequested(),
-                        );
-                      },
-                    )
-                  else
-                    const _EmptyNotifications(),
-                ],
-              ),
+              ],
             ),
           ),
         );
@@ -66,133 +101,178 @@ class NotificationsScreen extends StatelessWidget {
   }
 }
 
-class _EmptyNotifications extends StatelessWidget {
-  const _EmptyNotifications();
+// ============================================================
+// HERO
+// ============================================================
+
+class _NotificationsHero extends StatelessWidget {
+  const _NotificationsHero();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+
+      padding: const EdgeInsets.all(22),
+
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: const Column(
-        children: [
-          _NotificationIcon(),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
 
-          SizedBox(height: 18),
+          colors: [AppColors.primary, AppColors.primaryDark],
+        ),
 
-          Text(
-            'No notifications yet',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF334155),
-            ),
-          ),
+        borderRadius: BorderRadius.circular(26),
 
-          SizedBox(height: 6),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.20),
 
-          Text(
-            'Your notifications will appear here.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Color(0xFF94A3B8)),
+            blurRadius: 28,
+
+            offset: const Offset(0, 12),
           ),
         ],
       ),
-    );
-  }
-}
 
-class _NotificationIcon extends StatelessWidget {
-  const _NotificationIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 64,
-      height: 64,
-      decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: const Icon(
-        Icons.notifications_none_rounded,
-        size: 30,
-        color: Color(0xFF2563EB),
-      ),
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorState({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
+      child: Stack(
         children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFEF2F2),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: const Icon(
-              Icons.error_outline_rounded,
-              size: 30,
-              color: Color(0xFFDC2626),
-            ),
-          ),
+          // ----------------------------------------------------
+          // BACKGROUND DECORATION
+          // ----------------------------------------------------
 
-          const SizedBox(height: 18),
+          Positioned(
+            right: -35,
+            top: -45,
 
-          const Text(
-            'Something went wrong',
-            style: TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF334155),
-            ),
-          ),
+            child: Container(
+              width: 135,
+              height: 135,
 
-          const SizedBox(height: 6),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.07),
 
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF64748B)),
-          ),
-
-          const SizedBox(height: 20),
-
-          ElevatedButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Try Again'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF2563EB),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                shape: BoxShape.circle,
               ),
             ),
+          ),
+
+          Positioned(
+            right: 35,
+            bottom: -55,
+
+            child: Container(
+              width: 110,
+              height: 110,
+
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+
+          // ----------------------------------------------------
+          // CONTENT
+          // ----------------------------------------------------
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+
+                      borderRadius: BorderRadius.circular(15),
+
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
+                    ),
+
+                    child: const Icon(
+                      Icons.notifications_none_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+
+                  const Spacer(),
+
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.14),
+
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+
+                      children: [
+                        Icon(
+                          Icons.notifications_active_outlined,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+
+                        SizedBox(width: 5),
+
+                        Text(
+                          'Notifications',
+
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              const Text(
+                'Stay informed',
+
+                style: TextStyle(
+                  fontSize: 27,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  letterSpacing: -0.7,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                'Important updates, alerts and workspace activity '
+                'will appear here.',
+
+                style: TextStyle(
+                  height: 1.4,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+
+                  color: Colors.white.withValues(alpha: 0.78),
+                ),
+              ),
+            ],
           ),
         ],
       ),

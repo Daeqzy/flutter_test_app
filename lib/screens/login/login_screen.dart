@@ -12,9 +12,9 @@ class LoginScreen extends StatelessWidget {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // NORMAL LOGIN
-  // ----------------------------------------------------------
+  // ==========================================================
 
   void _login(BuildContext context) {
     if (!_formKey.currentState!.validate()) {
@@ -31,37 +31,75 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
+  // ==========================================================
+  // BIOMETRIC LOGIN
+  // ==========================================================
+
+  void _biometricLogin(BuildContext context) {
+    final state = context.read<UserBloc>().state;
+
+    if (!state.hasRememberedAccount ||
+        state.rememberedUsername.trim().isEmpty ||
+        state.rememberedPassword.isEmpty) {
+      _showBiometricMessage(
+        context,
+        'Sign in once with Remember me enabled '
+        'before using biometric login.',
+      );
+
+      return;
+    }
+
+    context.read<UserBloc>().add(const BiometricAuthRequested());
+  }
+
+  // ==========================================================
+  // MESSAGE
+  // ==========================================================
+
+  void _showBiometricMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<UserBloc, UserState>(
       listenWhen: (previous, current) {
-        return previous.loginSuccess != current.loginSuccess ||
-            previous.errorMessage != current.errorMessage;
+        final becameAuthenticated =
+            previous.authStatus != current.authStatus &&
+            current.authStatus == AuthStatus.authenticated;
+
+        final errorChanged = previous.errorMessage != current.errorMessage;
+
+        return becameAuthenticated || errorChanged;
       },
 
       listener: (context, state) {
-        // ----------------------------------------------------
-        // SUCCESS
-        // ----------------------------------------------------
-
-        if (state.loginSuccess) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const MainScreen()),
-          );
-
-          return;
-        }
-
-        // ----------------------------------------------------
+        // ======================================================
         // ERROR
-        // ----------------------------------------------------
+        // ======================================================
 
         if (state.errorMessage != null) {
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+
+          return;
+        }
+
+        // ======================================================
+        // SUCCESS
+        // ======================================================
+
+        if (state.authStatus == AuthStatus.authenticated) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const MainScreen()),
+          );
         }
       },
 
@@ -82,29 +120,33 @@ class LoginScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
 
                   children: [
-                    // ========================================
+                    // ==========================================
                     // LOGO
-                    // ========================================
+                    // ==========================================
 
                     ClipRRect(
                       borderRadius: BorderRadius.circular(25),
 
                       child: Image.asset(
                         'assets/images/codex_logo.png',
+
                         width: 280,
+
                         fit: BoxFit.contain,
                       ),
                     ),
 
                     const SizedBox(height: 25),
 
-                    // ========================================
+                    // ==========================================
                     // TITLE
-                    // ========================================
+                    // ==========================================
                     const Text(
                       'Welcome Back',
+
                       style: TextStyle(
                         fontSize: 32,
+
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -113,12 +155,13 @@ class LoginScreen extends StatelessWidget {
 
                     const Text(
                       'Sign in to continue',
+
                       style: TextStyle(fontSize: 16),
                     ),
 
-                    // ========================================
+                    // ==========================================
                     // REMEMBERED ACCOUNT
-                    // ========================================
+                    // ==========================================
                     BlocBuilder<UserBloc, UserState>(
                       buildWhen: (previous, current) {
                         return previous.hasRememberedAccount !=
@@ -157,6 +200,7 @@ class LoginScreen extends StatelessWidget {
 
                                   child: Icon(
                                     Icons.person_outline_rounded,
+
                                     color: Color(0xFF2563EB),
                                   ),
                                 ),
@@ -171,8 +215,10 @@ class LoginScreen extends StatelessWidget {
                                     children: [
                                       const Text(
                                         'Remembered account',
+
                                         style: TextStyle(
                                           fontSize: 13,
+
                                           color: Color(0xFF64748B),
                                         ),
                                       ),
@@ -186,7 +232,9 @@ class LoginScreen extends StatelessWidget {
 
                                         style: const TextStyle(
                                           fontSize: 15,
+
                                           fontWeight: FontWeight.w600,
+
                                           color: Color(0xFF0F172A),
                                         ),
                                       ),
@@ -195,7 +243,8 @@ class LoginScreen extends StatelessWidget {
                                 ),
 
                                 const Icon(
-                                  Icons.check_circle_rounded,
+                                  Icons.verified_user_rounded,
+
                                   color: Color(0xFF2563EB),
                                 ),
                               ],
@@ -207,9 +256,9 @@ class LoginScreen extends StatelessWidget {
 
                     const SizedBox(height: 30),
 
-                    // ========================================
+                    // ==========================================
                     // USERNAME
-                    // ========================================
+                    // ==========================================
                     BlocBuilder<UserBloc, UserState>(
                       buildWhen: (previous, current) {
                         return previous.rememberedUsername !=
@@ -221,7 +270,8 @@ class LoginScreen extends StatelessWidget {
                       builder: (context, state) {
                         return TextFormField(
                           key: ValueKey(
-                            'username_${state.hasRememberedAccount}',
+                            'username_'
+                            '${state.hasRememberedAccount}',
                           ),
 
                           initialValue: state.username,
@@ -253,9 +303,9 @@ class LoginScreen extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // ========================================
+                    // ==========================================
                     // PASSWORD
-                    // ========================================
+                    // ==========================================
                     BlocBuilder<UserBloc, UserState>(
                       buildWhen: (previous, current) {
                         return previous.obscurePassword !=
@@ -269,7 +319,8 @@ class LoginScreen extends StatelessWidget {
                       builder: (context, state) {
                         return TextFormField(
                           key: ValueKey(
-                            'password_${state.hasRememberedAccount}',
+                            'password_'
+                            '${state.hasRememberedAccount}',
                           ),
 
                           initialValue: state.password,
@@ -317,9 +368,9 @@ class LoginScreen extends StatelessWidget {
 
                     const SizedBox(height: 12),
 
-                    // ========================================
+                    // ==========================================
                     // REMEMBER ME
-                    // ========================================
+                    // ==========================================
                     BlocBuilder<UserBloc, UserState>(
                       buildWhen: (previous, current) {
                         return previous.rememberMe != current.rememberMe ||
@@ -343,8 +394,10 @@ class LoginScreen extends StatelessWidget {
 
                             const Text(
                               'Remember me',
+
                               style: TextStyle(
                                 fontSize: 14,
+
                                 color: Color(0xFF475569),
                               ),
                             ),
@@ -355,9 +408,9 @@ class LoginScreen extends StatelessWidget {
 
                     const SizedBox(height: 18),
 
-                    // ========================================
+                    // ==========================================
                     // SIGN IN
-                    // ========================================
+                    // ==========================================
                     BlocBuilder<UserBloc, UserState>(
                       buildWhen: (previous, current) {
                         return previous.isLoading != current.isLoading;
@@ -379,15 +432,19 @@ class LoginScreen extends StatelessWidget {
                             child: state.isLoading
                                 ? const SizedBox(
                                     width: 20,
+
                                     height: 20,
+
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                     ),
                                   )
                                 : const Text(
                                     'Sign In',
+
                                     style: TextStyle(
                                       fontSize: 16,
+
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -396,117 +453,162 @@ class LoginScreen extends StatelessWidget {
                       },
                     ),
 
-                    // ========================================
-                    // BIOMETRICS
-                    // ========================================
+                    // ==========================================
+                    // BIOMETRIC LOGIN
+                    // ==========================================
                     BlocBuilder<UserBloc, UserState>(
                       buildWhen: (previous, current) {
-                        return previous.hasFingerprint !=
-                                current.hasFingerprint ||
-                            previous.hasFaceAuthentication !=
-                                current.hasFaceAuthentication ||
-                            previous.hasIrisAuthentication !=
-                                current.hasIrisAuthentication ||
-                            previous.hasRememberedAccount !=
+                        return previous.hasRememberedAccount !=
                                 current.hasRememberedAccount ||
+                            previous.rememberedUsername !=
+                                current.rememberedUsername ||
                             previous.rememberedPassword !=
                                 current.rememberedPassword ||
                             previous.isLoading != current.isLoading;
                       },
 
                       builder: (context, state) {
-                        final hasBiometrics =
-                            state.hasFingerprint ||
-                            state.hasFaceAuthentication ||
-                            state.hasIrisAuthentication;
-
-                        final canUseRememberedBiometrics =
-                            state.hasRememberedAccount &&
-                            state.rememberedPassword.isNotEmpty &&
-                            hasBiometrics;
-
-                        if (!canUseRememberedBiometrics) {
-                          return const SizedBox.shrink();
-                        }
-
                         return Column(
                           children: [
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 22),
 
-                            Text(
-                              'or sign in with',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
-                              ),
+                            // ==================================
+                            // DIVIDER
+                            // ==================================
+                            Row(
+                              children: [
+                                const Expanded(child: Divider()),
+
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                  ),
+
+                                  child: Text(
+                                    'or sign in with',
+
+                                    style: TextStyle(
+                                      fontSize: 13,
+
+                                      fontWeight: FontWeight.w500,
+
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
+
+                                const Expanded(child: Divider()),
+                              ],
+                            ),
+
+                            const SizedBox(height: 18),
+
+                            // ==================================
+                            // ALWAYS VISIBLE
+                            // ==================================
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+
+                              children: [
+                                // ==============================
+                                // FINGERPRINT
+                                // ==============================
+
+                                _BiometricButton(
+                                  icon: Icons.fingerprint_rounded,
+
+                                  label: 'Fingerprint',
+
+                                  isLoading: state.isLoading,
+
+                                  onPressed: () {
+                                    _biometricLogin(context);
+                                  },
+                                ),
+
+                                const SizedBox(width: 36),
+
+                                // ==============================
+                                // FACE ID
+                                // ==============================
+                                _BiometricButton(
+                                  icon: Icons.face_retouching_natural,
+
+                                  label: 'Face ID',
+
+                                  isLoading: state.isLoading,
+
+                                  onPressed: () {
+                                    _biometricLogin(context);
+                                  },
+                                ),
+                              ],
                             ),
 
                             const SizedBox(height: 12),
 
-                            Wrap(
-                              alignment: WrapAlignment.center,
+                            // ==================================
+                            // INFORMATION
+                            // ==================================
+                            if (state.hasRememberedAccount)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
 
-                              spacing: 18,
+                                children: [
+                                  Icon(
+                                    Icons.verified_user_outlined,
 
-                              runSpacing: 12,
+                                    size: 14,
 
-                              children: [
-                                // ----------------------------
-                                // FINGERPRINT
-                                // ----------------------------
-
-                                if (state.hasFingerprint)
-                                  _BiometricButton(
-                                    icon: Icons.fingerprint_rounded,
-
-                                    label: 'Fingerprint',
-
-                                    isLoading: state.isLoading,
-
-                                    onPressed: () {
-                                      context.read<UserBloc>().add(
-                                        const BiometricAuthRequested(),
-                                      );
-                                    },
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primary,
                                   ),
 
-                                // ----------------------------
-                                // FACE ID / FACE
-                                // ----------------------------
-                                if (state.hasFaceAuthentication)
-                                  _BiometricButton(
-                                    icon: Icons.face_retouching_natural,
+                                  const SizedBox(width: 5),
 
-                                    label: 'Face ID',
+                                  Flexible(
+                                    child: Text(
+                                      'Verify to sign in as '
+                                      '${state.rememberedUsername}',
 
-                                    isLoading: state.isLoading,
+                                      textAlign: TextAlign.center,
 
-                                    onPressed: () {
-                                      context.read<UserBloc>().add(
-                                        const BiometricAuthRequested(),
-                                      );
-                                    },
+                                      overflow: TextOverflow.ellipsis,
+
+                                      style: TextStyle(
+                                        fontSize: 11,
+
+                                        fontWeight: FontWeight.w600,
+
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                    ),
                                   ),
+                                ],
+                              )
+                            else
+                              Text(
+                                'Biometric login becomes available '
+                                'after you sign in with '
+                                'Remember me enabled.',
 
-                                // ----------------------------
-                                // IRIS
-                                // ----------------------------
-                                if (state.hasIrisAuthentication)
-                                  _BiometricButton(
-                                    icon: Icons.remove_red_eye_outlined,
+                                textAlign: TextAlign.center,
 
-                                    label: 'Iris',
+                                style: TextStyle(
+                                  fontSize: 11,
 
-                                    isLoading: state.isLoading,
+                                  height: 1.4,
 
-                                    onPressed: () {
-                                      context.read<UserBloc>().add(
-                                        const BiometricAuthRequested(),
-                                      );
-                                    },
-                                  ),
-                              ],
-                            ),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                              ),
                           ],
                         );
                       },
@@ -530,8 +632,11 @@ class LoginScreen extends StatelessWidget {
 
 class _BiometricButton extends StatelessWidget {
   final IconData icon;
+
   final String label;
+
   final bool isLoading;
+
   final VoidCallback onPressed;
 
   const _BiometricButton({
@@ -543,10 +648,16 @@ class _BiometricButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       children: [
         Material(
-          color: const Color(0xFFEFF6FF),
+          color: isDark
+              ? colors.primary.withValues(alpha: 0.14)
+              : const Color(0xFFEFF6FF),
 
           shape: const CircleBorder(),
 
@@ -558,7 +669,7 @@ class _BiometricButton extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(14),
 
-              child: Icon(icon, size: 34, color: const Color(0xFF2563EB)),
+              child: Icon(icon, size: 34, color: colors.primary),
             ),
           ),
         ),
@@ -567,10 +678,13 @@ class _BiometricButton extends StatelessWidget {
 
         Text(
           label,
-          style: const TextStyle(
+
+          style: TextStyle(
             fontSize: 12,
+
             fontWeight: FontWeight.w500,
-            color: Color(0xFF475569),
+
+            color: colors.onSurfaceVariant,
           ),
         ),
       ],

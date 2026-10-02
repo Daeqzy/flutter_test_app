@@ -5,6 +5,15 @@ import '../bloc/partner_agreements/partner_agreements_bloc.dart';
 import '../bloc/partner_agreements/partner_agreements_event.dart';
 import '../bloc/partner_agreements/partner_agreements_state.dart';
 
+import '../theme/app_theme.dart';
+
+import '../widgets/common/app_loading_view.dart';
+import '../widgets/common/app_error_view.dart';
+import '../widgets/common/app_empty_view.dart';
+import '../widgets/common/app_summary_card.dart';
+import '../widgets/common/app_info_row.dart';
+import '../widgets/common/app_status_badge.dart';
+
 class PartnerAgreementsScreen extends StatelessWidget {
   final int tp;
   final int p;
@@ -19,17 +28,120 @@ class PartnerAgreementsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(title: Text(partnerName)),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+
+      // ========================================================
+      // APP BAR
+      // ========================================================
+      appBar: AppBar(
+        toolbarHeight: 72,
+        titleSpacing: 8,
+
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+
+          children: [
+            Text(
+              partnerName,
+
+              maxLines: 1,
+
+              overflow: TextOverflow.ellipsis,
+
+              style: TextStyle(
+                fontSize: 19,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+                color: colors.onSurface,
+              ),
+            ),
+
+            const SizedBox(height: 2),
+
+            Text(
+              'Agreements',
+
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 14),
+
+            child: Material(
+              color: isDark ? colors.surfaceContainerHigh : colors.surface,
+
+              borderRadius: BorderRadius.circular(14),
+
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+
+                onTap: () {
+                  context.read<PartnerAgreementsBloc>().add(
+                    PartnerAgreementsRequested(tp: tp, p: p),
+                  );
+                },
+
+                child: Container(
+                  width: 44,
+                  height: 44,
+
+                  decoration: BoxDecoration(
+                    border: Border.all(color: colors.outlineVariant),
+
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+
+                  child: Icon(
+                    Icons.refresh_rounded,
+                    size: 21,
+                    color: colors.onSurface,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+
+      // ========================================================
+      // CONTENT
+      // ========================================================
       body: BlocBuilder<PartnerAgreementsBloc, PartnerAgreementsState>(
         builder: (context, state) {
+          // ----------------------------------------------------
+          // LOADING
+          // ----------------------------------------------------
+
           if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const AppLoadingView(
+              title: 'Loading agreements',
+
+              message: 'Retrieving agreement records...',
+            );
           }
 
+          // ----------------------------------------------------
+          // ERROR
+          // ----------------------------------------------------
+
           if (state.errorMessage != null) {
-            return _ErrorView(
+            return AppErrorView(
+              title: 'Unable to load agreements',
+
               message: state.errorMessage!,
+
               onRetry: () {
                 context.read<PartnerAgreementsBloc>().add(
                   PartnerAgreementsRequested(tp: tp, p: p),
@@ -38,32 +150,97 @@ class PartnerAgreementsScreen extends StatelessWidget {
             );
           }
 
+          // ----------------------------------------------------
+          // EMPTY
+          // ----------------------------------------------------
+
           if (state.agreements.isEmpty) {
-            return _EmptyView(partnerName: partnerName);
+            return AppEmptyView(
+              icon: Icons.description_outlined,
+
+              title: 'No agreements found',
+
+              message: '$partnerName currently has no agreement records.',
+            );
           }
+
+          // ----------------------------------------------------
+          // VALID AGREEMENTS COUNT
+          // ----------------------------------------------------
+
+          final validCount = state.agreements.where((agreement) {
+            return _isValidStatus(agreement.status);
+          }).length;
+
+          // ----------------------------------------------------
+          // SUCCESS
+          // ----------------------------------------------------
 
           return Column(
             children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Agreements',
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
+              // ==================================================
+              // SUMMARY
+              // ==================================================
+
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
+
+                child: AppSummaryCard(
+                  icon: Icons.description_outlined,
+
+                  title: 'Agreement records',
+
+                  subtitle:
+                      '${state.agreements.length} '
+                      'agreement${state.agreements.length == 1 ? '' : 's'} '
+                      'available',
+
+                  detail: partnerName,
+
+                  trailing: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 7,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${state.agreements.length} agreement${state.agreements.length == 1 ? '' : 's'} found',
-                      style: Theme.of(context).textTheme.bodyMedium
-                          ?.copyWith(color: Colors.grey.shade600),
+
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.14),
+
+                      borderRadius: BorderRadius.circular(18),
                     ),
-                  ],
+
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+
+                      children: [
+                        Text(
+                          '$validCount',
+
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                          ),
+                        ),
+
+                        const Text(
+                          'Valid',
+
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
+
+              // ==================================================
+              // AGREEMENTS LIST
+              // ==================================================
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
@@ -71,114 +248,194 @@ class PartnerAgreementsScreen extends StatelessWidget {
                       PartnerAgreementsRequested(tp: tp, p: p),
                     );
                   },
+
                   child: ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
+
                     itemCount: state.agreements.length,
+
                     separatorBuilder: (_, __) => const SizedBox(height: 12),
+
                     itemBuilder: (context, index) {
                       final agreement = state.agreements[index];
 
                       final status = agreement.status?.trim() ?? '';
 
-                      return Card(
-                        elevation: 1,
-                        margin: EdgeInsets.zero,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 46,
-                                    height: 46,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primaryContainer,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Icon(
-                                      Icons.description_outlined,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimaryContainer,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          agreement.dogovorBr ??
-                                              'Unnamed agreement',
-                                          style: const TextStyle(
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        if (agreement.broj != null) ...[
-                                          const SizedBox(height: 3),
-                                          Text(
-                                            'Agreement #${agreement.broj}',
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              color: Colors.grey.shade600,
-                                            ),
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                                  if (status.isNotEmpty)
-                                    _StatusBadge(status: status),
-                                ],
+                      return Container(
+                        padding: const EdgeInsets.all(16),
+
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? colors.surfaceContainerHigh
+                              : colors.surface,
+
+                          borderRadius: BorderRadius.circular(22),
+
+                          border: Border.all(color: colors.outlineVariant),
+
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(
+                                alpha: isDark ? 0.24 : 0.025,
                               ),
 
-                              const SizedBox(height: 16),
-                              const Divider(),
-                              const SizedBox(height: 8),
+                              blurRadius: isDark ? 18 : 12,
 
-                              if (_hasText(agreement.vidDogovorShow))
-                                _AgreementInfoRow(
-                                  icon: Icons.category_outlined,
-                                  label: 'Type',
-                                  value: agreement.vidDogovorShow!,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                          children: [
+                            // ==================================
+                            // HEADER
+                            // ==================================
+
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              children: [
+                                Container(
+                                  width: 50,
+                                  height: 50,
+
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+
+                                      colors: [
+                                        colors.primary.withValues(
+                                          alpha: isDark ? 0.24 : 0.14,
+                                        ),
+
+                                        colors.primary.withValues(
+                                          alpha: isDark ? 0.12 : 0.06,
+                                        ),
+                                      ],
+                                    ),
+
+                                    border: Border.all(
+                                      color: colors.primary.withValues(
+                                        alpha: isDark ? 0.24 : 0.08,
+                                      ),
+                                    ),
+
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+
+                                  child: Icon(
+                                    Icons.description_outlined,
+                                    size: 23,
+                                    color: colors.primary,
+                                  ),
                                 ),
 
-                              if (_hasText(agreement.opis))
-                                _AgreementInfoRow(
-                                  icon: Icons.notes_outlined,
-                                  label: 'Description',
-                                  value: agreement.opis!,
+                                const SizedBox(width: 13),
+
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+
+                                    children: [
+                                      Text(
+                                        agreement.dogovorBr ??
+                                            'Unnamed agreement',
+
+                                        maxLines: 2,
+
+                                        overflow: TextOverflow.ellipsis,
+
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          height: 1.3,
+                                          fontWeight: FontWeight.w700,
+                                          color: colors.onSurface,
+                                        ),
+                                      ),
+
+                                      if (agreement.broj != null) ...[
+                                        const SizedBox(height: 6),
+
+                                        _AgreementNumberBadge(
+                                          number: agreement.broj!,
+                                        ),
+                                      ],
+                                    ],
+                                  ),
                                 ),
 
-                              if (agreement.datumPotpis != null)
-                                _AgreementInfoRow(
-                                  icon: Icons.edit_calendar_outlined,
-                                  label: 'Signed',
-                                  value: _formatDate(agreement.datumPotpis!),
-                                ),
+                                if (status.isNotEmpty) ...[
+                                  const SizedBox(width: 8),
 
-                              if (agreement.datumOd != null)
-                                _AgreementInfoRow(
-                                  icon: Icons.play_circle_outline,
-                                  label: 'From',
-                                  value: _formatDate(agreement.datumOd!),
-                                ),
+                                  AppStatusBadge(
+                                    text: status,
 
-                              if (agreement.datumDo != null)
-                                _AgreementInfoRow(
-                                  icon: Icons.event_available_outlined,
-                                  label: 'Until',
-                                  value: _formatDate(agreement.datumDo!),
-                                  isLast: true,
-                                ),
-                            ],
-                          ),
+                                    color: _isValidStatus(status)
+                                        ? AppColors.success
+                                        : AppColors.error,
+
+                                    showDot: true,
+                                  ),
+                                ],
+                              ],
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            Divider(color: colors.outlineVariant),
+
+                            const SizedBox(height: 12),
+
+                            // ==================================
+                            // TYPE
+                            // ==================================
+                            if (_hasText(agreement.vidDogovorShow))
+                              AppInfoRow(
+                                icon: Icons.category_outlined,
+                                label: 'Type',
+                                value: agreement.vidDogovorShow!,
+                              ),
+
+                            // ==================================
+                            // DESCRIPTION
+                            // ==================================
+                            if (_hasText(agreement.opis))
+                              AppInfoRow(
+                                icon: Icons.notes_outlined,
+                                label: 'Description',
+                                value: agreement.opis!,
+                              ),
+
+                            // ==================================
+                            // DATES
+                            // ==================================
+                            if (agreement.datumPotpis != null)
+                              AppInfoRow(
+                                icon: Icons.edit_calendar_outlined,
+                                label: 'Signed',
+                                value: _formatDate(agreement.datumPotpis!),
+                              ),
+
+                            if (agreement.datumOd != null)
+                              AppInfoRow(
+                                icon: Icons.play_circle_outline_rounded,
+                                label: 'From',
+                                value: _formatDate(agreement.datumOd!),
+                              ),
+
+                            if (agreement.datumDo != null)
+                              AppInfoRow(
+                                icon: Icons.event_available_outlined,
+                                label: 'Until',
+                                value: _formatDate(agreement.datumDo!),
+                                isLast: true,
+                              ),
+                          ],
                         ),
                       );
                     },
@@ -192,196 +449,85 @@ class PartnerAgreementsScreen extends StatelessWidget {
     );
   }
 
-  bool _hasText(String? value) {
+  // ==========================================================
+  // HELPERS
+  // ==========================================================
+
+  static bool _hasText(String? value) {
     return value != null && value.trim().isNotEmpty;
   }
 
-  String _formatDate(DateTime date) {
+  static bool _isValidStatus(String? status) {
+    final normalized = status?.trim().toUpperCase() ?? '';
+
+    return normalized == 'ВАЖЕЧКИ';
+  }
+
+  static String _formatDate(DateTime date) {
     final day = date.day.toString().padLeft(2, '0');
+
     final month = date.month.toString().padLeft(2, '0');
+
     final year = date.year;
 
     return '$day.$month.$year';
   }
 }
 
-class _StatusBadge extends StatelessWidget {
-  final String status;
+// ============================================================
+// AGREEMENT NUMBER BADGE
+// ============================================================
 
-  const _StatusBadge({required this.status});
+class _AgreementNumberBadge extends StatelessWidget {
+  final Object number;
+
+  const _AgreementNumberBadge({required this.number});
 
   @override
   Widget build(BuildContext context) {
-    final normalized = status.trim().toUpperCase();
+    final colors = Theme.of(context).colorScheme;
 
-    final bool isValid = normalized == 'ВАЖЕЧКИ';
-
-    final color = isValid ? Colors.green : Colors.red;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: isDark
+            ? colors.surfaceContainerHighest
+            : colors.surfaceContainerHighest.withValues(alpha: 0.55),
+
         borderRadius: BorderRadius.circular(20),
+
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: isDark ? 0.80 : 0.45),
+        ),
       ),
+
       child: Row(
         mainAxisSize: MainAxisSize.min,
+
         children: [
-          Icon(
-            isValid ? Icons.check_circle_outline : Icons.cancel_outlined,
-            size: 14,
-            color: color,
-          ),
-          const SizedBox(width: 5),
-          Text(
-            status.trim(),
-            style: TextStyle(
-              color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+          Icon(Icons.tag_rounded, size: 12, color: colors.onSurfaceVariant),
 
-class _AgreementInfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final bool isLast;
+          const SizedBox(width: 4),
 
-  const _AgreementInfoRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.isLast = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 19, color: Colors.grey.shade600),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 90,
+          Flexible(
             child: Text(
-              label,
+              '$number',
+
+              maxLines: 1,
+
+              overflow: TextOverflow.ellipsis,
+
               style: TextStyle(
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w500,
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: colors.onSurfaceVariant,
               ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              value.trim(),
-              style: const TextStyle(fontWeight: FontWeight.w500),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _EmptyView extends StatelessWidget {
-  final String partnerName;
-
-  const _EmptyView({required this.partnerName});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.description_outlined,
-                size: 38,
-                color: Colors.grey.shade600,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'No agreements found',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '$partnerName currently has no agreement records.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorView extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorView({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.error_outline_rounded,
-                size: 40,
-                color: Colors.red,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Unable to load agreements',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade600),
-            ),
-            const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Try again'),
-            ),
-          ],
-        ),
       ),
     );
   }
