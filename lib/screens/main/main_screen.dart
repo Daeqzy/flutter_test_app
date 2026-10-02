@@ -31,6 +31,8 @@ import '../profile/profile_screen.dart';
 import '../home/partners_screen.dart';
 import '../preferences/preferences_screen.dart';
 
+import '../security/security_screen.dart';
+
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
@@ -670,15 +672,16 @@ class _AppDrawer extends StatelessWidget {
                           _DrawerSubItem(
                             icon: Icons.shield_outlined,
                             title: 'Security',
-
                             onTap: () {
-                              final messenger = ScaffoldMessenger.of(context);
+                              final navigator = Navigator.of(context);
 
-                              Navigator.pop(context);
+                              // Close drawer.
+                              navigator.pop();
 
-                              messenger.showSnackBar(
-                                const SnackBar(
-                                  content: Text('Security screen coming soon.'),
+                              // Open Security.
+                              navigator.push(
+                                MaterialPageRoute(
+                                  builder: (_) => const SecurityScreen(),
                                 ),
                               );
                             },

@@ -5,8 +5,11 @@ part 'partner_connection_data.g.dart';
 @JsonSerializable()
 class PartnerConnectionData {
   final int? id;
+
   final String? naziv;
+
   final int? tp;
+
   final int? p;
 
   @JsonKey(name: 'public_ip')
@@ -14,6 +17,11 @@ class PartnerConnectionData {
 
   @JsonKey(name: 'ddns_name')
   final String? ddnsName;
+
+  @JsonKey(name: 'server_user')
+  final String? serverUser;
+
+  final String? zabeleska;
 
   final String? adresa;
 
@@ -38,6 +46,8 @@ class PartnerConnectionData {
     this.p,
     this.publicIp,
     this.ddnsName,
+    this.serverUser,
+    this.zabeleska,
     this.adresa,
     this.lanInfo,
     this.osInfo,

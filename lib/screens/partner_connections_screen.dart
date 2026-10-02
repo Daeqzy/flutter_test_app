@@ -228,7 +228,7 @@ class PartnerConnectionsScreen extends StatelessWidget {
               ),
 
               // ==================================================
-              // LIST
+              // ALL CONNECTIONS
               // ==================================================
               Expanded(
                 child: RefreshIndicator(
@@ -254,6 +254,14 @@ class PartnerConnectionsScreen extends StatelessWidget {
                         ddns: connection.ddnsName,
                         lan: connection.lanInfo,
                         os: connection.osInfo,
+                        serverUser: connection.serverUser,
+                        notes: connection.zabeleska,
+                      );
+
+                      final preview = _buildConnectionPreview(
+                        publicIp: connection.publicIp,
+                        ddns: connection.ddnsName,
+                        address: connection.adresa,
                       );
 
                       return Container(
@@ -284,8 +292,10 @@ class PartnerConnectionsScreen extends StatelessWidget {
                               .copyWith(dividerColor: Colors.transparent),
 
                           child: ExpansionTile(
-                            // IMPORTANT:
-                            // Keep expansion state while scrolling.
+                            // ==================================
+                            // KEEP DROPDOWN STATE
+                            // ==================================
+
                             key: PageStorageKey(
                               'connection_'
                               '${connection.id ?? index}_'
@@ -362,56 +372,117 @@ class PartnerConnectionsScreen extends StatelessWidget {
                             ),
 
                             // ==================================
-                            // NAME
+                            // CONNECTION NAME
                             // ==================================
-                            title: Text(
-                              connection.naziv ?? 'Unnamed connection',
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
 
-                              maxLines: 2,
+                              children: [
+                                Text(
+                                  'Connection '
+                                  '${index + 1} of '
+                                  '${state.connections.length}',
 
-                              overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: colors.primary,
+                                  ),
+                                ),
 
-                              style: TextStyle(
-                                fontSize: 15,
-                                height: 1.25,
-                                fontWeight: FontWeight.w700,
-                                color: colors.onSurface,
-                              ),
+                                const SizedBox(height: 3),
+
+                                Text(
+                                  connection.naziv ?? 'Unnamed connection',
+
+                                  maxLines: 2,
+
+                                  overflow: TextOverflow.ellipsis,
+
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    height: 1.25,
+                                    fontWeight: FontWeight.w700,
+                                    color: colors.onSurface,
+                                  ),
+                                ),
+                              ],
                             ),
 
                             // ==================================
-                            // ID + STATUS
+                            // QUICK INFORMATION
                             // ==================================
                             subtitle: Padding(
                               padding: const EdgeInsets.only(top: 7),
 
-                              child: Wrap(
-                                spacing: 8,
-                                runSpacing: 6,
-
-                                crossAxisAlignment: WrapCrossAlignment.center,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
 
                                 children: [
-                                  if (connection.id != null)
-                                    _IdBadge(id: connection.id!),
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 6,
 
-                                  AppStatusBadge(
-                                    text:
-                                        connection.aktivenString
-                                                ?.trim()
-                                                .isNotEmpty ==
-                                            true
-                                        ? connection.aktivenString!
-                                        : connection.aktivenBool == true
-                                        ? 'Active'
-                                        : 'Inactive',
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
 
-                                    color: connection.aktivenBool == true
-                                        ? AppColors.success
-                                        : colors.onSurfaceVariant,
+                                    children: [
+                                      if (connection.id != null)
+                                        _IdBadge(id: connection.id!),
 
-                                    showDot: true,
+                                      AppStatusBadge(
+                                        text:
+                                            connection.aktivenString
+                                                    ?.trim()
+                                                    .isNotEmpty ==
+                                                true
+                                            ? connection.aktivenString!
+                                            : connection.aktivenBool == true
+                                            ? 'Active'
+                                            : 'Inactive',
+
+                                        color: connection.aktivenBool == true
+                                            ? AppColors.success
+                                            : colors.onSurfaceVariant,
+
+                                        showDot: true,
+                                      ),
+                                    ],
                                   ),
+
+                                  if (preview != null) ...[
+                                    const SizedBox(height: 7),
+
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.info_outline_rounded,
+
+                                          size: 13,
+
+                                          color: colors.onSurfaceVariant,
+                                        ),
+
+                                        const SizedBox(width: 5),
+
+                                        Expanded(
+                                          child: Text(
+                                            preview,
+
+                                            maxLines: 1,
+
+                                            overflow: TextOverflow.ellipsis,
+
+                                            style: TextStyle(
+                                              fontSize: 11,
+
+                                              color: colors.onSurfaceVariant,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
@@ -425,41 +496,162 @@ class PartnerConnectionsScreen extends StatelessWidget {
                               const SizedBox(height: 12),
 
                               if (hasDetails) ...[
-                                if (_hasText(connection.adresa))
+                                // =============================
+                                // LOCATION
+                                // =============================
+
+                                if (_hasText(connection.adresa)) ...[
+                                  const _DetailSectionHeader(
+                                    icon: Icons.location_on_outlined,
+                                    title: 'Location',
+                                  ),
+
+                                  const SizedBox(height: 8),
+
                                   AppInfoRow(
                                     icon: Icons.location_on_outlined,
+
                                     label: 'Address',
+
                                     value: connection.adresa!,
-                                  ),
 
-                                if (_hasText(connection.publicIp))
-                                  AppInfoRow(
-                                    icon: Icons.public_rounded,
-                                    label: 'Public IP',
-                                    value: connection.publicIp!,
-                                  ),
-
-                                if (_hasText(connection.ddnsName))
-                                  AppInfoRow(
-                                    icon: Icons.language_rounded,
-                                    label: 'DDNS',
-                                    value: connection.ddnsName!,
-                                  ),
-
-                                if (_hasText(connection.lanInfo))
-                                  AppInfoRow(
-                                    icon: Icons.lan_outlined,
-                                    label: 'LAN',
-                                    value: connection.lanInfo!,
-                                  ),
-
-                                if (_hasText(connection.osInfo))
-                                  AppInfoRow(
-                                    icon: Icons.computer_outlined,
-                                    label: 'OS',
-                                    value: connection.osInfo!,
                                     isLast: true,
                                   ),
+                                ],
+
+                                if (_hasText(connection.adresa) &&
+                                    _hasAnyNetworkInfo(
+                                      publicIp: connection.publicIp,
+                                      ddns: connection.ddnsName,
+                                      lan: connection.lanInfo,
+                                    ))
+                                  const SizedBox(height: 16),
+
+                                // =============================
+                                // NETWORK
+                                // =============================
+                                if (_hasAnyNetworkInfo(
+                                  publicIp: connection.publicIp,
+                                  ddns: connection.ddnsName,
+                                  lan: connection.lanInfo,
+                                )) ...[
+                                  const _DetailSectionHeader(
+                                    icon: Icons.lan_outlined,
+
+                                    title: 'Network information',
+                                  ),
+
+                                  const SizedBox(height: 8),
+
+                                  if (_hasText(connection.publicIp))
+                                    AppInfoRow(
+                                      icon: Icons.public_rounded,
+
+                                      label: 'Public IP',
+
+                                      value: connection.publicIp!,
+                                    ),
+
+                                  if (_hasText(connection.ddnsName))
+                                    AppInfoRow(
+                                      icon: Icons.language_rounded,
+
+                                      label: 'DDNS',
+
+                                      value: connection.ddnsName!,
+                                    ),
+
+                                  if (_hasText(connection.lanInfo))
+                                    AppInfoRow(
+                                      icon: Icons.lan_outlined,
+
+                                      label: 'LAN',
+
+                                      value: connection.lanInfo!,
+
+                                      isLast: true,
+                                    ),
+                                ],
+
+                                if (_hasAnyNetworkInfo(
+                                      publicIp: connection.publicIp,
+                                      ddns: connection.ddnsName,
+                                      lan: connection.lanInfo,
+                                    ) &&
+                                    (_hasText(connection.osInfo) ||
+                                        _hasText(connection.serverUser) ||
+                                        _hasText(connection.zabeleska)))
+                                  const SizedBox(height: 16),
+
+                                // =============================
+                                // SYSTEM
+                                // =============================
+                                if (_hasText(connection.osInfo)) ...[
+                                  const _DetailSectionHeader(
+                                    icon: Icons.computer_outlined,
+
+                                    title: 'System information',
+                                  ),
+
+                                  const SizedBox(height: 8),
+
+                                  AppInfoRow(
+                                    icon: Icons.computer_outlined,
+
+                                    label: 'Operating system',
+
+                                    value: connection.osInfo!,
+
+                                    isLast: true,
+                                  ),
+                                ],
+
+                                if (_hasText(connection.osInfo) &&
+                                    (_hasText(connection.serverUser) ||
+                                        _hasText(connection.zabeleska)))
+                                  const SizedBox(height: 16),
+
+                                // =============================
+                                // ACCESS INFORMATION
+                                // =============================
+                                if (_hasText(connection.serverUser)) ...[
+                                  const _DetailSectionHeader(
+                                    icon: Icons.person_outline_rounded,
+
+                                    title: 'Access information',
+                                  ),
+
+                                  const SizedBox(height: 8),
+
+                                  AppInfoRow(
+                                    icon: Icons.person_outline_rounded,
+
+                                    label: 'Server user',
+
+                                    value: connection.serverUser!,
+
+                                    isLast: true,
+                                  ),
+                                ],
+
+                                if (_hasText(connection.serverUser) &&
+                                    _hasText(connection.zabeleska))
+                                  const SizedBox(height: 16),
+
+                                // =============================
+                                // NOTES
+                                // =============================
+                                if (_hasText(connection.zabeleska)) ...[
+                                  const _DetailSectionHeader(
+                                    icon: Icons.notes_rounded,
+
+                                    title: 'Notes',
+                                  ),
+
+                                  const SizedBox(height: 8),
+
+                                  _NotesCard(notes: connection.zabeleska!),
+                                ],
                               ] else
                                 const _NoDetailsView(),
                             ],
@@ -486,7 +678,7 @@ class PartnerConnectionsScreen extends StatelessWidget {
   }
 
   // ==========================================================
-  // HAS DETAILS
+  // HAS CONNECTION DETAILS
   // ==========================================================
 
   bool _hasConnectionDetails({
@@ -495,12 +687,52 @@ class PartnerConnectionsScreen extends StatelessWidget {
     required String? ddns,
     required String? lan,
     required String? os,
+    required String? serverUser,
+    required String? notes,
   }) {
     return _hasText(address) ||
         _hasText(publicIp) ||
         _hasText(ddns) ||
         _hasText(lan) ||
-        _hasText(os);
+        _hasText(os) ||
+        _hasText(serverUser) ||
+        _hasText(notes);
+  }
+
+  // ==========================================================
+  // NETWORK INFORMATION
+  // ==========================================================
+
+  bool _hasAnyNetworkInfo({
+    required String? publicIp,
+    required String? ddns,
+    required String? lan,
+  }) {
+    return _hasText(publicIp) || _hasText(ddns) || _hasText(lan);
+  }
+
+  // ==========================================================
+  // COLLAPSED PREVIEW
+  // ==========================================================
+
+  String? _buildConnectionPreview({
+    required String? publicIp,
+    required String? ddns,
+    required String? address,
+  }) {
+    if (_hasText(publicIp)) {
+      return 'Public IP: ${publicIp!.trim()}';
+    }
+
+    if (_hasText(ddns)) {
+      return 'DDNS: ${ddns!.trim()}';
+    }
+
+    if (_hasText(address)) {
+      return address!.trim();
+    }
+
+    return null;
   }
 
   // ==========================================================
@@ -518,11 +750,134 @@ class PartnerConnectionsScreen extends StatelessWidget {
       return Icons.screen_share_rounded;
     }
 
-    if (value.contains('router') || value.contains('firewall')) {
+    if (value.contains('simplehelp')) {
+      return Icons.support_agent_rounded;
+    }
+
+    if (value.contains('router') ||
+        value.contains('firewall') ||
+        value.contains('device')) {
       return Icons.router_outlined;
     }
 
     return Icons.computer_rounded;
+  }
+}
+
+// ============================================================
+// DETAIL SECTION HEADER
+// ============================================================
+
+class _DetailSectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String title;
+
+  const _DetailSectionHeader({required this.icon, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Row(
+      children: [
+        Container(
+          width: 30,
+          height: 30,
+
+          decoration: BoxDecoration(
+            color: colors.primary.withValues(alpha: isDark ? 0.16 : 0.08),
+
+            borderRadius: BorderRadius.circular(9),
+          ),
+
+          child: Icon(icon, size: 16, color: colors.primary),
+        ),
+
+        const SizedBox(width: 9),
+
+        Text(
+          title,
+
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: colors.onSurface,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================================================
+// NOTES CARD
+// ============================================================
+
+class _NotesCard extends StatelessWidget {
+  final String notes;
+
+  const _NotesCard({required this.notes});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.all(14),
+
+      decoration: BoxDecoration(
+        color: isDark
+            ? colors.surfaceContainerHighest
+            : colors.surfaceContainerHighest.withValues(alpha: 0.55),
+
+        borderRadius: BorderRadius.circular(14),
+
+        border: Border.all(color: colors.outlineVariant),
+      ),
+
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+
+            decoration: BoxDecoration(
+              color: colors.primary.withValues(alpha: isDark ? 0.16 : 0.08),
+
+              borderRadius: BorderRadius.circular(10),
+            ),
+
+            child: Icon(
+              Icons.description_outlined,
+              size: 17,
+              color: colors.primary,
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          Expanded(
+            child: SelectableText(
+              notes.trim(),
+
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.55,
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

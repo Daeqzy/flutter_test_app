@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../bloc/services/services_bloc.dart';
-import '../../bloc/services/services_event.dart';
-import '../../bloc/services/services_state.dart';
+import '../../bloc/partners/partners_bloc.dart';
+import '../../bloc/partners/partners_event.dart';
 
-import '../../widgets/common/app_loading_view.dart';
-import '../../widgets/common/app_error_view.dart';
-import '../../widgets/common/app_empty_view.dart';
-import '../../widgets/common/app_section_header.dart';
+import '../../bloc/user/user_bloc.dart';
+import '../../bloc/user/user_state.dart';
 
-import '../../theme/app_theme.dart';
+import '../../repositories/data_repository.dart';
+
+import '../home/partners_screen.dart';
 
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({super.key});
@@ -21,309 +20,248 @@ class ServicesScreen extends StatelessWidget {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return BlocBuilder<ServicesBloc, ServicesState>(
-      builder: (context, state) {
-        return SafeArea(
-          top: false,
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 32),
 
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
 
-            child: Column(
+          children: [
+            // ==================================================
+            // HEADER
+            // ==================================================
+
+            BlocBuilder<UserBloc, UserState>(
+              buildWhen: (previous, current) {
+                return previous.authenticatedUsername !=
+                    current.authenticatedUsername;
+              },
+
+              builder: (context, state) {
+                final username = state.authenticatedUsername.trim().isNotEmpty
+                    ? state.authenticatedUsername
+                    : 'CODEX User';
+
+                return _ServicesHeader(username: username);
+              },
+            ),
+
+            const SizedBox(height: 28),
+
+            // ==================================================
+            // WORKSPACE
+            // ==================================================
+            _SectionHeader(
+              title: 'Workspace services',
+              subtitle:
+                  'Quick access to partner information and business tools.',
+            ),
+
+            const SizedBox(height: 14),
+
+            // ==================================================
+            // PARTNER DIRECTORY
+            // ==================================================
+            _LargeServiceCard(
+              icon: Icons.business_rounded,
+
+              title: 'Partner Directory',
+
+              subtitle: 'Search and browse all available CODEX partners.',
+
+              badge: 'Directory',
+
+              onTap: () {
+                _openPartners(context, instruction: null);
+              },
+            ),
+
+            const SizedBox(height: 14),
+
+            // ==================================================
+            // CONNECTIONS + AGREEMENTS
+            // ==================================================
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                // ==================================================
-                // HERO
-                // ==================================================
+                Expanded(
+                  child: _ServiceCard(
+                    icon: Icons.lan_outlined,
 
-                const _ServicesHero(),
+                    title: 'Connections',
 
-                const SizedBox(height: 28),
+                    subtitle: 'Remote access, network and system information.',
 
-                // ==================================================
-                // SEARCH SECTION
-                // ==================================================
-                const AppSectionHeader(
-                  title: 'Service catalog',
-                  subtitle: 'Find services available in your workspace',
-                ),
+                    onTap: () {
+                      _openPartners(
+                        context,
 
-                const SizedBox(height: 14),
-
-                // ==================================================
-                // SEARCH
-                // ==================================================
-                Container(
-                  decoration: BoxDecoration(
-                    color: isDark ? colors.surfaceContainer : colors.surface,
-
-                    borderRadius: BorderRadius.circular(18),
-
-                    border: Border.all(color: colors.outlineVariant),
-
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(
-                          alpha: isDark ? 0.16 : 0.025,
-                        ),
-
-                        blurRadius: isDark ? 14 : 10,
-
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-
-                  child: TextField(
-                    style: TextStyle(
-                      color: colors.onSurface,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-
-                    cursorColor: colors.primary,
-
-                    onChanged: (value) {
-                      context.read<ServicesBloc>().add(
-                        ServicesSearchChanged(value),
+                        instruction: 'Select a partner and tap Connections.',
                       );
                     },
-
-                    decoration: InputDecoration(
-                      hintText: 'Search services...',
-
-                      prefixIcon: Icon(
-                        Icons.search_rounded,
-                        color: colors.primary,
-                      ),
-
-                      suffixIcon: Icon(
-                        Icons.tune_rounded,
-                        size: 19,
-                        color: colors.onSurfaceVariant,
-                      ),
-
-                      // Container already provides the surface.
-                      fillColor: Colors.transparent,
-
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
-                      ),
-
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide(
-                          color: colors.primary,
-                          width: 1.4,
-                        ),
-                      ),
-
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
                   ),
                 ),
 
-                const SizedBox(height: 28),
+                const SizedBox(width: 12),
 
-                // ==================================================
-                // AVAILABLE SERVICES
-                // ==================================================
-                const AppSectionHeader(
-                  title: 'Available services',
-                  subtitle: 'Your CODEX tools will appear below',
-                ),
+                Expanded(
+                  child: _ServiceCard(
+                    icon: Icons.description_outlined,
 
-                const SizedBox(height: 14),
+                    title: 'Agreements',
 
-                // ==================================================
-                // LOADING
-                // ==================================================
-                if (state.isLoading)
-                  const AppLoadingView(
-                    title: 'Loading services',
-                    message: 'Checking for available workspace services...',
-                    boxed: true,
-                  )
-                // ==================================================
-                // ERROR
-                // ==================================================
-                else if (state.errorMessage != null)
-                  AppErrorView(
-                    title: 'Unable to load services',
-                    message: state.errorMessage!,
-                    boxed: true,
+                    subtitle: 'View partner agreements and their status.',
 
-                    onRetry: () {
-                      context.read<ServicesBloc>().add(
-                        const ServicesRequested(),
+                    onTap: () {
+                      _openPartners(
+                        context,
+
+                        instruction: 'Select a partner and tap Agreements.',
                       );
                     },
-                  )
-                // ==================================================
-                // EMPTY
-                // ==================================================
-                else
-                  const AppEmptyView(
-                    icon: Icons.widgets_outlined,
-
-                    title: 'No services available yet',
-
-                    message:
-                        'Services provided by the application will appear '
-                        'here when they become available.',
-
-                    boxed: true,
-
-                    badgeText: 'Nothing to display',
-
-                    badgeIcon: Icons.info_outline_rounded,
                   ),
+                ),
               ],
             ),
-          ),
-        );
-      },
-    );
-  }
-}
 
-// ============================================================
-// HERO
-// ============================================================
+            const SizedBox(height: 12),
 
-class _ServicesHero extends StatelessWidget {
-  const _ServicesHero();
+            // ==================================================
+            // CONTACTS + LOCATIONS
+            // ==================================================
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
+              children: [
+                Expanded(
+                  child: _ServiceCard(
+                    icon: Icons.people_outline_rounded,
 
-      padding: const EdgeInsets.all(22),
+                    title: 'Contacts',
 
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+                    subtitle:
+                        'Partner phone numbers, email and contact information.',
 
-          colors: [AppColors.primary, AppColors.primaryDark],
-        ),
+                    onTap: () {
+                      _openPartners(
+                        context,
 
-        borderRadius: BorderRadius.circular(26),
+                        instruction: 'Select a partner and tap Contacts.',
+                      );
+                    },
+                  ),
+                ),
 
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.20),
+                const SizedBox(width: 12),
 
-            blurRadius: 28,
+                Expanded(
+                  child: _ServiceCard(
+                    icon: Icons.map_outlined,
 
-            offset: const Offset(0, 12),
-          ),
-        ],
-      ),
+                    title: 'Locations',
 
-      child: Stack(
-        children: [
-          // ----------------------------------------------------
-          // BACKGROUND DECORATION
-          // ----------------------------------------------------
+                    subtitle:
+                        'Find partner addresses and open their map location.',
 
-          Positioned(
-            right: -35,
-            top: -45,
+                    onTap: () {
+                      _openPartners(
+                        context,
 
-            child: Container(
-              width: 135,
-              height: 135,
+                        instruction:
+                            'Select a partner and tap the location icon.',
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 28),
+
+            // ==================================================
+            // HOW IT WORKS
+            // ==================================================
+            _SectionHeader(
+              title: 'Partner workflow',
+              subtitle: 'All business information starts from a partner.',
+            ),
+
+            const SizedBox(height: 14),
+
+            _WorkflowCard(isDark: isDark),
+
+            const SizedBox(height: 22),
+
+            // ==================================================
+            // INFO
+            // ==================================================
+            Container(
+              width: double.infinity,
+
+              padding: const EdgeInsets.all(17),
 
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.07),
+                color: colors.primary.withValues(alpha: isDark ? 0.09 : 0.06),
 
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(20),
+
+                border: Border.all(
+                  color: colors.primary.withValues(alpha: isDark ? 0.20 : 0.12),
+                ),
               ),
-            ),
-          ),
 
-          Positioned(
-            right: 35,
-            bottom: -55,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
 
-            child: Container(
-              width: 110,
-              height: 110,
-
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-
-          // ----------------------------------------------------
-          // CONTENT
-          // ----------------------------------------------------
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-
-            children: [
-              Row(
                 children: [
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: 42,
+                    height: 42,
 
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: colors.primary.withValues(alpha: 0.11),
 
-                      borderRadius: BorderRadius.circular(15),
-
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.08),
-                      ),
+                      borderRadius: BorderRadius.circular(13),
                     ),
 
-                    child: const Icon(
-                      Icons.grid_view_rounded,
-                      color: Colors.white,
-                      size: 23,
+                    child: Icon(
+                      Icons.info_outline_rounded,
+                      size: 21,
+                      color: colors.primary,
                     ),
                   ),
 
-                  const Spacer(),
+                  const SizedBox(width: 13),
 
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.14),
-
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
 
                       children: [
-                        Icon(Icons.apps_rounded, color: Colors.white, size: 14),
-
-                        SizedBox(width: 5),
-
                         Text(
-                          'Services',
+                          'Real application data',
 
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: colors.onSurface,
+                          ),
+                        ),
+
+                        const SizedBox(height: 4),
+
+                        Text(
+                          'These services use the existing '
+                          'partner workflow and backend data. '
+                          'Connections, agreements and contacts '
+                          'are loaded only after selecting a partner.',
+
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.45,
+                            color: colors.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -331,36 +269,664 @@ class _ServicesHero extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-              const SizedBox(height: 24),
+  // ==========================================================
+  // OPEN PARTNER DIRECTORY
+  // ==========================================================
 
-              const Text(
-                'CODEX Services',
+  void _openPartners(BuildContext context, {required String? instruction}) {
+    final repository = context.read<DataRepository>();
 
-                style: TextStyle(
-                  fontSize: 27,
-                  fontWeight: FontWeight.w800,
+    final messenger = ScaffoldMessenger.of(context);
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) =>
+              PartnersBloc(repository)..add(const PartnersRequested()),
+
+          child: const PartnersScreen(),
+        ),
+      ),
+    );
+
+    // ----------------------------------------------------------
+    // OPTIONAL FEATURE INSTRUCTION
+    // ----------------------------------------------------------
+
+    if (instruction != null) {
+      Future.delayed(const Duration(milliseconds: 350), () {
+        messenger.hideCurrentSnackBar();
+
+        messenger.showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(
+                  Icons.touch_app_rounded,
                   color: Colors.white,
-                  letterSpacing: -0.7,
+                  size: 20,
+                ),
+
+                const SizedBox(width: 10),
+
+                Expanded(child: Text(instruction)),
+              ],
+            ),
+
+            behavior: SnackBarBehavior.floating,
+
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      });
+    }
+  }
+}
+
+// ============================================================
+// SERVICES HEADER
+// ============================================================
+
+class _ServicesHeader extends StatelessWidget {
+  final String username;
+
+  const _ServicesHeader({required this.username});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.all(22),
+
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+
+          colors: [colors.primary, colors.primary.withValues(alpha: 0.78)],
+        ),
+
+        borderRadius: BorderRadius.circular(26),
+
+        boxShadow: [
+          BoxShadow(
+            color: colors.primary.withValues(alpha: isDark ? 0.15 : 0.22),
+
+            blurRadius: 26,
+
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.16),
+
+              borderRadius: BorderRadius.circular(18),
+            ),
+
+            child: const Icon(
+              Icons.grid_view_rounded,
+              size: 27,
+              color: Colors.white,
+            ),
+          ),
+
+          const SizedBox(width: 16),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                Text(
+                  'Services',
+
+                  style: const TextStyle(
+                    fontSize: 23,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+
+                const SizedBox(height: 5),
+
+                Text(
+                  'Workspace for $username',
+
+                  maxLines: 1,
+
+                  overflow: TextOverflow.ellipsis,
+
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+
+                    color: Colors.white.withValues(alpha: 0.82),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                Text(
+                  'Access partner connections, agreements, '
+                  'contacts and locations from one place.',
+
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.4,
+
+                    color: Colors.white.withValues(alpha: 0.78),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// SECTION HEADER
+// ============================================================
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final String subtitle;
+
+  const _SectionHeader({required this.title, required this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+
+      children: [
+        Text(
+          title,
+
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.3,
+            color: colors.onSurface,
+          ),
+        ),
+
+        const SizedBox(height: 4),
+
+        Text(
+          subtitle,
+
+          style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================================================
+// LARGE SERVICE CARD
+// ============================================================
+
+class _LargeServiceCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final String badge;
+  final VoidCallback onTap;
+
+  const _LargeServiceCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.badge,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Material(
+      color: isDark ? colors.surfaceContainerHigh : colors.surface,
+
+      borderRadius: BorderRadius.circular(22),
+
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+
+        onTap: onTap,
+
+        child: Container(
+          width: double.infinity,
+
+          padding: const EdgeInsets.all(18),
+
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+
+            border: Border.all(color: colors.outlineVariant),
+
+            boxShadow: [
+              if (!isDark)
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.035),
+
+                  blurRadius: 18,
+
+                  offset: const Offset(0, 6),
+                ),
+            ],
+          ),
+
+          child: Row(
+            children: [
+              Container(
+                width: 54,
+                height: 54,
+
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: 0.10),
+
+                  borderRadius: BorderRadius.circular(17),
+                ),
+
+                child: Icon(icon, size: 25, color: colors.primary),
+              ),
+
+              const SizedBox(width: 15),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              color: colors.onSurface,
+                            ),
+                          ),
+                        ),
+
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 9,
+                            vertical: 5,
+                          ),
+
+                          decoration: BoxDecoration(
+                            color: colors.primary.withValues(alpha: 0.09),
+
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+
+                          child: Text(
+                            badge,
+
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                              color: colors.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 5),
+
+                    Text(
+                      subtitle,
+
+                      style: TextStyle(
+                        fontSize: 12,
+                        height: 1.35,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(width: 10),
+
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+
+                size: 14,
+
+                color: colors.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// SERVICE CARD
+// ============================================================
+
+class _ServiceCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _ServiceCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Material(
+      color: isDark ? colors.surfaceContainerHigh : colors.surface,
+
+      borderRadius: BorderRadius.circular(22),
+
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+
+        onTap: onTap,
+
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 190),
+
+          padding: const EdgeInsets.all(16),
+
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+
+            border: Border.all(color: colors.outlineVariant),
+
+            boxShadow: [
+              if (!isDark)
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.035),
+
+                  blurRadius: 18,
+
+                  offset: const Offset(0, 6),
+                ),
+            ],
+          ),
+
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+
+                    decoration: BoxDecoration(
+                      color: colors.primary.withValues(alpha: 0.10),
+
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+
+                    child: Icon(icon, size: 22, color: colors.primary),
+                  ),
+
+                  const Spacer(),
+
+                  Icon(
+                    Icons.arrow_outward_rounded,
+
+                    size: 18,
+
+                    color: colors.onSurfaceVariant,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 18),
 
               Text(
-                'Access tools and services available in your workspace.',
+                title,
 
                 style: TextStyle(
-                  height: 1.4,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: colors.onSurface,
+                ),
+              ),
 
-                  color: Colors.white.withValues(alpha: 0.78),
+              const SizedBox(height: 7),
+
+              Text(
+                subtitle,
+
+                style: TextStyle(
+                  fontSize: 11.5,
+                  height: 1.4,
+                  color: colors.onSurfaceVariant,
                 ),
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// WORKFLOW
+// ============================================================
+
+class _WorkflowCard extends StatelessWidget {
+  final bool isDark;
+
+  const _WorkflowCard({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.all(18),
+
+      decoration: BoxDecoration(
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
+
+        borderRadius: BorderRadius.circular(22),
+
+        border: Border.all(color: colors.outlineVariant),
+      ),
+
+      child: Column(
+        children: const [
+          _WorkflowStep(
+            number: '1',
+            icon: Icons.business_outlined,
+            title: 'Choose partner',
+            subtitle: 'Search the partner directory.',
+          ),
+
+          _WorkflowConnector(),
+
+          _WorkflowStep(
+            number: '2',
+            icon: Icons.touch_app_outlined,
+            title: 'Choose an action',
+            subtitle: 'Connections, agreements, contacts or map.',
+          ),
+
+          _WorkflowConnector(),
+
+          _WorkflowStep(
+            number: '3',
+            icon: Icons.cloud_done_outlined,
+            title: 'Load live data',
+            subtitle:
+                'The selected partner data is retrieved from the backend.',
+          ),
         ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// WORKFLOW STEP
+// ============================================================
+
+class _WorkflowStep extends StatelessWidget {
+  final String number;
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const _WorkflowStep({
+    required this.number,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        Container(
+          width: 38,
+          height: 38,
+
+          decoration: BoxDecoration(
+            color: colors.primary.withValues(alpha: 0.10),
+
+            shape: BoxShape.circle,
+          ),
+
+          child: Center(
+            child: Text(
+              number,
+
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: colors.primary,
+              ),
+            ),
+          ),
+        ),
+
+        const SizedBox(width: 13),
+
+        Container(
+          width: 40,
+          height: 40,
+
+          decoration: BoxDecoration(
+            color: colors.surfaceContainerHighest,
+
+            borderRadius: BorderRadius.circular(13),
+          ),
+
+          child: Icon(icon, size: 20, color: colors.primary),
+        ),
+
+        const SizedBox(width: 13),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+
+            children: [
+              Text(
+                title,
+
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: colors.onSurface,
+                ),
+              ),
+
+              const SizedBox(height: 3),
+
+              Text(
+                subtitle,
+
+                style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================================================
+// WORKFLOW CONNECTOR
+// ============================================================
+
+class _WorkflowConnector extends StatelessWidget {
+  const _WorkflowConnector();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 18),
+
+      child: Align(
+        alignment: Alignment.centerLeft,
+
+        child: Container(width: 2, height: 18, color: colors.outlineVariant),
       ),
     );
   }

@@ -67,20 +67,56 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     UserLoginRequested event,
     Emitter<UserState> emit,
   ) async {
+    // --------------------------------------------------------
+    // REMEMBERED USER MUST USE BIOMETRIC LOGIN
+    // --------------------------------------------------------
+    //
+    // If this account is already remembered on the device,
+    // pressing Sign In must NOT bypass biometric verification.
+    //
+    // The user has to press Fingerprint / Face ID below.
+    // --------------------------------------------------------
+
+    final normalizedUsername = event.username.trim().toLowerCase();
+
+    final normalizedRememberedUsername = state.rememberedUsername
+        .trim()
+        .toLowerCase();
+
+    final isRememberedUser =
+        state.hasRememberedAccount &&
+        normalizedRememberedUsername.isNotEmpty &&
+        normalizedUsername == normalizedRememberedUsername;
+
+    if (isRememberedUser) {
+      emit(
+        state.copyWith(
+          isLoading: false,
+          authStatus: AuthStatus.initial,
+          errorMessage:
+              'This account is remembered. '
+              'Please verify with Fingerprint or Face ID to continue.',
+        ),
+      );
+
+      return;
+    }
+
+    // --------------------------------------------------------
+    // NORMAL USERNAME / PASSWORD LOGIN
+    // --------------------------------------------------------
+
     emit(
       state.copyWith(
         isLoading: true,
-
-        // Neutral state while authenticating.
         authStatus: AuthStatus.initial,
-
         clearError: true,
       ),
     );
 
     try {
       final loginResponse = await repository.login(
-        event.username,
+        event.username.trim(),
         event.password,
       );
 
@@ -139,6 +175,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           password: '',
 
           rememberedUsername: '',
+
           rememberedPassword: '',
 
           rememberMe: false,
@@ -228,12 +265,12 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
     final rememberedPassword = shouldRemember ? state.rememberedPassword : '';
 
-    // Delete active tokens.
+    // Delete the active authentication token(s).
+    // Remembered credentials remain when Remember Me is on.
     await repository.logout();
 
     emit(
       UserState(
-        // Explicit logout.
         authStatus: AuthStatus.unauthenticated,
 
         rememberMe: shouldRemember,
@@ -246,18 +283,15 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
         rememberedPassword: rememberedPassword,
 
-        // Keep last username visible even
-        // if Remember Me is OFF.
         username: lastUsername,
 
-        // Keep password only if Remember Me is ON.
         password: shouldRemember ? rememberedPassword : '',
 
         authenticatedUsername: '',
 
         obscurePassword: true,
 
-        // Preserve biometric capability information.
+        // Preserve biometric information.
         hasFingerprint: state.hasFingerprint,
 
         hasFaceAuthentication: state.hasFaceAuthentication,
@@ -291,7 +325,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
         authStatus: AuthStatus.sessionExpired,
 
-        // Interceptor removed the token.
         hasRememberedSession: false,
 
         authenticatedUsername: '',
@@ -359,8 +392,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
           rememberedPassword: '',
 
-          // Do NOT clear username/password.
-          // User may still want to press Sign In.
+          // Do not clear currently typed credentials.
           clearError: true,
         ),
       );
@@ -372,8 +404,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     // TURN ON
     // --------------------------------------------------------
     //
-    // Credentials are saved only AFTER
-    // successful authentication.
+    // Credentials are saved only after a successful login.
     // --------------------------------------------------------
 
     emit(state.copyWith(rememberMe: true, clearError: true));
@@ -390,10 +421,12 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     try {
       final hasRememberedAccount = await repository.hasRememberedAccount();
 
-      final hasRememberedSession = await repository.hasRememberedSession();
-
       String rememberedUsername = '';
       String rememberedPassword = '';
+
+      // ------------------------------------------------------
+      // LOAD REMEMBERED CREDENTIALS
+      // ------------------------------------------------------
 
       if (hasRememberedAccount) {
         rememberedUsername = await repository.getRememberedUsername() ?? '';
@@ -401,23 +434,44 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         rememberedPassword = await repository.getRememberedPassword() ?? '';
       }
 
+      // ------------------------------------------------------
+      // IMPORTANT
+      // ------------------------------------------------------
+      //
+      // An old token must NOT automatically restore access.
+      //
+      // End the previous API session while preserving the
+      // Remember Me credentials.
+      //
+      // repository.logout() deletes the active token(s) but
+      // does not remove the remembered username/password.
+      // ------------------------------------------------------
+
+      await repository.logout();
+
       emit(
         state.copyWith(
+          isLoading: false,
+
           authStatus: AuthStatus.initial,
 
           rememberMe: hasRememberedAccount,
 
           hasRememberedAccount: hasRememberedAccount,
 
-          hasRememberedSession: hasRememberedSession,
+          // Always require a fresh login.
+          hasRememberedSession: false,
 
           rememberedUsername: rememberedUsername,
 
           rememberedPassword: rememberedPassword,
 
+          // Prefill the remembered account.
           username: rememberedUsername,
 
           password: rememberedPassword,
+
+          authenticatedUsername: '',
 
           clearError: true,
         ),
@@ -427,6 +481,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     } catch (e) {
       emit(
         state.copyWith(
+          isLoading: false,
+
           authStatus: AuthStatus.initial,
 
           rememberMe: false,
@@ -439,6 +495,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
           rememberedPassword: '',
 
+          authenticatedUsername: '',
+
           errorMessage: e.toString(),
         ),
       );
@@ -448,7 +506,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   }
 
   // ==========================================================
-  // CHECK BIOMETRICS
+  // CHECK DEVICE BIOMETRICS
   // ==========================================================
 
   Future<void> checkBiometricAvailability(
@@ -471,6 +529,14 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
         return;
       }
+
+      // These fields are informational only.
+      //
+      // On some Android phones the operating system may expose
+      // biometrics as "strong" / "weak" instead of explicitly
+      // reporting face or fingerprint.
+      //
+      // They are NOT used to block the buttons anymore.
 
       final hasFingerprint = await biometricService.hasFingerprint();
 
@@ -539,20 +605,21 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
     try {
       // ------------------------------------------------------
-      // CHECK BIOMETRIC SUPPORT
+      // CHECK DEVICE BIOMETRIC SUPPORT
       // ------------------------------------------------------
 
       final canUseBiometrics = await biometricService.canUseBiometrics();
 
-      if (!canUseBiometrics) {
+      final hasBiometric = await biometricService.hasAvailableBiometric();
+
+      if (!canUseBiometrics || !hasBiometric) {
         emit(
           state.copyWith(
             isLoading: false,
 
             authStatus: AuthStatus.initial,
 
-            errorMessage:
-                'Biometric authentication is not available on this device.',
+            errorMessage: 'No enrolled biometric authentication is available on this device.',
           ),
         );
 
@@ -560,11 +627,12 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       }
 
       // ------------------------------------------------------
-      // OS BIOMETRIC AUTH
+      // OS BIOMETRIC AUTHENTICATION
       // ------------------------------------------------------
 
       final authenticated = await biometricService.authenticate();
 
+      // User cancelled / authentication failed.
       if (!authenticated) {
         emit(
           state.copyWith(
@@ -580,7 +648,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       }
 
       // ------------------------------------------------------
-      // REAL API LOGIN
+      // FRESH BACKEND LOGIN
       // ------------------------------------------------------
 
       final loginResponse = await repository.login(
@@ -588,6 +656,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         state.rememberedPassword,
       );
 
+      // Keep the remembered credentials for next time.
       await repository.saveRememberMe(
         loginResponse.username,
         state.rememberedPassword,
@@ -606,6 +675,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           authenticatedUsername: loginResponse.username,
 
           username: loginResponse.username,
+
+          password: state.rememberedPassword,
 
           rememberedUsername: loginResponse.username,
 
