@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
@@ -30,7 +31,6 @@ import '../notifications/notifications_screen.dart';
 import '../profile/profile_screen.dart';
 import '../home/partners_screen.dart';
 import '../preferences/preferences_screen.dart';
-
 import '../security/security_screen.dart';
 
 class MainScreen extends StatelessWidget {
@@ -63,7 +63,7 @@ class MainScreen extends StatelessWidget {
         if (state.authStatus == AuthStatus.unauthenticated ||
             state.authStatus == AuthStatus.sessionExpired) {
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => LoginScreen()),
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
             (route) => false,
           );
         }
@@ -74,12 +74,22 @@ class MainScreen extends StatelessWidget {
       // ========================================================
       child: MultiBlocProvider(
         providers: [
+          // ------------------------------------------------------
+          // NAVIGATION
+          // ------------------------------------------------------
+
           BlocProvider(create: (_) => NavigationBloc()),
 
+          // ------------------------------------------------------
+          // SERVICES
+          // ------------------------------------------------------
           BlocProvider(
             create: (_) => ServicesBloc()..add(const ServicesRequested()),
           ),
 
+          // ------------------------------------------------------
+          // NOTIFICATIONS
+          // ------------------------------------------------------
           BlocProvider(
             create: (_) =>
                 NotificationsBloc()..add(const NotificationsRequested()),
@@ -92,247 +102,375 @@ class MainScreen extends StatelessWidget {
 
             final colors = Theme.of(context).colorScheme;
 
-            return Scaffold(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            // ====================================================
+            // SYSTEM BACK / SWIPE BACK HANDLING
+            // ====================================================
 
-              // ==================================================
-              // APP BAR
-              // ==================================================
-              appBar: AppBar(
-                toolbarHeight: 76,
-                titleSpacing: 20,
+            return PopScope(
+              // --------------------------------------------------
+              // Prevent the MainScreen route from immediately
+              // being popped by Android's back gesture.
+              // --------------------------------------------------
 
-                title: Row(
-                  children: [
-                    // ------------------------------------------------
-                    // CODEX ICON
-                    // ------------------------------------------------
+              canPop: false,
 
-                    Container(
-                      width: 42,
-                      height: 42,
+              onPopInvokedWithResult: (didPop, result) async {
+                if (didPop) {
+                  return;
+                }
 
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [AppColors.primary, AppColors.primaryDark],
+                // ================================================
+                // NOT ON HOME
+                // ================================================
+                //
+                // Services / Notifications / Profile
+                // -> Back returns to Home.
+                // ================================================
+
+                if (state.selectedIndex != 0) {
+                  context.read<NavigationBloc>().add(
+                    const NavigationTabChanged(0),
+                  );
+
+                  return;
+                }
+
+                // ================================================
+                // ALREADY ON HOME
+                // ================================================
+                //
+                // Ask the user before closing CODEX.
+                // ================================================
+
+                final shouldExit = await showDialog<bool>(
+                  context: context,
+
+                  builder: (dialogContext) {
+                    final dialogColors = Theme.of(dialogContext).colorScheme;
+
+                    return AlertDialog(
+                      icon: Icon(
+                        Icons.exit_to_app_rounded,
+
+                        color: dialogColors.primary,
+                      ),
+
+                      title: const Text('Exit CODEX?'),
+
+                      content: const Text(
+                        'Are you sure you want to close the application?',
+                      ),
+
+                      actions: [
+                        // ----------------------------------------
+                        // CANCEL
+                        // ----------------------------------------
+
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop(false);
+                          },
+
+                          child: const Text('Cancel'),
                         ),
 
-                        borderRadius: BorderRadius.circular(13),
+                        // ----------------------------------------
+                        // EXIT
+                        // ----------------------------------------
+                        FilledButton(
+                          onPressed: () {
+                            Navigator.of(dialogContext).pop(true);
+                          },
 
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.18),
-                            blurRadius: 14,
-                            offset: const Offset(0, 5),
+                          child: const Text('Exit'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                // ================================================
+                // CLOSE APPLICATION
+                // ================================================
+
+                if (shouldExit == true) {
+                  SystemNavigator.pop();
+                }
+              },
+
+              // ==================================================
+              // MAIN SCAFFOLD
+              // ==================================================
+              child: Scaffold(
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+
+                // ==================================================
+                // APP BAR
+                // ==================================================
+                appBar: AppBar(
+                  toolbarHeight: 76,
+
+                  titleSpacing: 20,
+
+                  title: Row(
+                    children: [
+                      // ------------------------------------------------
+                      // CODEX ICON
+                      // ------------------------------------------------
+
+                      Container(
+                        width: 42,
+                        height: 42,
+
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+
+                            end: Alignment.bottomRight,
+
+                            colors: [AppColors.primary, AppColors.primaryDark],
                           ),
-                        ],
+
+                          borderRadius: BorderRadius.circular(13),
+
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withValues(alpha: 0.18),
+
+                              blurRadius: 14,
+
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+
+                        child: const Icon(
+                          Icons.business_center_rounded,
+
+                          color: Colors.white,
+
+                          size: 21,
+                        ),
                       ),
 
-                      child: const Icon(
-                        Icons.business_center_rounded,
-                        color: Colors.white,
-                        size: 21,
+                      const SizedBox(width: 13),
+
+                      // ------------------------------------------------
+                      // APP TITLE
+                      // ------------------------------------------------
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                          mainAxisSize: MainAxisSize.min,
+
+                          children: [
+                            Text(
+                              'CODEX',
+
+                              style: TextStyle(
+                                fontSize: 18,
+
+                                fontWeight: FontWeight.w800,
+
+                                color: colors.onSurface,
+
+                                letterSpacing: -0.4,
+                              ),
+                            ),
+
+                            const SizedBox(height: 1),
+
+                            Text(
+                              pageTitle,
+
+                              style: TextStyle(
+                                fontSize: 12,
+
+                                fontWeight: FontWeight.w500,
+
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
+                  ),
 
-                    const SizedBox(width: 13),
+                  actions: [
+                    // ==============================================
+                    // MENU BUTTON
+                    // ==============================================
 
-                    // ------------------------------------------------
-                    // APP TITLE
-                    // ------------------------------------------------
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
+                    Builder(
+                      builder: (context) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 14),
 
-                        children: [
-                          Text(
-                            'CODEX',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: colors.onSurface,
-                              letterSpacing: -0.4,
+                          child: Material(
+                            color: colors.surface,
+
+                            borderRadius: BorderRadius.circular(14),
+
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(14),
+
+                              onTap: () {
+                                Scaffold.of(context).openEndDrawer();
+                              },
+
+                              child: Container(
+                                width: 44,
+                                height: 44,
+
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: colors.outlineVariant,
+                                  ),
+
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+
+                                child: Icon(
+                                  Icons.menu_rounded,
+
+                                  color: colors.onSurface,
+
+                                  size: 22,
+                                ),
+                              ),
                             ),
                           ),
-
-                          const SizedBox(height: 1),
-
-                          Text(
-                            pageTitle,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: colors.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   ],
                 ),
 
-                actions: [
-                  // ==============================================
-                  // MENU BUTTON
-                  // ==============================================
+                // ==================================================
+                // RIGHT DRAWER
+                // ==================================================
+                endDrawer: _AppDrawer(selectedIndex: state.selectedIndex),
 
-                  Builder(
-                    builder: (context) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 14),
+                // ==================================================
+                // MAIN PAGES
+                // ==================================================
+                body: IndexedStack(
+                  index: state.selectedIndex,
 
-                        child: Material(
-                          color: colors.surface,
+                  children: const [
+                    HomeScreen(),
 
-                          borderRadius: BorderRadius.circular(14),
+                    ServicesScreen(),
 
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(14),
+                    NotificationsScreen(),
 
-                            onTap: () {
-                              Scaffold.of(context).openEndDrawer();
-                            },
+                    ProfileScreen(),
+                  ],
+                ),
 
-                            child: Container(
-                              width: 44,
-                              height: 44,
+                // ==================================================
+                // BOTTOM NAVIGATION
+                // ==================================================
+                bottomNavigationBar: SafeArea(
+                  top: false,
 
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: colors.outlineVariant,
-                                ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 6, 14, 12),
 
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-
-                              child: Icon(
-                                Icons.menu_rounded,
-                                color: colors.onSurface,
-                                size: 22,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-
-              // ==================================================
-              // RIGHT DRAWER
-              // ==================================================
-              endDrawer: _AppDrawer(selectedIndex: state.selectedIndex),
-
-              // ==================================================
-              // PAGES
-              // ==================================================
-              body: IndexedStack(
-                index: state.selectedIndex,
-
-                children: const [
-                  HomeScreen(),
-                  ServicesScreen(),
-                  NotificationsScreen(),
-                  ProfileScreen(),
-                ],
-              ),
-
-              // ==================================================
-              // MODERN BOTTOM NAVIGATION
-              // ==================================================
-              bottomNavigationBar: SafeArea(
-                top: false,
-
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 6, 14, 12),
-
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 8,
-                    ),
-
-                    decoration: BoxDecoration(
-                      color: colors.surface,
-
-                      borderRadius: BorderRadius.circular(24),
-
-                      border: Border.all(color: colors.outlineVariant),
-
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(
-                            alpha:
-                                Theme.of(context).brightness == Brightness.dark
-                                ? 0.20
-                                : 0.07,
-                          ),
-                          blurRadius: 28,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-
-                    child: GNav(
-                      selectedIndex: state.selectedIndex,
-
-                      gap: 7,
-
-                      iconSize: 22,
-
-                      color: colors.onSurfaceVariant,
-
-                      activeColor: colors.primary,
-
-                      tabBackgroundColor: colors.primary.withValues(
-                        alpha: 0.10,
-                      ),
-
-                      tabBorderRadius: 17,
-
+                    child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 15,
-                        vertical: 12,
+                        horizontal: 8,
+                        vertical: 8,
                       ),
 
-                      duration: const Duration(milliseconds: 300),
+                      decoration: BoxDecoration(
+                        color: colors.surface,
 
-                      curve: Curves.easeOutCubic,
+                        borderRadius: BorderRadius.circular(24),
 
-                      textStyle: TextStyle(
-                        color: colors.primary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
+                        border: Border.all(color: colors.outlineVariant),
+
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(
+                              alpha:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? 0.20
+                                  : 0.07,
+                            ),
+
+                            blurRadius: 28,
+
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
                       ),
 
-                      tabs: const [
-                        GButton(icon: Icons.home_outlined, text: 'Home'),
+                      child: GNav(
+                        selectedIndex: state.selectedIndex,
 
-                        GButton(
-                          icon: Icons.grid_view_rounded,
-                          text: 'Services',
+                        gap: 7,
+
+                        iconSize: 22,
+
+                        color: colors.onSurfaceVariant,
+
+                        activeColor: colors.primary,
+
+                        tabBackgroundColor: colors.primary.withValues(
+                          alpha: 0.10,
                         ),
 
-                        GButton(
-                          icon: Icons.notifications_none_rounded,
-                          text: 'Alerts',
+                        tabBorderRadius: 17,
+
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 12,
                         ),
 
-                        GButton(
-                          icon: Icons.person_outline_rounded,
-                          text: 'Profile',
-                        ),
-                      ],
+                        duration: const Duration(milliseconds: 300),
 
-                      onTabChange: (index) {
-                        context.read<NavigationBloc>().add(
-                          NavigationTabChanged(index),
-                        );
-                      },
+                        curve: Curves.easeOutCubic,
+
+                        textStyle: TextStyle(
+                          color: colors.primary,
+
+                          fontSize: 13,
+
+                          fontWeight: FontWeight.w700,
+                        ),
+
+                        tabs: const [
+                          GButton(icon: Icons.home_outlined, text: 'Home'),
+
+                          GButton(
+                            icon: Icons.grid_view_rounded,
+
+                            text: 'Services',
+                          ),
+
+                          GButton(
+                            icon: Icons.notifications_none_rounded,
+
+                            text: 'Alerts',
+                          ),
+
+                          GButton(
+                            icon: Icons.person_outline_rounded,
+
+                            text: 'Profile',
+                          ),
+                        ],
+
+                        onTabChange: (index) {
+                          context.read<NavigationBloc>().add(
+                            NavigationTabChanged(index),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
@@ -379,7 +517,9 @@ class _AppDrawer extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
+
                     end: Alignment.bottomRight,
+
                     colors: [AppColors.primary, AppColors.primaryDark],
                   ),
 
@@ -388,7 +528,9 @@ class _AppDrawer extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.primary.withValues(alpha: 0.18),
+
                       blurRadius: 22,
+
                       offset: const Offset(0, 8),
                     ),
                   ],
@@ -418,12 +560,15 @@ class _AppDrawer extends StatelessWidget {
 
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.16),
+
                                 borderRadius: BorderRadius.circular(15),
                               ),
 
                               child: const Icon(
                                 Icons.business_center_rounded,
+
                                 color: Colors.white,
+
                                 size: 24,
                               ),
                             ),
@@ -433,11 +578,13 @@ class _AppDrawer extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 10,
+
                                 vertical: 6,
                               ),
 
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.15),
+
                                 borderRadius: BorderRadius.circular(20),
                               ),
 
@@ -447,7 +594,9 @@ class _AppDrawer extends StatelessWidget {
                                 children: [
                                   Icon(
                                     Icons.circle,
+
                                     size: 7,
+
                                     color: Color(0xFF86EFAC),
                                   ),
 
@@ -455,9 +604,12 @@ class _AppDrawer extends StatelessWidget {
 
                                   Text(
                                     'Online',
+
                                     style: TextStyle(
                                       fontSize: 11,
+
                                       fontWeight: FontWeight.w600,
+
                                       color: Colors.white,
                                     ),
                                   ),
@@ -471,10 +623,14 @@ class _AppDrawer extends StatelessWidget {
 
                         const Text(
                           'CODEX Workspace',
+
                           style: TextStyle(
                             fontSize: 20,
+
                             fontWeight: FontWeight.w800,
+
                             color: Colors.white,
+
                             letterSpacing: -0.4,
                           ),
                         ),
@@ -483,12 +639,16 @@ class _AppDrawer extends StatelessWidget {
 
                         Text(
                           username,
+
                           maxLines: 1,
+
                           overflow: TextOverflow.ellipsis,
 
                           style: TextStyle(
                             fontSize: 13,
+
                             fontWeight: FontWeight.w500,
+
                             color: Colors.white.withValues(alpha: 0.78),
                           ),
                         ),
@@ -516,8 +676,11 @@ class _AppDrawer extends StatelessWidget {
                   // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.dashboard_outlined,
+
                     selectedIcon: Icons.dashboard_rounded,
+
                     title: 'Dashboard',
+
                     selected: selectedIndex == 0,
 
                     onTap: () {
@@ -530,7 +693,9 @@ class _AppDrawer extends StatelessWidget {
                   // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.business_outlined,
+
                     selectedIcon: Icons.business_rounded,
+
                     title: 'Partners',
 
                     onTap: () {
@@ -543,8 +708,11 @@ class _AppDrawer extends StatelessWidget {
                   // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.grid_view_outlined,
+
                     selectedIcon: Icons.grid_view_rounded,
+
                     title: 'Services',
+
                     selected: selectedIndex == 1,
 
                     onTap: () {
@@ -557,8 +725,11 @@ class _AppDrawer extends StatelessWidget {
                   // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.notifications_none_rounded,
+
                     selectedIcon: Icons.notifications_rounded,
+
                     title: 'Notifications',
+
                     selected: selectedIndex == 2,
 
                     onTap: () {
@@ -577,8 +748,11 @@ class _AppDrawer extends StatelessWidget {
                   // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.person_outline_rounded,
+
                     selectedIcon: Icons.person_rounded,
+
                     title: 'Profile',
+
                     selected: selectedIndex == 3,
 
                     onTap: () {
@@ -624,16 +798,21 @@ class _AppDrawer extends StatelessWidget {
 
                           child: Icon(
                             Icons.settings_outlined,
+
                             size: 20,
+
                             color: colors.onSurfaceVariant,
                           ),
                         ),
 
                         title: Text(
                           'Settings',
+
                           style: TextStyle(
                             fontSize: 14,
+
                             fontWeight: FontWeight.w600,
+
                             color: colors.onSurface,
                           ),
                         ),
@@ -649,6 +828,7 @@ class _AppDrawer extends StatelessWidget {
 
                           _DrawerSubItem(
                             icon: Icons.tune_rounded,
+
                             title: 'Preferences',
 
                             onTap: () {
@@ -671,7 +851,9 @@ class _AppDrawer extends StatelessWidget {
                           // ====================================
                           _DrawerSubItem(
                             icon: Icons.shield_outlined,
+
                             title: 'Security',
+
                             onTap: () {
                               final navigator = Navigator.of(context);
 
@@ -726,7 +908,9 @@ class _AppDrawer extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.logout_rounded,
+
                           color: colors.error,
+
                           size: 20,
                         ),
 
@@ -735,9 +919,12 @@ class _AppDrawer extends StatelessWidget {
                         Expanded(
                           child: Text(
                             'Sign out',
+
                             style: TextStyle(
                               fontSize: 14,
+
                               fontWeight: FontWeight.w700,
+
                               color: colors.error,
                             ),
                           ),
@@ -745,7 +932,9 @@ class _AppDrawer extends StatelessWidget {
 
                         Icon(
                           Icons.arrow_forward_ios_rounded,
+
                           size: 13,
+
                           color: colors.error,
                         ),
                       ],
@@ -819,8 +1008,11 @@ class _DrawerSectionLabel extends StatelessWidget {
 
         style: TextStyle(
           fontSize: 10,
+
           fontWeight: FontWeight.w800,
+
           letterSpacing: 1.15,
+
           color: colors.onSurfaceVariant,
         ),
       ),
@@ -834,6 +1026,7 @@ class _DrawerSectionLabel extends StatelessWidget {
 
 class _DrawerItem extends StatelessWidget {
   final IconData icon;
+
   final IconData selectedIcon;
 
   final String title;
@@ -918,6 +1111,7 @@ class _DrawerItem extends StatelessWidget {
 
                     decoration: BoxDecoration(
                       color: colors.primary,
+
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -936,7 +1130,9 @@ class _DrawerItem extends StatelessWidget {
 
 class _DrawerSubItem extends StatelessWidget {
   final IconData icon;
+
   final String title;
+
   final VoidCallback onTap;
 
   const _DrawerSubItem({
@@ -958,16 +1154,21 @@ class _DrawerSubItem extends StatelessWidget {
 
       title: Text(
         title,
+
         style: TextStyle(
           fontSize: 13,
+
           fontWeight: FontWeight.w600,
+
           color: colors.onSurface,
         ),
       ),
 
       trailing: Icon(
         Icons.arrow_forward_ios_rounded,
+
         size: 11,
+
         color: colors.onSurfaceVariant,
       ),
 

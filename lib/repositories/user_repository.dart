@@ -1,32 +1,83 @@
+import '../core/errors/app_exception.dart';
+
 import '../data_sources/user_data_sources.dart';
-import '../models/user.dart';
+
 import '../models/login_response.dart';
+import '../models/user.dart';
+
 import 'data_repository.dart';
 
 class UserRepository {
   final UserDataSource dataSource;
+
   final DataRepository dataRepository;
 
   UserRepository(this.dataSource, this.dataRepository);
 
-  // Real API login through DataRepository
+  // ==========================================================
+  // NORMAL LOGIN
+  // ==========================================================
+
   Future<LoginResponse> login(String username, String password) async {
     return await dataRepository.login(username, password);
   }
 
-  // Fake/local users for now
-  Future<List<User>> getUsers() {
-    return dataSource.getUsers();
+  // ==========================================================
+  // REMEMBERED ACCOUNT LOGIN
+  // ==========================================================
+  //
+  // IMPORTANT:
+  //
+  // The remembered password is read from secure storage
+  // INSIDE the repository.
+  //
+  // It never enters:
+  //
+  // UserState
+  // LoginScreen
+  // TextFormField
+  // BlocBuilder
+  //
+  // ==========================================================
+
+  Future<LoginResponse> loginRememberedAccount() async {
+    final username = await dataRepository.getRememberedUsername();
+
+    final password = await dataRepository.getRememberedPassword();
+
+    if (username == null ||
+        username.trim().isEmpty ||
+        password == null ||
+        password.isEmpty) {
+      throw const AppException(
+        'No remembered account is available '
+        'for biometric login.',
+      );
+    }
+
+    final response = await dataRepository.login(username.trim(), password);
+
+    // Keep the stored username synchronized
+    // with the backend response.
+    //
+    // The password still stays inside
+    // the repository / secure storage layer.
+    await dataRepository.saveRememberMe(response.username, password);
+
+    return response;
   }
 
-  // Fake/local add user for now
-  Future<void> addUser(String username, String email) {
-    return dataSource.addUser(username, email);
-  }
+  // ==========================================================
+  // LOGOUT
+  // ==========================================================
 
   Future<void> logout() {
     return dataRepository.logout();
   }
+
+  // ==========================================================
+  // REMEMBER ACCOUNT
+  // ==========================================================
 
   Future<void> saveRememberMe(String username, String password) async {
     await dataRepository.saveRememberMe(username, password);
@@ -36,19 +87,23 @@ class UserRepository {
     await dataRepository.clearRememberMe();
   }
 
-  Future<bool> hasRememberedSession() async {
-    return await dataRepository.hasRememberedSession();
+  Future<bool> hasRememberedAccount() async {
+    return await dataRepository.hasRememberedAccount();
   }
 
   Future<String?> getRememberedUsername() async {
     return await dataRepository.getRememberedUsername();
   }
 
-  Future<String?> getRememberedPassword() async {
-    return await dataRepository.getRememberedPassword();
+  // ==========================================================
+  // LOCAL / DEMO USERS
+  // ==========================================================
+
+  Future<List<User>> getUsers() {
+    return dataSource.getUsers();
   }
 
-  Future<bool> hasRememberedAccount() async {
-    return await dataRepository.hasRememberedAccount();
+  Future<void> addUser(String username, String email) {
+    return dataSource.addUser(username, email);
   }
 }

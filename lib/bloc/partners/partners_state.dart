@@ -43,7 +43,7 @@ class PartnersState extends Equatable {
     this.cities = const [],
     this.searchQuery = '',
     this.selectedCity = 'All',
-    this.sortOption = PartnerSortOption.nameAZ,
+    this.sortOption = PartnerSortOption.idAscending,
     this.errorMessage,
   });
 

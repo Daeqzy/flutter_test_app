@@ -9,14 +9,17 @@ class UserState extends Equatable {
 
   final AuthStatus authStatus;
 
-  final bool obscurePassword;
+  // ----------------------------------------------------------
+  // REMEMBERED ACCOUNT
+  // ----------------------------------------------------------
 
   final bool rememberMe;
 
-  // Remembered account exists locally.
+  /// Whether a remembered account exists in secure storage.
   final bool hasRememberedAccount;
 
-  // Remembered account currently has an active token.
+  /// Whether that remembered account currently has
+  /// an authenticated API session.
   final bool hasRememberedSession;
 
   // ----------------------------------------------------------
@@ -24,20 +27,26 @@ class UserState extends Equatable {
   // ----------------------------------------------------------
 
   final bool hasFingerprint;
+
   final bool hasFaceAuthentication;
+
   final bool hasIrisAuthentication;
 
   // ----------------------------------------------------------
-  // USER / LOGIN DATA
+  // USER DATA
   // ----------------------------------------------------------
 
   final String authenticatedUsername;
 
+  /// Used mainly for normal login / last username.
+  ///
+  /// Password intentionally does NOT live in UserState anymore.
   final String username;
-  final String password;
 
+  /// Safe to expose to the UI.
+  ///
+  /// The remembered password stays inside secure storage.
   final String rememberedUsername;
-  final String rememberedPassword;
 
   final User? user;
 
@@ -47,65 +56,36 @@ class UserState extends Equatable {
 
   const UserState({
     this.isLoading = false,
-
     this.authStatus = AuthStatus.initial,
-
-    this.obscurePassword = true,
-
     this.rememberMe = false,
-
     this.hasRememberedAccount = false,
     this.hasRememberedSession = false,
-
     this.hasFingerprint = false,
     this.hasFaceAuthentication = false,
     this.hasIrisAuthentication = false,
-
     this.authenticatedUsername = '',
-
     this.username = '',
-    this.password = '',
-
     this.rememberedUsername = '',
-    this.rememberedPassword = '',
-
     this.user,
-
     this.users = const [],
-
     this.errorMessage,
   });
 
   UserState copyWith({
     bool? isLoading,
-
     AuthStatus? authStatus,
-
-    bool? obscurePassword,
-
     bool? rememberMe,
-
     bool? hasRememberedAccount,
     bool? hasRememberedSession,
-
     bool? hasFingerprint,
     bool? hasFaceAuthentication,
     bool? hasIrisAuthentication,
-
     String? authenticatedUsername,
-
     String? username,
-    String? password,
-
     String? rememberedUsername,
-    String? rememberedPassword,
-
     User? user,
-
     List<User>? users,
-
     String? errorMessage,
-
     bool clearUser = false,
     bool clearError = false,
   }) {
@@ -113,8 +93,6 @@ class UserState extends Equatable {
       isLoading: isLoading ?? this.isLoading,
 
       authStatus: authStatus ?? this.authStatus,
-
-      obscurePassword: obscurePassword ?? this.obscurePassword,
 
       rememberMe: rememberMe ?? this.rememberMe,
 
@@ -135,11 +113,7 @@ class UserState extends Equatable {
 
       username: username ?? this.username,
 
-      password: password ?? this.password,
-
       rememberedUsername: rememberedUsername ?? this.rememberedUsername,
-
-      rememberedPassword: rememberedPassword ?? this.rememberedPassword,
 
       user: clearUser ? null : (user ?? this.user),
 
@@ -155,24 +129,23 @@ class UserState extends Equatable {
 
     authStatus,
 
-    obscurePassword,
-
     rememberMe,
 
     hasRememberedAccount,
+
     hasRememberedSession,
 
     hasFingerprint,
+
     hasFaceAuthentication,
+
     hasIrisAuthentication,
 
     authenticatedUsername,
 
     username,
-    password,
 
     rememberedUsername,
-    rememberedPassword,
 
     user,
 

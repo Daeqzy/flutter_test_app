@@ -13,6 +13,7 @@ abstract class UserEvent extends Equatable {
 
 class UserLoginRequested extends UserEvent {
   final String username;
+
   final String password;
 
   const UserLoginRequested({required this.username, required this.password});
@@ -35,46 +36,13 @@ class GetUsersRequested extends UserEvent {
 
 class AddUserRequested extends UserEvent {
   final String username;
+
   final String email;
 
   const AddUserRequested({required this.username, required this.email});
 
   @override
   List<Object?> get props => [username, email];
-}
-
-// ----------------------------------------------------------
-// PASSWORD VISIBILITY
-// ----------------------------------------------------------
-
-class TogglePasswordVisibility extends UserEvent {
-  const TogglePasswordVisibility();
-}
-
-// ----------------------------------------------------------
-// USERNAME
-// ----------------------------------------------------------
-
-class UsernameChanged extends UserEvent {
-  final String username;
-
-  const UsernameChanged(this.username);
-
-  @override
-  List<Object?> get props => [username];
-}
-
-// ----------------------------------------------------------
-// PASSWORD
-// ----------------------------------------------------------
-
-class PasswordChanged extends UserEvent {
-  final String password;
-
-  const PasswordChanged(this.password);
-
-  @override
-  List<Object?> get props => [password];
 }
 
 // ----------------------------------------------------------
@@ -88,6 +56,14 @@ class RememberMeChanged extends UserEvent {
 
   @override
   List<Object?> get props => [rememberMe];
+}
+
+// ----------------------------------------------------------
+// USE ANOTHER ACCOUNT
+// ----------------------------------------------------------
+
+class UseAnotherAccountRequested extends UserEvent {
+  const UseAnotherAccountRequested();
 }
 
 // ----------------------------------------------------------
@@ -107,7 +83,7 @@ class CheckRememberedSession extends UserEvent {
 }
 
 // ----------------------------------------------------------
-// CHECK DEVICE BIOMETRICS
+// CHECK BIOMETRICS
 // ----------------------------------------------------------
 
 class CheckBiometricAvailability extends UserEvent {
@@ -121,6 +97,10 @@ class CheckBiometricAvailability extends UserEvent {
 class BiometricAuthRequested extends UserEvent {
   const BiometricAuthRequested();
 }
+
+// ----------------------------------------------------------
+// SESSION EXPIRED
+// ----------------------------------------------------------
 
 class AuthSessionExpired extends UserEvent {
   const AuthSessionExpired();

@@ -292,17 +292,9 @@ class PartnerConnectionsScreen extends StatelessWidget {
                               .copyWith(dividerColor: Colors.transparent),
 
                           child: ExpansionTile(
-                            // ==================================
-                            // KEEP DROPDOWN STATE
-                            // ==================================
+                            key: ValueKey(connection.id ?? index),
 
-                            key: PageStorageKey(
-                              'connection_'
-                              '${connection.id ?? index}_'
-                              '$index',
-                            ),
-
-                            maintainState: true,
+                            maintainState: false,
 
                             tilePadding: const EdgeInsets.fromLTRB(
                               15,
@@ -865,7 +857,7 @@ class _NotesCard extends StatelessWidget {
           const SizedBox(width: 10),
 
           Expanded(
-            child: SelectableText(
+            child: Text(
               notes.trim(),
 
               style: TextStyle(
