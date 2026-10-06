@@ -22,45 +22,66 @@ class AppSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+
+      padding: const EdgeInsets.all(17),
+
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
+
           colors: [AppColors.primary, AppColors.primaryDark],
         ),
-        borderRadius: BorderRadius.circular(22),
+
+        borderRadius: BorderRadius.circular(20),
+
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.16),
-            blurRadius: 22,
-            offset: const Offset(0, 8),
+            color: AppColors.primary.withValues(alpha: 0.12),
+
+            blurRadius: 18,
+
+            offset: const Offset(0, 6),
           ),
         ],
       ),
+
       child: Row(
         children: [
+          // ====================================================
+          // ICON
+          // ====================================================
+
           Container(
-            width: 50,
-            height: 50,
+            width: 46,
+            height: 46,
+
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(15),
+              color: Colors.white.withValues(alpha: 0.13),
+
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(icon, color: Colors.white, size: 24),
+
+            child: Icon(icon, color: Colors.white, size: 22),
           ),
 
-          const SizedBox(width: 14),
+          const SizedBox(width: 13),
 
+          // ====================================================
+          // TEXT
+          // ====================================================
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+
               children: [
                 Text(
                   title,
+
                   style: const TextStyle(
-                    fontSize: 17,
+                    fontSize: 16,
                     fontWeight: FontWeight.w800,
+                    letterSpacing: -0.25,
                     color: Colors.white,
                   ),
                 ),
@@ -69,10 +90,13 @@ class AppSummaryCard extends StatelessWidget {
 
                 Text(
                   subtitle,
+
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11.5,
+
                     fontWeight: FontWeight.w500,
-                    color: Colors.white.withValues(alpha: 0.76),
+
+                    color: Colors.white.withValues(alpha: 0.78),
                   ),
                 ),
 
@@ -81,11 +105,15 @@ class AppSummaryCard extends StatelessWidget {
 
                   Text(
                     detail!,
+
                     maxLines: 1,
+
                     overflow: TextOverflow.ellipsis,
+
                     style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.white.withValues(alpha: 0.62),
+                      fontSize: 10.5,
+
+                      color: Colors.white.withValues(alpha: 0.60),
                     ),
                   ),
                 ],

@@ -19,18 +19,14 @@ class AppStatusBadge extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      constraints: const BoxConstraints(maxWidth: 120),
+      constraints: const BoxConstraints(maxWidth: 130),
 
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
 
       decoration: BoxDecoration(
-        color: color.withValues(alpha: isDark ? 0.16 : 0.09),
+        color: color.withValues(alpha: isDark ? 0.12 : 0.07),
 
         borderRadius: BorderRadius.circular(20),
-
-        border: Border.all(
-          color: color.withValues(alpha: isDark ? 0.21 : 0.05),
-        ),
       ),
 
       child: Row(
@@ -45,7 +41,7 @@ class AppStatusBadge extends StatelessWidget {
               decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             )
           else if (icon != null)
-            Icon(icon, size: 13, color: color),
+            Icon(icon, size: 12, color: color),
 
           if (showDot || icon != null) const SizedBox(width: 5),
 
@@ -59,7 +55,9 @@ class AppStatusBadge extends StatelessWidget {
 
               style: TextStyle(
                 fontSize: 10,
+
                 fontWeight: FontWeight.w700,
+
                 color: color,
               ),
             ),
