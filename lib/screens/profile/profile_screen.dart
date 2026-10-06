@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../bloc/user/user_bloc.dart';
-import '../../bloc/user/user_state.dart';
 import '../../bloc/user/user_event.dart';
+import '../../bloc/user/user_state.dart';
 
 import '../../theme/app_theme.dart';
 import '../../widgets/common/app_section_header.dart';
+
+// ============================================================
+// PROFILE SCREEN
+// ============================================================
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -15,9 +19,8 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       top: false,
-
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 32),
 
         child: BlocBuilder<UserBloc, UserState>(
           buildWhen: (previous, current) {
@@ -40,21 +43,21 @@ class ProfileScreen extends StatelessWidget {
 
                 _ProfileHero(username: username),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: 24),
 
                 // ==================================================
-                // PROFILE DETAILS
+                // ACCOUNT
                 // ==================================================
                 const AppSectionHeader(
                   title: 'Account',
                   subtitle: 'Your CODEX workspace profile',
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
                 _ProfileCard(username: username),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: 26),
 
                 // ==================================================
                 // SESSION
@@ -64,11 +67,11 @@ class ProfileScreen extends StatelessWidget {
                   subtitle: 'Current account session',
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
                 const _SessionCard(),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: 26),
 
                 // ==================================================
                 // ACCOUNT ACTIONS
@@ -78,7 +81,7 @@ class ProfileScreen extends StatelessWidget {
                   subtitle: 'Manage your current session',
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
                 _LogoutCard(
                   onTap: () {
@@ -108,7 +111,7 @@ class _ProfileHero extends StatelessWidget {
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -118,170 +121,121 @@ class _ProfileHero extends StatelessWidget {
           colors: [AppColors.primary, AppColors.primaryDark],
         ),
 
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(20),
 
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.20),
+            color: AppColors.primary.withValues(alpha: 0.10),
 
-            blurRadius: 28,
+            blurRadius: 18,
 
-            offset: const Offset(0, 12),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
 
-      child: Stack(
+      child: Row(
         children: [
-          // ----------------------------------------------------
-          // BACKGROUND DECORATION
-          // ----------------------------------------------------
+          // ====================================================
+          // AVATAR
+          // ====================================================
 
-          Positioned(
-            right: -35,
-            top: -45,
+          Container(
+            width: 48,
+            height: 48,
 
-            child: Container(
-              width: 135,
-              height: 135,
+            alignment: Alignment.center,
 
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.07),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.14),
 
-                shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(14),
+            ),
+
+            child: Text(
+              _getInitial(username),
+
+              style: const TextStyle(
+                fontSize: 19,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
               ),
             ),
           ),
 
-          Positioned(
-            right: 30,
-            bottom: -55,
+          const SizedBox(width: 13),
 
-            child: Container(
-              width: 110,
-              height: 110,
+          // ====================================================
+          // USER INFO
+          // ====================================================
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+              children: [
+                Text(
+                  'Your profile',
 
-                shape: BoxShape.circle,
-              ),
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+
+                    color: Colors.white.withValues(alpha: 0.68),
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                Text(
+                  username,
+
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.35,
+                    color: Colors.white,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  'CODEX workspace account',
+
+                  style: TextStyle(
+                    fontSize: 11,
+
+                    color: Colors.white.withValues(alpha: 0.72),
+                  ),
+                ),
+              ],
             ),
           ),
 
-          // ----------------------------------------------------
-          // CONTENT
-          // ----------------------------------------------------
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(width: 10),
+
+          // ====================================================
+          // SIGNED IN STATUS
+          // ====================================================
+          Row(
+            mainAxisSize: MainAxisSize.min,
 
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 52,
-                    height: 52,
+              const Icon(Icons.circle, size: 6, color: Color(0xFF86EFAC)),
 
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-
-                      borderRadius: BorderRadius.circular(16),
-
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.08),
-                      ),
-                    ),
-
-                    child: Center(
-                      child: Text(
-                        _getInitial(username),
-
-                        style: const TextStyle(
-                          fontSize: 21,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.14),
-
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-
-                      children: [
-                        Icon(Icons.circle, size: 7, color: Color(0xFF86EFAC)),
-
-                        SizedBox(width: 6),
-
-                        Text(
-                          'Signed in',
-
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
+              const SizedBox(width: 5),
 
               Text(
-                'Your profile',
+                'Signed in',
 
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
 
-                  color: Colors.white.withValues(alpha: 0.78),
-                ),
-              ),
-
-              const SizedBox(height: 4),
-
-              Text(
-                username,
-
-                maxLines: 1,
-
-                overflow: TextOverflow.ellipsis,
-
-                style: const TextStyle(
-                  fontSize: 27,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  letterSpacing: -0.7,
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              Text(
-                'Manage your CODEX workspace account and session.',
-
-                style: TextStyle(
-                  height: 1.4,
-                  fontSize: 13,
-
-                  color: Colors.white.withValues(alpha: 0.78),
+                  color: Colors.white.withValues(alpha: 0.90),
                 ),
               ),
             ],
@@ -320,47 +274,46 @@ class _ProfileCard extends StatelessWidget {
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
 
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
 
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(color: colors.outlineVariant),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.025),
-
-            blurRadius: isDark ? 16 : 10,
-
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: 0.65),
+        ),
       ),
 
       child: Row(
         children: [
+          // ====================================================
+          // ICON
+          // ====================================================
+
           Container(
-            width: 58,
-            height: 58,
+            width: 42,
+            height: 42,
 
             decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: isDark ? 0.18 : 0.09),
+              color: colors.primary.withValues(alpha: isDark ? 0.14 : 0.08),
 
-              borderRadius: BorderRadius.circular(18),
-
-              border: Border.all(
-                color: colors.primary.withValues(alpha: isDark ? 0.22 : 0.07),
-              ),
+              borderRadius: BorderRadius.circular(12),
             ),
 
-            child: Icon(Icons.person_rounded, size: 29, color: colors.primary),
+            child: Icon(
+              Icons.person_outline_rounded,
+              size: 21,
+              color: colors.primary,
+            ),
           ),
 
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
 
+          // ====================================================
+          // DETAILS
+          // ====================================================
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,37 +323,36 @@ class _ProfileCard extends StatelessWidget {
                   'Username',
 
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: FontWeight.w600,
 
                     color: colors.onSurfaceVariant,
                   ),
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
 
                 Text(
                   username,
 
                   maxLines: 1,
-
                   overflow: TextOverflow.ellipsis,
 
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14.5,
                     fontWeight: FontWeight.w700,
 
                     color: colors.onSurface,
                   ),
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
 
                 Text(
                   'CODEX workspace account',
 
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 10.5,
 
                     color: colors.onSurfaceVariant,
                   ),
@@ -430,32 +382,46 @@ class _SessionCard extends StatelessWidget {
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
 
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
 
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(color: colors.outlineVariant),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.025),
-
-            blurRadius: isDark ? 16 : 10,
-
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: 0.65),
+        ),
       ),
 
       child: Row(
         children: [
-          const _SessionIcon(),
+          // ====================================================
+          // SESSION ICON
+          // ====================================================
 
-          const SizedBox(width: 14),
+          Container(
+            width: 40,
+            height: 40,
 
+            decoration: BoxDecoration(
+              color: AppColors.success.withValues(alpha: isDark ? 0.13 : 0.07),
+
+              borderRadius: BorderRadius.circular(12),
+            ),
+
+            child: const Icon(
+              Icons.verified_user_outlined,
+              size: 20,
+              color: AppColors.success,
+            ),
+          ),
+
+          const SizedBox(width: 12),
+
+          // ====================================================
+          // SESSION INFO
+          // ====================================================
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -465,20 +431,20 @@ class _SessionCard extends StatelessWidget {
                   'Authenticated session',
 
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.w700,
 
                     color: colors.onSurface,
                   ),
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
 
                 Text(
                   'You are currently signed in to CODEX.',
 
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 10.5,
 
                     color: colors.onSurfaceVariant,
                   ),
@@ -489,7 +455,10 @@ class _SessionCard extends StatelessWidget {
 
           const SizedBox(width: 8),
 
-          const _ActiveBadge(),
+          // ====================================================
+          // ACTIVE STATUS
+          // ====================================================
+          const _ActiveStatus(),
         ],
       ),
     );
@@ -497,85 +466,32 @@ class _SessionCard extends StatelessWidget {
 }
 
 // ============================================================
-// SESSION ICON
+// ACTIVE STATUS
 // ============================================================
 
-class _SessionIcon extends StatelessWidget {
-  const _SessionIcon();
+class _ActiveStatus extends StatelessWidget {
+  const _ActiveStatus();
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return const Row(
+      mainAxisSize: MainAxisSize.min,
 
-    return Container(
-      width: 44,
-      height: 44,
+      children: [
+        Icon(Icons.circle, size: 6, color: AppColors.success),
 
-      decoration: BoxDecoration(
-        color: AppColors.success.withValues(alpha: isDark ? 0.16 : 0.08),
+        SizedBox(width: 5),
 
-        borderRadius: BorderRadius.circular(14),
+        Text(
+          'Active',
 
-        border: Border.all(
-          color: AppColors.success.withValues(alpha: isDark ? 0.20 : 0.06),
-        ),
-      ),
-
-      child: const Icon(
-        Icons.verified_user_outlined,
-
-        size: 21,
-
-        color: AppColors.success,
-      ),
-    );
-  }
-}
-
-// ============================================================
-// ACTIVE BADGE
-// ============================================================
-
-class _ActiveBadge extends StatelessWidget {
-  const _ActiveBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-
-      decoration: BoxDecoration(
-        color: AppColors.success.withValues(alpha: isDark ? 0.15 : 0.08),
-
-        borderRadius: BorderRadius.circular(20),
-
-        border: Border.all(
-          color: AppColors.success.withValues(alpha: isDark ? 0.20 : 0.05),
-        ),
-      ),
-
-      child: const Row(
-        mainAxisSize: MainAxisSize.min,
-
-        children: [
-          Icon(Icons.circle, size: 6, color: AppColors.success),
-
-          SizedBox(width: 5),
-
-          Text(
-            'Active',
-
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-
-              color: AppColors.success,
-            ),
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            color: AppColors.success,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -598,69 +514,56 @@ class _LogoutCard extends StatelessWidget {
     return Material(
       color: isDark ? colors.surfaceContainerHigh : colors.surface,
 
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(18),
 
       child: InkWell(
         onTap: onTap,
 
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(18),
 
         child: Container(
           width: double.infinity,
 
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(15),
 
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(18),
 
             border: Border.all(
-              color: isDark
-                  ? AppColors.error.withValues(alpha: 0.22)
-                  : colors.outlineVariant,
+              color: AppColors.error.withValues(alpha: isDark ? 0.20 : 0.10),
             ),
-
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.02),
-
-                blurRadius: isDark ? 14 : 8,
-
-                offset: const Offset(0, 4),
-              ),
-            ],
           ),
 
           child: Row(
             children: [
+              // ==================================================
+              // ICON
+              // ==================================================
+
               Container(
-                width: 44,
-                height: 44,
+                width: 40,
+                height: 40,
 
                 decoration: BoxDecoration(
                   color: AppColors.error.withValues(
-                    alpha: isDark ? 0.16 : 0.08,
+                    alpha: isDark ? 0.13 : 0.07,
                   ),
 
-                  borderRadius: BorderRadius.circular(14),
-
-                  border: Border.all(
-                    color: AppColors.error.withValues(
-                      alpha: isDark ? 0.20 : 0.05,
-                    ),
-                  ),
+                  borderRadius: BorderRadius.circular(12),
                 ),
 
                 child: const Icon(
                   Icons.logout_rounded,
-
-                  size: 20,
-
+                  size: 19,
                   color: AppColors.error,
                 ),
               ),
 
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
 
+              // ==================================================
+              // TEXT
+              // ==================================================
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -670,9 +573,8 @@ class _LogoutCard extends StatelessWidget {
                       'Sign out',
 
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13.5,
                         fontWeight: FontWeight.w700,
-
                         color: AppColors.error,
                       ),
                     ),
@@ -683,7 +585,7 @@ class _LogoutCard extends StatelessWidget {
                       'End your current CODEX session',
 
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 10.5,
 
                         color: colors.onSurfaceVariant,
                       ),
@@ -695,9 +597,9 @@ class _LogoutCard extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
 
-                color: isDark
-                    ? AppColors.error.withValues(alpha: 0.85)
-                    : colors.onSurfaceVariant,
+                size: 20,
+
+                color: AppColors.error.withValues(alpha: 0.80),
               ),
             ],
           ),

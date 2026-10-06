@@ -208,87 +208,64 @@ class MainScreen extends StatelessWidget {
                 // APP BAR
                 // ==================================================
                 appBar: AppBar(
-                  toolbarHeight: 76,
-
-                  titleSpacing: 20,
+                  toolbarHeight: 68,
+                  titleSpacing: 18,
 
                   title: Row(
                     children: [
-                      // ------------------------------------------------
-                      // CODEX ICON
-                      // ------------------------------------------------
+                      // ======================================================
+                      // CODEX BRAND MARK
+                      // ======================================================
 
                       Container(
-                        width: 42,
-                        height: 42,
+                        width: 36,
+                        height: 36,
 
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
                             begin: Alignment.topLeft,
-
                             end: Alignment.bottomRight,
-
                             colors: [AppColors.primary, AppColors.primaryDark],
                           ),
 
-                          borderRadius: BorderRadius.circular(13),
-
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.18),
-
-                              blurRadius: 14,
-
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
+                          borderRadius: BorderRadius.circular(11),
                         ),
 
                         child: const Icon(
                           Icons.business_center_rounded,
-
                           color: Colors.white,
-
-                          size: 21,
+                          size: 19,
                         ),
                       ),
 
-                      const SizedBox(width: 13),
+                      const SizedBox(width: 11),
 
-                      // ------------------------------------------------
-                      // APP TITLE
-                      // ------------------------------------------------
+                      // ======================================================
+                      // PAGE TITLE
+                      // ======================================================
                       Expanded(
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-
                           mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
 
                           children: [
                             Text(
                               'CODEX',
 
                               style: TextStyle(
-                                fontSize: 18,
-
+                                fontSize: 17,
                                 fontWeight: FontWeight.w800,
-
+                                letterSpacing: -0.35,
                                 color: colors.onSurface,
-
-                                letterSpacing: -0.4,
                               ),
                             ),
-
-                            const SizedBox(height: 1),
 
                             Text(
                               pageTitle,
 
                               style: TextStyle(
-                                fontSize: 12,
-
+                                fontSize: 11,
                                 fontWeight: FontWeight.w500,
-
                                 color: colors.onSurfaceVariant,
                               ),
                             ),
@@ -299,45 +276,33 @@ class MainScreen extends StatelessWidget {
                   ),
 
                   actions: [
-                    // ==============================================
-                    // MENU BUTTON
-                    // ==============================================
-
                     Builder(
                       builder: (context) {
                         return Padding(
                           padding: const EdgeInsets.only(right: 14),
 
                           child: Material(
-                            color: colors.surface,
+                            color: colors.surfaceContainerHighest.withValues(
+                              alpha: 0.55,
+                            ),
 
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(12),
 
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(12),
 
                               onTap: () {
                                 Scaffold.of(context).openEndDrawer();
                               },
 
-                              child: Container(
-                                width: 44,
-                                height: 44,
-
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: colors.outlineVariant,
-                                  ),
-
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
+                              child: SizedBox(
+                                width: 40,
+                                height: 40,
 
                                 child: Icon(
                                   Icons.menu_rounded,
-
+                                  size: 21,
                                   color: colors.onSurface,
-
-                                  size: 22,
                                 ),
                               ),
                             ),
@@ -377,20 +342,18 @@ class MainScreen extends StatelessWidget {
                   top: false,
 
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 6, 14, 12),
+                    padding: const EdgeInsets.fromLTRB(14, 5, 14, 10),
 
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 8,
+                        horizontal: 7,
+                        vertical: 7,
                       ),
 
                       decoration: BoxDecoration(
                         color: colors.surface,
 
-                        borderRadius: BorderRadius.circular(24),
-
-                        border: Border.all(color: colors.outlineVariant),
+                        borderRadius: BorderRadius.circular(20),
 
                         boxShadow: [
                           BoxShadow(
@@ -398,13 +361,13 @@ class MainScreen extends StatelessWidget {
                               alpha:
                                   Theme.of(context).brightness ==
                                       Brightness.dark
-                                  ? 0.20
-                                  : 0.07,
+                                  ? 0.14
+                                  : 0.045,
                             ),
 
-                            blurRadius: 28,
+                            blurRadius: 18,
 
-                            offset: const Offset(0, 10),
+                            offset: const Offset(0, 6),
                           ),
                         ],
                       ),
@@ -412,33 +375,33 @@ class MainScreen extends StatelessWidget {
                       child: GNav(
                         selectedIndex: state.selectedIndex,
 
-                        gap: 7,
+                        gap: 6,
 
-                        iconSize: 22,
+                        iconSize: 21,
 
                         color: colors.onSurfaceVariant,
 
                         activeColor: colors.primary,
 
                         tabBackgroundColor: colors.primary.withValues(
-                          alpha: 0.10,
+                          alpha: 0.08,
                         ),
 
-                        tabBorderRadius: 17,
+                        tabBorderRadius: 14,
 
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 15,
-                          vertical: 12,
+                          horizontal: 13,
+                          vertical: 10,
                         ),
 
-                        duration: const Duration(milliseconds: 300),
+                        duration: const Duration(milliseconds: 220),
 
                         curve: Curves.easeOutCubic,
 
                         textStyle: TextStyle(
                           color: colors.primary,
 
-                          fontSize: 13,
+                          fontSize: 12,
 
                           fontWeight: FontWeight.w700,
                         ),
@@ -448,19 +411,16 @@ class MainScreen extends StatelessWidget {
 
                           GButton(
                             icon: Icons.grid_view_rounded,
-
                             text: 'Services',
                           ),
 
                           GButton(
                             icon: Icons.notifications_none_rounded,
-
                             text: 'Alerts',
                           ),
 
                           GButton(
                             icon: Icons.person_outline_rounded,
-
                             text: 'Profile',
                           ),
                         ],
@@ -512,8 +472,7 @@ class _AppDrawer extends StatelessWidget {
               child: Container(
                 width: double.infinity,
 
-                padding: const EdgeInsets.all(18),
-
+                padding: const EdgeInsets.all(17),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
@@ -523,15 +482,13 @@ class _AppDrawer extends StatelessWidget {
                     colors: [AppColors.primary, AppColors.primaryDark],
                   ),
 
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(20),
 
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.18),
-
-                      blurRadius: 22,
-
-                      offset: const Offset(0, 8),
+                      color: AppColors.primary.withValues(alpha: 0.10),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),

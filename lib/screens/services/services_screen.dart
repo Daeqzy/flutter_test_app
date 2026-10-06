@@ -11,13 +11,15 @@ import '../../repositories/data_repository.dart';
 
 import '../home/partners_screen.dart';
 
+// ============================================================
+// SERVICES SCREEN
+// ============================================================
+
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SafeArea(
@@ -47,18 +49,18 @@ class ServicesScreen extends StatelessWidget {
               },
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
 
             // ==================================================
             // WORKSPACE
             // ==================================================
-            _SectionHeader(
+            const _SectionHeader(
               title: 'Workspace services',
               subtitle:
                   'Quick access to partner information and business tools.',
             ),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
 
             // ==================================================
             // PARTNER DIRECTORY
@@ -97,14 +99,13 @@ class ServicesScreen extends StatelessWidget {
                     onTap: () {
                       _openPartners(
                         context,
-
                         instruction: 'Select a partner and tap Connections.',
                       );
                     },
                   ),
                 ),
 
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
 
                 Expanded(
                   child: _ServiceCard(
@@ -117,7 +118,6 @@ class ServicesScreen extends StatelessWidget {
                     onTap: () {
                       _openPartners(
                         context,
-
                         instruction: 'Select a partner and tap Agreements.',
                       );
                     },
@@ -126,7 +126,7 @@ class ServicesScreen extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
             // ==================================================
             // CONTACTS + LOCATIONS
@@ -147,14 +147,13 @@ class ServicesScreen extends StatelessWidget {
                     onTap: () {
                       _openPartners(
                         context,
-
                         instruction: 'Select a partner and tap Contacts.',
                       );
                     },
                   ),
                 ),
 
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
 
                 Expanded(
                   child: _ServiceCard(
@@ -168,7 +167,6 @@ class ServicesScreen extends StatelessWidget {
                     onTap: () {
                       _openPartners(
                         context,
-
                         instruction:
                             'Select a partner and tap the location icon.',
                       );
@@ -181,9 +179,9 @@ class ServicesScreen extends StatelessWidget {
             const SizedBox(height: 28),
 
             // ==================================================
-            // HOW IT WORKS
+            // PARTNER WORKFLOW
             // ==================================================
-            _SectionHeader(
+            const _SectionHeader(
               title: 'Partner workflow',
               subtitle: 'All business information starts from a partner.',
             ),
@@ -192,84 +190,12 @@ class ServicesScreen extends StatelessWidget {
 
             _WorkflowCard(isDark: isDark),
 
-            const SizedBox(height: 22),
+            const SizedBox(height: 20),
 
             // ==================================================
-            // INFO
+            // DATA INFO
             // ==================================================
-            Container(
-              width: double.infinity,
-
-              padding: const EdgeInsets.all(17),
-
-              decoration: BoxDecoration(
-                color: colors.primary.withValues(alpha: isDark ? 0.09 : 0.06),
-
-                borderRadius: BorderRadius.circular(20),
-
-                border: Border.all(
-                  color: colors.primary.withValues(alpha: isDark ? 0.20 : 0.12),
-                ),
-              ),
-
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-
-                children: [
-                  Container(
-                    width: 42,
-                    height: 42,
-
-                    decoration: BoxDecoration(
-                      color: colors.primary.withValues(alpha: 0.11),
-
-                      borderRadius: BorderRadius.circular(13),
-                    ),
-
-                    child: Icon(
-                      Icons.info_outline_rounded,
-                      size: 21,
-                      color: colors.primary,
-                    ),
-                  ),
-
-                  const SizedBox(width: 13),
-
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-
-                      children: [
-                        Text(
-                          'Real application data',
-
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: colors.onSurface,
-                          ),
-                        ),
-
-                        const SizedBox(height: 4),
-
-                        Text(
-                          'These services use the existing '
-                          'partner workflow and backend data. '
-                          'Connections, agreements and contacts '
-                          'are loaded only after selecting a partner.',
-
-                          style: TextStyle(
-                            fontSize: 12,
-                            height: 1.45,
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const _DataInfoCard(),
           ],
         ),
       ),
@@ -343,74 +269,81 @@ class _ServicesHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
+
           end: Alignment.bottomRight,
 
-          colors: [colors.primary, colors.primary.withValues(alpha: 0.78)],
+          colors: [colors.primary, colors.primary.withValues(alpha: 0.86)],
         ),
 
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(20),
 
         boxShadow: [
           BoxShadow(
-            color: colors.primary.withValues(alpha: isDark ? 0.15 : 0.22),
+            color: colors.primary.withValues(alpha: 0.10),
 
-            blurRadius: 26,
+            blurRadius: 18,
 
-            offset: const Offset(0, 10),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
 
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-
         children: [
+          // ====================================================
+          // ICON
+          // ====================================================
+
           Container(
-            width: 56,
-            height: 56,
+            width: 46,
+            height: 46,
 
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.16),
+              color: Colors.white.withValues(alpha: 0.13),
 
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(14),
             ),
 
             child: const Icon(
               Icons.grid_view_rounded,
-              size: 27,
+              size: 22,
               color: Colors.white,
             ),
           ),
 
-          const SizedBox(width: 16),
+          const SizedBox(width: 13),
 
+          // ====================================================
+          // TEXT
+          // ====================================================
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                Text(
+                const Text(
                   'Services',
 
-                  style: const TextStyle(
-                    fontSize: 23,
+                  style: TextStyle(
+                    fontSize: 18,
+
                     fontWeight: FontWeight.w800,
+
+                    letterSpacing: -0.35,
+
                     color: Colors.white,
-                    letterSpacing: -0.5,
                   ),
                 ),
 
-                const SizedBox(height: 5),
+                const SizedBox(height: 3),
 
                 Text(
                   'Workspace for $username',
@@ -420,24 +353,25 @@ class _ServicesHeader extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
 
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 11.5,
+
                     fontWeight: FontWeight.w500,
 
-                    color: Colors.white.withValues(alpha: 0.82),
+                    color: Colors.white.withValues(alpha: 0.78),
                   ),
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
 
                 Text(
-                  'Access partner connections, agreements, '
-                  'contacts and locations from one place.',
+                  'Access partner tools and business information.',
 
                   style: TextStyle(
-                    fontSize: 12,
-                    height: 1.4,
+                    fontSize: 11,
 
-                    color: Colors.white.withValues(alpha: 0.78),
+                    height: 1.35,
+
+                    color: Colors.white.withValues(alpha: 0.68),
                   ),
                 ),
               ],
@@ -455,6 +389,7 @@ class _ServicesHeader extends StatelessWidget {
 
 class _SectionHeader extends StatelessWidget {
   final String title;
+
   final String subtitle;
 
   const _SectionHeader({required this.title, required this.subtitle});
@@ -472,8 +407,11 @@ class _SectionHeader extends StatelessWidget {
 
           style: TextStyle(
             fontSize: 18,
+
             fontWeight: FontWeight.w800,
+
             letterSpacing: -0.3,
+
             color: colors.onSurface,
           ),
         ),
@@ -496,9 +434,13 @@ class _SectionHeader extends StatelessWidget {
 
 class _LargeServiceCard extends StatelessWidget {
   final IconData icon;
+
   final String title;
+
   final String subtitle;
+
   final String badge;
+
   final VoidCallback onTap;
 
   const _LargeServiceCard({
@@ -518,52 +460,50 @@ class _LargeServiceCard extends StatelessWidget {
     return Material(
       color: isDark ? colors.surfaceContainerHigh : colors.surface,
 
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(18),
 
       child: InkWell(
-        borderRadius: BorderRadius.circular(22),
-
         onTap: onTap,
+
+        borderRadius: BorderRadius.circular(18),
 
         child: Container(
           width: double.infinity,
 
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(15),
 
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(18),
 
-            border: Border.all(color: colors.outlineVariant),
-
-            boxShadow: [
-              if (!isDark)
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.035),
-
-                  blurRadius: 18,
-
-                  offset: const Offset(0, 6),
-                ),
-            ],
+            border: Border.all(
+              color: colors.outlineVariant.withValues(alpha: 0.65),
+            ),
           ),
 
           child: Row(
             children: [
+              // ==================================================
+              // ICON
+              // ==================================================
+
               Container(
-                width: 54,
-                height: 54,
+                width: 46,
+                height: 46,
 
                 decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.10),
+                  color: colors.primary.withValues(alpha: isDark ? 0.14 : 0.08),
 
-                  borderRadius: BorderRadius.circular(17),
+                  borderRadius: BorderRadius.circular(13),
                 ),
 
-                child: Icon(icon, size: 25, color: colors.primary),
+                child: Icon(icon, size: 22, color: colors.primary),
               ),
 
-              const SizedBox(width: 15),
+              const SizedBox(width: 13),
 
+              // ==================================================
+              // CONTENT
+              // ==================================================
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -576,46 +516,39 @@ class _LargeServiceCard extends StatelessWidget {
                             title,
 
                             style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w800,
+                              fontSize: 14.5,
+
+                              fontWeight: FontWeight.w700,
+
                               color: colors.onSurface,
                             ),
                           ),
                         ),
 
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 9,
-                            vertical: 5,
-                          ),
+                        Text(
+                          badge,
 
-                          decoration: BoxDecoration(
-                            color: colors.primary.withValues(alpha: 0.09),
+                          style: TextStyle(
+                            fontSize: 9.5,
 
-                            borderRadius: BorderRadius.circular(20),
-                          ),
+                            fontWeight: FontWeight.w700,
 
-                          child: Text(
-                            badge,
-
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w700,
-                              color: colors.primary,
-                            ),
+                            color: colors.primary,
                           ),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 4),
 
                     Text(
                       subtitle,
 
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11.5,
+
                         height: 1.35,
+
                         color: colors.onSurfaceVariant,
                       ),
                     ),
@@ -623,12 +556,12 @@ class _LargeServiceCard extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(width: 10),
+              const SizedBox(width: 8),
 
               Icon(
-                Icons.arrow_forward_ios_rounded,
+                Icons.chevron_right_rounded,
 
-                size: 14,
+                size: 20,
 
                 color: colors.onSurfaceVariant,
               ),
@@ -646,8 +579,11 @@ class _LargeServiceCard extends StatelessWidget {
 
 class _ServiceCard extends StatelessWidget {
   final IconData icon;
+
   final String title;
+
   final String subtitle;
+
   final VoidCallback onTap;
 
   const _ServiceCard({
@@ -666,86 +602,104 @@ class _ServiceCard extends StatelessWidget {
     return Material(
       color: isDark ? colors.surfaceContainerHigh : colors.surface,
 
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(18),
 
       child: InkWell(
-        borderRadius: BorderRadius.circular(22),
-
         onTap: onTap,
 
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 190),
+        borderRadius: BorderRadius.circular(18),
 
-          padding: const EdgeInsets.all(16),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 154),
+
+          padding: const EdgeInsets.all(14),
 
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(18),
 
-            border: Border.all(color: colors.outlineVariant),
-
-            boxShadow: [
-              if (!isDark)
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.035),
-
-                  blurRadius: 18,
-
-                  offset: const Offset(0, 6),
-                ),
-            ],
+            border: Border.all(
+              color: colors.outlineVariant.withValues(alpha: 0.65),
+            ),
           ),
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
+              // ==================================================
+              // ICON / ARROW
+              // ==================================================
+
               Row(
                 children: [
                   Container(
-                    width: 46,
-                    height: 46,
+                    width: 40,
+                    height: 40,
 
                     decoration: BoxDecoration(
-                      color: colors.primary.withValues(alpha: 0.10),
+                      color: colors.primary.withValues(
+                        alpha: isDark ? 0.14 : 0.08,
+                      ),
 
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(12),
                     ),
 
-                    child: Icon(icon, size: 22, color: colors.primary),
+                    child: Icon(icon, size: 20, color: colors.primary),
                   ),
 
+                  // IMPORTANT:
+                  // This Spacer is safe because
+                  // it is inside a Row.
                   const Spacer(),
 
                   Icon(
                     Icons.arrow_outward_rounded,
 
-                    size: 18,
+                    size: 17,
 
                     color: colors.onSurfaceVariant,
                   ),
                 ],
               ),
 
+              // IMPORTANT:
+              // Do NOT use Spacer here.
+              // The old vertical Spacer caused
+              // the login/MainScreen layout issue.
               const SizedBox(height: 18),
 
+              // ==================================================
+              // TITLE
+              // ==================================================
               Text(
                 title,
 
                 style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+
+                  fontWeight: FontWeight.w700,
+
                   color: colors.onSurface,
                 ),
               ),
 
-              const SizedBox(height: 7),
+              const SizedBox(height: 5),
 
+              // ==================================================
+              // DESCRIPTION
+              // ==================================================
               Text(
                 subtitle,
 
+                maxLines: 3,
+
+                overflow: TextOverflow.ellipsis,
+
                 style: TextStyle(
-                  fontSize: 11.5,
-                  height: 1.4,
+                  fontSize: 11,
+
+                  height: 1.35,
+
                   color: colors.onSurfaceVariant,
                 ),
               ),
@@ -758,7 +712,7 @@ class _ServiceCard extends StatelessWidget {
 }
 
 // ============================================================
-// WORKFLOW
+// WORKFLOW CARD
 // ============================================================
 
 class _WorkflowCard extends StatelessWidget {
@@ -773,22 +727,27 @@ class _WorkflowCard extends StatelessWidget {
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 16),
 
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
 
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(color: colors.outlineVariant),
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: 0.65),
+        ),
       ),
 
-      child: Column(
-        children: const [
+      child: const Column(
+        children: [
           _WorkflowStep(
             number: '1',
+
             icon: Icons.business_outlined,
+
             title: 'Choose partner',
+
             subtitle: 'Search the partner directory.',
           ),
 
@@ -796,8 +755,11 @@ class _WorkflowCard extends StatelessWidget {
 
           _WorkflowStep(
             number: '2',
+
             icon: Icons.touch_app_outlined,
+
             title: 'Choose an action',
+
             subtitle: 'Connections, agreements, contacts or map.',
           ),
 
@@ -805,10 +767,12 @@ class _WorkflowCard extends StatelessWidget {
 
           _WorkflowStep(
             number: '3',
+
             icon: Icons.cloud_done_outlined,
+
             title: 'Load live data',
-            subtitle:
-                'The selected partner data is retrieved from the backend.',
+
+            subtitle: 'Retrieve the selected partner data from the backend.',
           ),
         ],
       ),
@@ -822,8 +786,11 @@ class _WorkflowCard extends StatelessWidget {
 
 class _WorkflowStep extends StatelessWidget {
   final String number;
+
   final IconData icon;
+
   final String title;
+
   final String subtitle;
 
   const _WorkflowStep({
@@ -837,48 +804,53 @@ class _WorkflowStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+
       children: [
+        // ====================================================
+        // STEP NUMBER
+        // ====================================================
+
         Container(
-          width: 38,
-          height: 38,
+          width: 32,
+          height: 32,
+
+          alignment: Alignment.center,
 
           decoration: BoxDecoration(
-            color: colors.primary.withValues(alpha: 0.10),
+            color: colors.primary.withValues(alpha: isDark ? 0.14 : 0.08),
 
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(10),
           ),
 
-          child: Center(
-            child: Text(
-              number,
+          child: Text(
+            number,
 
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: colors.primary,
-              ),
+            style: TextStyle(
+              fontSize: 11,
+
+              fontWeight: FontWeight.w800,
+
+              color: colors.primary,
             ),
           ),
         ),
 
-        const SizedBox(width: 13),
+        const SizedBox(width: 11),
 
-        Container(
-          width: 40,
-          height: 40,
+        // ====================================================
+        // ICON
+        // ====================================================
+        Icon(icon, size: 18, color: colors.primary),
 
-          decoration: BoxDecoration(
-            color: colors.surfaceContainerHighest,
+        const SizedBox(width: 11),
 
-            borderRadius: BorderRadius.circular(13),
-          ),
-
-          child: Icon(icon, size: 20, color: colors.primary),
-        ),
-
-        const SizedBox(width: 13),
-
+        // ====================================================
+        // TEXT
+        // ====================================================
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -888,18 +860,26 @@ class _WorkflowStep extends StatelessWidget {
                 title,
 
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 12.5,
+
                   fontWeight: FontWeight.w700,
+
                   color: colors.onSurface,
                 ),
               ),
 
-              const SizedBox(height: 3),
+              const SizedBox(height: 2),
 
               Text(
                 subtitle,
 
-                style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
+                style: TextStyle(
+                  fontSize: 10.5,
+
+                  height: 1.35,
+
+                  color: colors.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -921,12 +901,90 @@ class _WorkflowConnector extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.only(left: 18),
+      padding: const EdgeInsets.only(left: 15),
 
       child: Align(
         alignment: Alignment.centerLeft,
 
-        child: Container(width: 2, height: 18, color: colors.outlineVariant),
+        child: Container(
+          width: 1,
+
+          height: 16,
+
+          color: colors.outlineVariant.withValues(alpha: 0.75),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// REAL APPLICATION DATA
+// ============================================================
+
+class _DataInfoCard extends StatelessWidget {
+  const _DataInfoCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+
+      decoration: BoxDecoration(
+        color: colors.primary.withValues(alpha: isDark ? 0.07 : 0.045),
+
+        borderRadius: BorderRadius.circular(16),
+      ),
+
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+          Icon(Icons.info_outline_rounded, size: 19, color: colors.primary),
+
+          const SizedBox(width: 10),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                Text(
+                  'Real application data',
+
+                  style: TextStyle(
+                    fontSize: 12.5,
+
+                    fontWeight: FontWeight.w700,
+
+                    color: colors.onSurface,
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                Text(
+                  'Connections, agreements and contacts are loaded '
+                  'from the backend after selecting a partner.',
+
+                  style: TextStyle(
+                    fontSize: 10.5,
+
+                    height: 1.4,
+
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

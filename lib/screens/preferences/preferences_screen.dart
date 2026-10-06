@@ -7,6 +7,10 @@ import '../../bloc/preferences/preferences_state.dart';
 
 import '../../widgets/common/app_section_header.dart';
 
+// ============================================================
+// PREFERENCES SCREEN
+// ============================================================
+
 class PreferencesScreen extends StatelessWidget {
   const PreferencesScreen({super.key});
 
@@ -21,7 +25,7 @@ class PreferencesScreen extends StatelessWidget {
       // APP BAR
       // ========================================================
       appBar: AppBar(
-        toolbarHeight: 72,
+        toolbarHeight: 68,
 
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,10 +35,9 @@ class PreferencesScreen extends StatelessWidget {
               'Preferences',
 
               style: TextStyle(
-                fontSize: 19,
+                fontSize: 18,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.3,
-
                 color: colors.onSurface,
               ),
             ),
@@ -45,9 +48,8 @@ class PreferencesScreen extends StatelessWidget {
               'Customize your workspace',
 
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11.5,
                 fontWeight: FontWeight.w500,
-
                 color: colors.onSurfaceVariant,
               ),
             ),
@@ -67,7 +69,7 @@ class PreferencesScreen extends StatelessWidget {
           }
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
+            padding: const EdgeInsets.fromLTRB(16, 18, 16, 32),
 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +81,7 @@ class PreferencesScreen extends StatelessWidget {
 
                 _PreferencesHero(themeMode: state.themeMode),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: 24),
 
                 // ==================================================
                 // APPEARANCE
@@ -89,7 +91,7 @@ class PreferencesScreen extends StatelessWidget {
                   subtitle: 'Choose how CODEX looks on this device',
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
                 _PreferenceCard(
                   child: Column(
@@ -137,7 +139,7 @@ class PreferencesScreen extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: 26),
 
                 // ==================================================
                 // LOCAL SETTINGS
@@ -147,7 +149,7 @@ class PreferencesScreen extends StatelessWidget {
                   subtitle: 'Settings stored locally on this device',
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
                 const _LocalPreferencesInfo(),
               ],
@@ -189,165 +191,110 @@ class _PreferencesHero extends StatelessWidget {
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
 
-          colors: [colors.primary, colors.primary.withValues(alpha: 0.82)],
+          colors: [colors.primary, colors.primary.withValues(alpha: 0.86)],
         ),
 
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(20),
 
         boxShadow: [
           BoxShadow(
-            color: colors.primary.withValues(alpha: 0.20),
+            color: colors.primary.withValues(alpha: 0.10),
 
-            blurRadius: 28,
+            blurRadius: 18,
 
-            offset: const Offset(0, 12),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
 
-      child: Stack(
+      child: Row(
         children: [
-          // ----------------------------------------------------
-          // BACKGROUND DECORATION
-          // ----------------------------------------------------
+          // ====================================================
+          // ICON
+          // ====================================================
 
-          Positioned(
-            right: -35,
-            top: -45,
+          Container(
+            width: 46,
+            height: 46,
 
-            child: Container(
-              width: 135,
-              height: 135,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.13),
 
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.07),
+              borderRadius: BorderRadius.circular(14),
+            ),
 
-                shape: BoxShape.circle,
-              ),
+            child: const Icon(
+              Icons.tune_rounded,
+              size: 22,
+              color: Colors.white,
             ),
           ),
 
-          Positioned(
-            right: 30,
-            bottom: -55,
+          const SizedBox(width: 13),
 
-            child: Container(
-              width: 110,
-              height: 110,
+          // ====================================================
+          // TEXT
+          // ====================================================
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+              children: [
+                const Text(
+                  'Your workspace',
 
-                shape: BoxShape.circle,
-              ),
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.3,
+                    color: Colors.white,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  'Personalize the CODEX experience.',
+
+                  style: TextStyle(
+                    fontSize: 11,
+                    height: 1.35,
+
+                    color: Colors.white.withValues(alpha: 0.70),
+                  ),
+                ),
+              ],
             ),
           ),
 
-          // ----------------------------------------------------
-          // CONTENT
-          // ----------------------------------------------------
+          const SizedBox(width: 10),
+
+          // ====================================================
+          // CURRENT MODE
+          // ====================================================
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
 
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
+              Icon(modeIcon, size: 18, color: Colors.white),
 
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-
-                      borderRadius: BorderRadius.circular(15),
-
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.08),
-                      ),
-                    ),
-
-                    child: const Icon(
-                      Icons.tune_rounded,
-
-                      color: Colors.white,
-
-                      size: 23,
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 7,
-                    ),
-
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.14),
-
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-
-                      children: [
-                        Icon(modeIcon, size: 14, color: Colors.white),
-
-                        const SizedBox(width: 5),
-
-                        Text(
-                          modeText,
-
-                          style: const TextStyle(
-                            fontSize: 10,
-
-                            fontWeight: FontWeight.w700,
-
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              const Text(
-                'Your workspace',
-
-                style: TextStyle(
-                  fontSize: 27,
-                  fontWeight: FontWeight.w800,
-
-                  color: Colors.white,
-
-                  letterSpacing: -0.7,
-                ),
-              ),
-
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
 
               Text(
-                'Personalize how the CODEX application '
-                'looks and behaves.',
+                modeText,
 
                 style: TextStyle(
-                  height: 1.4,
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
 
-                  fontSize: 13,
-
-                  color: Colors.white.withValues(alpha: 0.78),
+                  color: Colors.white.withValues(alpha: 0.88),
                 ),
               ),
             ],
@@ -377,27 +324,16 @@ class _PreferenceCard extends StatelessWidget {
       width: double.infinity,
 
       decoration: BoxDecoration(
-        // Important:
-        // visually separate the card from
-        // the dark page background.
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
 
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(color: colors.outlineVariant),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.025),
-
-            blurRadius: isDark ? 16 : 10,
-
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: 0.65),
+        ),
       ),
 
-      child: child,
+      child: ClipRRect(borderRadius: BorderRadius.circular(18), child: child),
     );
   }
 }
@@ -408,10 +344,13 @@ class _PreferenceCard extends StatelessWidget {
 
 class _ThemeOption extends StatelessWidget {
   final IconData icon;
+
   final String title;
+
   final String subtitle;
 
   final ThemeMode value;
+
   final bool selected;
 
   const _ThemeOption({
@@ -433,56 +372,46 @@ class _ThemeOption extends StatelessWidget {
           ? colors.primary.withValues(alpha: isDark ? 0.055 : 0.025)
           : Colors.transparent,
 
-      borderRadius: BorderRadius.circular(22),
-
       child: InkWell(
         onTap: () {
           context.read<PreferencesBloc>().add(ThemeModeChanged(value));
         },
 
-        borderRadius: BorderRadius.circular(22),
-
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
 
           child: Row(
             children: [
-              // ================================================
-              // ICON TILE
-              // ================================================
+              // ==================================================
+              // ICON
+              // ==================================================
 
               Container(
-                width: 44,
-                height: 44,
+                width: 38,
+                height: 38,
 
                 decoration: BoxDecoration(
                   color: selected
-                      ? colors.primary.withValues(alpha: isDark ? 0.18 : 0.11)
-                      : colors.surfaceContainerHighest,
+                      ? colors.primary.withValues(alpha: isDark ? 0.14 : 0.08)
+                      : colors.surfaceContainerHighest.withValues(alpha: 0.60),
 
-                  borderRadius: BorderRadius.circular(14),
-
-                  border: Border.all(
-                    color: selected
-                        ? colors.primary.withValues(alpha: isDark ? 0.24 : 0.10)
-                        : colors.outlineVariant,
-                  ),
+                  borderRadius: BorderRadius.circular(11),
                 ),
 
                 child: Icon(
                   icon,
 
-                  size: 21,
+                  size: 19,
 
                   color: selected ? colors.primary : colors.onSurfaceVariant,
                 ),
               ),
 
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
 
-              // ================================================
+              // ==================================================
               // TEXT
-              // ================================================
+              // ==================================================
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -492,7 +421,7 @@ class _ThemeOption extends StatelessWidget {
                       title,
 
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13.5,
 
                         fontWeight: FontWeight.w700,
 
@@ -500,13 +429,13 @@ class _ThemeOption extends StatelessWidget {
                       ),
                     ),
 
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 2),
 
                     Text(
                       subtitle,
 
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 10.5,
 
                         color: colors.onSurfaceVariant,
                       ),
@@ -517,14 +446,14 @@ class _ThemeOption extends StatelessWidget {
 
               const SizedBox(width: 10),
 
-              // ================================================
-              // SELECTION INDICATOR
-              // ================================================
+              // ==================================================
+              // SELECTED INDICATOR
+              // ==================================================
               AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
 
-                width: 24,
-                height: 24,
+                width: 22,
+                height: 22,
 
                 decoration: BoxDecoration(
                   color: selected ? colors.primary : Colors.transparent,
@@ -532,9 +461,9 @@ class _ThemeOption extends StatelessWidget {
                   shape: BoxShape.circle,
 
                   border: Border.all(
-                    width: 2,
+                    width: selected ? 0 : 1.5,
 
-                    color: selected ? colors.primary : colors.outline,
+                    color: selected ? colors.primary : colors.outlineVariant,
                   ),
                 ),
 
@@ -542,7 +471,7 @@ class _ThemeOption extends StatelessWidget {
                     ? const Icon(
                         Icons.check_rounded,
 
-                        size: 15,
+                        size: 14,
 
                         color: Colors.white,
                       )
@@ -567,7 +496,15 @@ class _PreferenceDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    return Divider(height: 1, indent: 74, color: colors.outlineVariant);
+    return Divider(
+      height: 1,
+
+      indent: 64,
+
+      endIndent: 14,
+
+      color: colors.outlineVariant.withValues(alpha: 0.60),
+    );
   }
 }
 
@@ -587,54 +524,21 @@ class _LocalPreferencesInfo extends StatelessWidget {
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
 
       decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
+        color: colors.primary.withValues(alpha: isDark ? 0.07 : 0.045),
 
-        borderRadius: BorderRadius.circular(22),
-
-        border: Border.all(color: colors.outlineVariant),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.025),
-
-            blurRadius: isDark ? 16 : 10,
-
-            offset: const Offset(0, 5),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(16),
       ),
 
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          Container(
-            width: 44,
-            height: 44,
+          Icon(Icons.phone_android_rounded, size: 19, color: colors.primary),
 
-            decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: isDark ? 0.17 : 0.10),
-
-              borderRadius: BorderRadius.circular(14),
-
-              border: Border.all(
-                color: colors.primary.withValues(alpha: isDark ? 0.21 : 0.07),
-              ),
-            ),
-
-            child: Icon(
-              Icons.phone_android_rounded,
-
-              size: 21,
-
-              color: colors.primary,
-            ),
-          ),
-
-          const SizedBox(width: 14),
+          const SizedBox(width: 10),
 
           Expanded(
             child: Column(
@@ -645,7 +549,7 @@ class _LocalPreferencesInfo extends StatelessWidget {
                   'Stored on this device',
 
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12.5,
 
                     fontWeight: FontWeight.w700,
 
@@ -653,16 +557,16 @@ class _LocalPreferencesInfo extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
 
                 Text(
-                  'Your appearance preferences are saved '
-                  'locally and restored when you reopen the app.',
+                  'Your appearance preference is stored locally '
+                  'and restored when you reopen CODEX.',
 
                   style: TextStyle(
-                    height: 1.45,
+                    fontSize: 10.5,
 
-                    fontSize: 12,
+                    height: 1.4,
 
                     color: colors.onSurfaceVariant,
                   ),

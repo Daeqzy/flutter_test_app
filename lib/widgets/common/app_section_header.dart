@@ -12,23 +12,30 @@ class AppSectionHeader extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+
       children: [
         Text(
           title,
+
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.w800,
+            letterSpacing: -0.3,
             color: colors.onSurface,
-            letterSpacing: -0.4,
           ),
         ),
 
         if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
 
           Text(
             subtitle!,
-            style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
+
+            style: TextStyle(
+              fontSize: 11.5,
+              height: 1.35,
+              color: colors.onSurfaceVariant,
+            ),
           ),
         ],
       ],

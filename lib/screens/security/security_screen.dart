@@ -5,6 +5,10 @@ import '../../bloc/user/user_bloc.dart';
 import '../../bloc/user/user_event.dart';
 import '../../bloc/user/user_state.dart';
 
+// ============================================================
+// SECURITY SCREEN
+// ============================================================
+
 class SecurityScreen extends StatefulWidget {
   const SecurityScreen({super.key});
 
@@ -29,12 +33,14 @@ class _SecurityScreenState extends State<SecurityScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return BlocListener<UserBloc, UserState>(
       listenWhen: (previous, current) {
         return previous.hasRememberedAccount && !current.hasRememberedAccount;
       },
+
       listener: (context, state) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
@@ -44,6 +50,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
           ),
         );
       },
+
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
@@ -51,17 +58,21 @@ class _SecurityScreenState extends State<SecurityScreen> {
         // APP BAR
         // ======================================================
         appBar: AppBar(
-          toolbarHeight: 72,
+          toolbarHeight: 68,
+
           titleSpacing: 8,
+
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
               Text(
                 'Security',
+
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  letterSpacing: -0.4,
+                  letterSpacing: -0.3,
                   color: colors.onSurface,
                 ),
               ),
@@ -70,8 +81,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
               Text(
                 'Account and device security',
+
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11.5,
                   fontWeight: FontWeight.w500,
                   color: colors.onSurfaceVariant,
                 ),
@@ -82,13 +94,16 @@ class _SecurityScreenState extends State<SecurityScreen> {
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 14),
-              child: Material(
-                color: isDark ? colors.surfaceContainerHigh : colors.surface,
 
-                borderRadius: BorderRadius.circular(14),
+              child: Material(
+                color: isDark
+                    ? colors.surfaceContainerHigh.withValues(alpha: 0.60)
+                    : colors.surface,
+
+                borderRadius: BorderRadius.circular(12),
 
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(12),
 
                   onTap: () {
                     context.read<UserBloc>().add(
@@ -96,19 +111,14 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     );
                   },
 
-                  child: Container(
-                    width: 44,
-                    height: 44,
-
-                    decoration: BoxDecoration(
-                      border: Border.all(color: colors.outlineVariant),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
+                  child: SizedBox(
+                    width: 40,
+                    height: 40,
 
                     child: Icon(
                       Icons.refresh_rounded,
-                      size: 21,
-                      color: colors.onSurface,
+                      size: 20,
+                      color: colors.onSurfaceVariant,
                     ),
                   ),
                 ),
@@ -135,89 +145,10 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 // SECURITY SUMMARY
                 // ==================================================
 
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-
-                      colors: [
-                        colors.primary,
-                        colors.primary.withValues(alpha: 0.76),
-                      ],
-                    ),
-
-                    borderRadius: BorderRadius.circular(24),
-
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.primary.withValues(
-                          alpha: isDark ? 0.16 : 0.22,
-                        ),
-                        blurRadius: 24,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 56,
-                        height: 56,
-
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.16),
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-
-                        child: const Icon(
-                          Icons.shield_rounded,
-                          size: 28,
-                          color: Colors.white,
-                        ),
-                      ),
-
-                      const SizedBox(width: 16),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-
-                          children: [
-                            const Text(
-                              'Account protected',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: Colors.white,
-                              ),
-                            ),
-
-                            const SizedBox(height: 5),
-
-                            Text(
-                              authenticatedUsername.isNotEmpty
-                                  ? authenticatedUsername
-                                  : 'CODEX account',
-
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white.withValues(alpha: 0.80),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                _SecurityHero(
+                  username: authenticatedUsername.isNotEmpty
+                      ? authenticatedUsername
+                      : 'CODEX account',
                 ),
 
                 const SizedBox(height: 24),
@@ -225,19 +156,21 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 // ==================================================
                 // SESSION
                 // ==================================================
-                _SectionTitle(
+                const _SectionTitle(
                   title: 'Session',
                   subtitle: 'Current authentication status',
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
 
                 _SecurityCard(
                   child: Column(
                     children: [
                       _SecurityInfoRow(
                         icon: Icons.verified_user_outlined,
+
                         title: 'Session status',
+
                         subtitle: 'Current CODEX authentication',
 
                         status: _authStatusLabel(state.authStatus),
@@ -249,7 +182,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
                       _SecurityInfoRow(
                         icon: Icons.person_outline_rounded,
+
                         title: 'Signed in as',
+
                         subtitle: authenticatedUsername.isEmpty
                             ? 'Unknown user'
                             : authenticatedUsername,
@@ -264,23 +199,24 @@ class _SecurityScreenState extends State<SecurityScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 26),
 
                 // ==================================================
                 // REMEMBERED ACCOUNT
                 // ==================================================
-                _SectionTitle(
+                const _SectionTitle(
                   title: 'Remembered account',
                   subtitle: 'Credentials securely stored on this device',
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
 
                 _SecurityCard(
                   child: Column(
                     children: [
                       _SecurityInfoRow(
                         icon: Icons.account_circle_outlined,
+
                         title: 'Remember me',
 
                         subtitle: state.hasRememberedAccount
@@ -319,17 +255,17 @@ class _SecurityScreenState extends State<SecurityScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 26),
 
                 // ==================================================
                 // BIOMETRICS
                 // ==================================================
-                _SectionTitle(
+                const _SectionTitle(
                   title: 'Biometric authentication',
                   subtitle: 'Device verification for remembered login',
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
 
                 _SecurityCard(
                   child: Column(
@@ -401,17 +337,17 @@ class _SecurityScreenState extends State<SecurityScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: 26),
 
                 // ==================================================
                 // APPLICATION SECURITY
                 // ==================================================
-                _SectionTitle(
+                const _SectionTitle(
                   title: 'Application security',
                   subtitle: 'Protect access to the current session',
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
 
                 _SecurityCard(
                   child: _ActionRow(
@@ -429,55 +365,12 @@ class _SecurityScreenState extends State<SecurityScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 18),
 
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-
-                  decoration: BoxDecoration(
-                    color: colors.primary.withValues(
-                      alpha: isDark ? 0.08 : 0.06,
-                    ),
-
-                    borderRadius: BorderRadius.circular(18),
-
-                    border: Border.all(
-                      color: colors.primary.withValues(alpha: 0.14),
-                    ),
-                  ),
-
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-
-                    children: [
-                      Icon(
-                        Icons.info_outline_rounded,
-                        size: 20,
-                        color: colors.primary,
-                      ),
-
-                      const SizedBox(width: 12),
-
-                      Expanded(
-                        child: Text(
-                          'Biometric verification is handled '
-                          'by your phone\'s operating system. '
-                          'On some Android devices the exact '
-                          'method may be reported generically '
-                          'instead of specifically as Face or '
-                          'Fingerprint.',
-
-                          style: TextStyle(
-                            fontSize: 12,
-                            height: 1.45,
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // ==================================================
+                // SECURITY INFO
+                // ==================================================
+                const _SecurityInfoNote(),
               ],
             );
           },
@@ -516,6 +409,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
               onPressed: () {
                 Navigator.pop(dialogContext, false);
               },
+
               child: const Text('Cancel'),
             ),
 
@@ -526,6 +420,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
               style: FilledButton.styleFrom(
                 backgroundColor: colors.error,
+
                 foregroundColor: colors.onError,
               ),
 
@@ -615,6 +510,131 @@ class _SecurityScreenState extends State<SecurityScreen> {
 }
 
 // ============================================================
+// SECURITY HERO
+// ============================================================
+
+class _SecurityHero extends StatelessWidget {
+  final String username;
+
+  const _SecurityHero({required this.username});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.all(18),
+
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+
+          colors: [colors.primary, colors.primary.withValues(alpha: 0.86)],
+        ),
+
+        borderRadius: BorderRadius.circular(20),
+
+        boxShadow: [
+          BoxShadow(
+            color: colors.primary.withValues(alpha: 0.10),
+
+            blurRadius: 18,
+
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+
+      child: Row(
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.13),
+
+              borderRadius: BorderRadius.circular(14),
+            ),
+
+            child: const Icon(
+              Icons.shield_rounded,
+              size: 22,
+              color: Colors.white,
+            ),
+          ),
+
+          const SizedBox(width: 13),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+
+              children: [
+                const Text(
+                  'Account protected',
+
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.3,
+                    color: Colors.white,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  username,
+
+                  maxLines: 1,
+
+                  overflow: TextOverflow.ellipsis,
+
+                  style: TextStyle(
+                    fontSize: 11.5,
+
+                    fontWeight: FontWeight.w500,
+
+                    color: Colors.white.withValues(alpha: 0.74),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 10),
+
+          Row(
+            mainAxisSize: MainAxisSize.min,
+
+            children: [
+              const Icon(Icons.circle, size: 6, color: Color(0xFF86EFAC)),
+
+              const SizedBox(width: 5),
+
+              Text(
+                'Secure',
+
+                style: TextStyle(
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
+
+                  color: Colors.white.withValues(alpha: 0.90),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
 // SECTION TITLE
 // ============================================================
 
@@ -650,7 +670,7 @@ class _SectionTitle extends StatelessWidget {
           Text(
             subtitle,
 
-            style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
+            style: TextStyle(fontSize: 11.5, color: colors.onSurfaceVariant),
           ),
         ],
       ),
@@ -679,21 +699,14 @@ class _SecurityCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
 
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(color: colors.outlineVariant),
-
-        boxShadow: [
-          if (!isDark)
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.035),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-        ],
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: 0.65),
+        ),
       ),
 
-      child: child,
+      child: ClipRRect(borderRadius: BorderRadius.circular(18), child: child),
     );
   }
 }
@@ -704,9 +717,13 @@ class _SecurityCard extends StatelessWidget {
 
 class _SecurityInfoRow extends StatelessWidget {
   final IconData icon;
+
   final String title;
+
   final String subtitle;
+
   final String status;
+
   final bool positive;
 
   const _SecurityInfoRow({
@@ -721,26 +738,35 @@ class _SecurityInfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
 
       child: Row(
         children: [
+          // ====================================================
+          // ICON
+          // ====================================================
+
           Container(
-            width: 44,
-            height: 44,
+            width: 38,
+            height: 38,
 
             decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.10),
+              color: colors.primary.withValues(alpha: isDark ? 0.14 : 0.08),
 
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(11),
             ),
 
-            child: Icon(icon, size: 22, color: colors.primary),
+            child: Icon(icon, size: 19, color: colors.primary),
           ),
 
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
 
+          // ====================================================
+          // TEXT
+          // ====================================================
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -750,20 +776,24 @@ class _SecurityInfoRow extends StatelessWidget {
                   title,
 
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
+
                     fontWeight: FontWeight.w700,
+
                     color: colors.onSurface,
                   ),
                 ),
 
-                const SizedBox(height: 3),
+                const SizedBox(height: 2),
 
                 Text(
                   subtitle,
 
                   style: TextStyle(
-                    fontSize: 12,
-                    height: 1.3,
+                    fontSize: 10.5,
+
+                    height: 1.35,
+
                     color: colors.onSurfaceVariant,
                   ),
                 ),
@@ -786,9 +816,13 @@ class _SecurityInfoRow extends StatelessWidget {
 
 class _ActionRow extends StatelessWidget {
   final IconData icon;
+
   final String title;
+
   final String subtitle;
+
   final VoidCallback onTap;
+
   final bool destructive;
 
   const _ActionRow({
@@ -803,35 +837,35 @@ class _ActionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final actionColor = destructive ? colors.error : colors.primary;
 
     return Material(
       color: Colors.transparent,
 
       child: InkWell(
-        borderRadius: BorderRadius.circular(22),
-
         onTap: onTap,
 
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
 
           child: Row(
             children: [
               Container(
-                width: 44,
-                height: 44,
+                width: 38,
+                height: 38,
 
                 decoration: BoxDecoration(
-                  color: actionColor.withValues(alpha: 0.10),
+                  color: actionColor.withValues(alpha: isDark ? 0.13 : 0.07),
 
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(11),
                 ),
 
-                child: Icon(icon, size: 22, color: actionColor),
+                child: Icon(icon, size: 19, color: actionColor),
               ),
 
-              const SizedBox(width: 14),
+              const SizedBox(width: 12),
 
               Expanded(
                 child: Column(
@@ -842,20 +876,24 @@ class _ActionRow extends StatelessWidget {
                       title,
 
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
+
                         fontWeight: FontWeight.w700,
+
                         color: destructive ? colors.error : colors.onSurface,
                       ),
                     ),
 
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 2),
 
                     Text(
                       subtitle,
 
                       style: TextStyle(
-                        fontSize: 12,
-                        height: 1.3,
+                        fontSize: 10.5,
+
+                        height: 1.35,
+
                         color: colors.onSurfaceVariant,
                       ),
                     ),
@@ -866,11 +904,13 @@ class _ActionRow extends StatelessWidget {
               const SizedBox(width: 10),
 
               Icon(
-                Icons.arrow_forward_ios_rounded,
+                Icons.chevron_right_rounded,
 
-                size: 13,
+                size: 19,
 
-                color: destructive ? colors.error : colors.onSurfaceVariant,
+                color: destructive
+                    ? colors.error.withValues(alpha: 0.80)
+                    : colors.onSurfaceVariant,
               ),
             ],
           ),
@@ -886,6 +926,7 @@ class _ActionRow extends StatelessWidget {
 
 class _StatusBadge extends StatelessWidget {
   final String label;
+
   final bool positive;
 
   const _StatusBadge({required this.label, required this.positive});
@@ -899,22 +940,32 @@ class _StatusBadge extends StatelessWidget {
         : colors.onSurfaceVariant;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
 
       decoration: BoxDecoration(
-        color: statusColor.withValues(alpha: 0.10),
+        color: statusColor.withValues(alpha: 0.08),
 
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
       ),
 
-      child: Text(
-        label,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
 
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          color: statusColor,
-        ),
+        children: [
+          Icon(Icons.circle, size: 5, color: statusColor),
+
+          const SizedBox(width: 4),
+
+          Text(
+            label,
+
+            style: TextStyle(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w700,
+              color: statusColor,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -929,10 +980,68 @@ class _SecurityDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Divider(
       height: 1,
-      indent: 74,
-      color: Theme.of(context).colorScheme.outlineVariant,
+
+      indent: 64,
+
+      endIndent: 14,
+
+      color: colors.outlineVariant.withValues(alpha: 0.60),
+    );
+  }
+}
+
+// ============================================================
+// SECURITY INFO NOTE
+// ============================================================
+
+class _SecurityInfoNote extends StatelessWidget {
+  const _SecurityInfoNote();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      width: double.infinity,
+
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+
+      decoration: BoxDecoration(
+        color: colors.primary.withValues(alpha: isDark ? 0.07 : 0.045),
+
+        borderRadius: BorderRadius.circular(16),
+      ),
+
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+
+        children: [
+          Icon(Icons.info_outline_rounded, size: 19, color: colors.primary),
+
+          const SizedBox(width: 10),
+
+          Expanded(
+            child: Text(
+              'Biometric verification is handled by your phone\'s '
+              'operating system. On some Android devices the exact '
+              'method may be reported generically rather than '
+              'specifically as Face or Fingerprint.',
+
+              style: TextStyle(
+                fontSize: 10.5,
+                height: 1.4,
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
