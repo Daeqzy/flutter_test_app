@@ -5,7 +5,7 @@ class PreferencesState {
   final bool isLoading;
 
   const PreferencesState({
-    this.themeMode = ThemeMode.system,
+    this.themeMode = ThemeMode.light,
     this.isLoading = true,
   });
 

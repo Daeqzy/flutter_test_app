@@ -21,8 +21,10 @@ class PreferencesService {
         return ThemeMode.dark;
 
       case 'system':
-      default:
         return ThemeMode.system;
+
+      default:
+        return ThemeMode.light;
     }
   }
 

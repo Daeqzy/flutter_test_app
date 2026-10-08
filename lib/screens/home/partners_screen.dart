@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable, unnecessary_underscores
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,6 +30,7 @@ import '../partner_map_screen.dart';
 import '../../widgets/common/app_loading_view.dart';
 import '../../widgets/common/app_error_view.dart';
 import '../../widgets/common/app_empty_view.dart';
+import '../../widgets/common/app_summary_card.dart';
 
 class PartnersScreen extends StatelessWidget {
   const PartnersScreen({super.key});
@@ -198,9 +201,7 @@ class PartnersScreen extends StatelessWidget {
 
                       style: TextStyle(
                         color: colors.onSurface,
-
-                        fontSize: 14,
-
+                        fontSize: 13.5,
                         fontWeight: FontWeight.w500,
                       ),
 
@@ -213,17 +214,58 @@ class PartnersScreen extends StatelessWidget {
                       },
 
                       decoration: InputDecoration(
-                        hintText: 'Search partners...',
+                        hintText: 'Search partners',
 
-                        prefixIcon: const Icon(Icons.search_rounded),
+                        prefixIcon: Icon(
+                          Icons.search_rounded,
+                          size: 20,
+                          color: colors.onSurfaceVariant,
+                        ),
 
                         suffixIcon: state.searchQuery.isNotEmpty
-                            ? const Icon(Icons.manage_search_rounded, size: 20)
+                            ? Icon(
+                                Icons.manage_search_rounded,
+                                size: 19,
+                                color: colors.onSurfaceVariant,
+                              )
                             : null,
+
+                        filled: true,
+
+                        fillColor:
+                            Theme.of(context).brightness == Brightness.dark
+                            ? colors.surfaceContainerHigh.withValues(
+                                alpha: 0.55,
+                              )
+                            : colors.surface,
+
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 13,
+                        ),
+
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+
+                          borderSide: BorderSide(
+                            color: colors.outlineVariant.withValues(
+                              alpha: 0.65,
+                            ),
+                          ),
+                        ),
+
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+
+                          borderSide: BorderSide(
+                            color: colors.primary,
+                            width: 1.3,
+                          ),
+                        ),
                       ),
                     ),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
 
                     // ============================================
                     // FILTERS
@@ -272,7 +314,7 @@ class PartnersScreen extends StatelessWidget {
                           ),
                         ),
 
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
 
                         Expanded(
                           child: _FilterDropdown<PartnerSortOption>(
@@ -309,7 +351,7 @@ class PartnersScreen extends StatelessWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
 
                     // ============================================
                     // RESULTS
@@ -749,120 +791,33 @@ class _DirectorySummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
+    final colors = Theme.of(context).colorScheme;
 
-      padding: const EdgeInsets.all(18),
-
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-
-          end: Alignment.bottomRight,
-
-          colors: [AppColors.primary, AppColors.primaryDark],
+    return AppSummaryCard(
+      icon: Icons.business_rounded,
+      title: 'Partner Directory',
+      subtitle: '$partnerCount partners available',
+      trailing: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(18),
         ),
-
-        borderRadius: BorderRadius.circular(22),
-
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.16),
-
-            blurRadius: 22,
-
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-
-      child: Row(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.15),
-
-              borderRadius: BorderRadius.circular(15),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.circle, size: 6, color: Color(0xFF86EFAC)),
+            SizedBox(width: 5),
+            Text(
+              'Live',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: Colors.white,
+              ),
             ),
-
-            child: const Icon(
-              Icons.business_rounded,
-
-              color: Colors.white,
-
-              size: 24,
-            ),
-          ),
-
-          const SizedBox(width: 14),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              children: [
-                const Text(
-                  'Partner Directory',
-
-                  style: TextStyle(
-                    fontSize: 17,
-
-                    fontWeight: FontWeight.w800,
-
-                    color: Colors.white,
-                  ),
-                ),
-
-                const SizedBox(height: 3),
-
-                Text(
-                  '$partnerCount partners available',
-
-                  style: TextStyle(
-                    fontSize: 12,
-
-                    fontWeight: FontWeight.w500,
-
-                    color: Colors.white.withValues(alpha: 0.76),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.14),
-
-              borderRadius: BorderRadius.circular(18),
-            ),
-
-            child: const Row(
-              children: [
-                Icon(Icons.circle, color: Color(0xFF86EFAC), size: 7),
-
-                SizedBox(width: 5),
-
-                Text(
-                  'Live',
-
-                  style: TextStyle(
-                    fontSize: 10,
-
-                    fontWeight: FontWeight.w700,
-
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -874,11 +829,8 @@ class _DirectorySummary extends StatelessWidget {
 
 class _FilterDropdown<T> extends StatelessWidget {
   final IconData icon;
-
   final T value;
-
   final List<DropdownMenuItem<T>> items;
-
   final ValueChanged<T?> onChanged;
 
   const _FilterDropdown({
@@ -894,83 +846,72 @@ class _FilterDropdown<T> extends StatelessWidget {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      height: 54,
+    return Material(
+      color: isDark
+          ? colors.surfaceContainerHigh.withValues(alpha: 0.50)
+          : colors.surface,
 
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      borderRadius: BorderRadius.circular(13),
 
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
+      child: Container(
+        height: 46,
 
-        borderRadius: BorderRadius.circular(16),
+        padding: const EdgeInsets.symmetric(horizontal: 11),
 
-        border: Border.all(color: colors.outlineVariant),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(13),
 
-        boxShadow: [
-          if (isDark)
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.14),
-
-              blurRadius: 10,
-
-              offset: const Offset(0, 3),
-            ),
-        ],
-      ),
-
-      child: Row(
-        children: [
-          Container(
-            width: 30,
-            height: 30,
-
-            decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: isDark ? 0.16 : 0.07),
-
-              borderRadius: BorderRadius.circular(9),
-            ),
-
-            child: Icon(icon, size: 17, color: colors.primary),
+          border: Border.all(
+            color: colors.outlineVariant.withValues(alpha: 0.60),
           ),
+        ),
 
-          const SizedBox(width: 8),
+        child: Row(
+          children: [
+            // ================================================
+            // ICON
+            // ================================================
 
-          Expanded(
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<T>(
-                value: value,
+            Icon(icon, size: 17, color: colors.primary),
 
-                isExpanded: true,
+            const SizedBox(width: 7),
 
-                borderRadius: BorderRadius.circular(16),
+            // ================================================
+            // DROPDOWN
+            // ================================================
+            Expanded(
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<T>(
+                  value: value,
 
-                dropdownColor: isDark
-                    ? colors.surfaceContainerHigh
-                    : colors.surface,
+                  isExpanded: true,
 
-                icon: Icon(
-                  Icons.keyboard_arrow_down_rounded,
+                  borderRadius: BorderRadius.circular(14),
 
-                  size: 20,
+                  dropdownColor: isDark
+                      ? colors.surfaceContainerHigh
+                      : colors.surface,
 
-                  color: colors.onSurfaceVariant,
+                  icon: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: 19,
+                    color: colors.onSurfaceVariant,
+                  ),
+
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                    color: colors.onSurface,
+                  ),
+
+                  items: items,
+
+                  onChanged: onChanged,
                 ),
-
-                style: TextStyle(
-                  fontSize: 12,
-
-                  fontWeight: FontWeight.w600,
-
-                  color: colors.onSurface,
-                ),
-
-                items: items,
-
-                onChanged: onChanged,
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -982,9 +923,7 @@ class _FilterDropdown<T> extends StatelessWidget {
 
 class _ResultsBar extends StatelessWidget {
   final int visible;
-
   final int total;
-
   final bool filtered;
 
   const _ResultsBar({
@@ -997,91 +936,58 @@ class _ResultsBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Row(
       children: [
-        Container(
-          width: 8,
-          height: 8,
-
-          decoration: BoxDecoration(
-            color: colors.primary,
-
-            shape: BoxShape.circle,
-          ),
-        ),
-
-        const SizedBox(width: 8),
-
         Expanded(
           child: Text(
             filtered ? '$visible of $total partners' : '$total partners',
 
             style: TextStyle(
-              fontSize: 12,
-
+              fontSize: 11.5,
               fontWeight: FontWeight.w600,
-
               color: colors.onSurfaceVariant,
             ),
           ),
         ),
 
         if (filtered)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.filter_alt_rounded, size: 13, color: colors.primary),
 
-            decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: isDark ? 0.17 : 0.08),
+              const SizedBox(width: 4),
 
-              borderRadius: BorderRadius.circular(20),
+              Text(
+                'Filtered',
 
-              border: Border.all(
-                color: colors.primary.withValues(alpha: isDark ? 0.22 : 0.06),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: colors.primary,
+                ),
               ),
-            ),
-
-            child: Text(
-              'Filtered',
-
-              style: TextStyle(
-                fontSize: 10,
-
-                fontWeight: FontWeight.w700,
-
-                color: colors.primary,
-              ),
-            ),
+            ],
           ),
       ],
     );
   }
 }
-
 // ============================================================
 // PARTNER CARD
 // ============================================================
 
 class _PartnerCard extends StatelessWidget {
   final String initial;
-
   final String name;
-
   final String? city;
-
   final String? address;
-
   final int? type;
-
   final int? id;
 
   final VoidCallback onLocation;
-
   final VoidCallback onConnections;
-
   final VoidCallback onAgreements;
-
   final VoidCallback onContacts;
 
   const _PartnerCard({
@@ -1104,30 +1010,16 @@ class _PartnerCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(15, 15, 15, 12),
 
       decoration: BoxDecoration(
-        // Lighter than the page
-        // in dark mode.
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
 
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(18),
 
         border: Border.all(
-          color: isDark
-              ? colors.outlineVariant.withValues(alpha: 0.90)
-              : colors.outlineVariant,
+          color: colors.outlineVariant.withValues(alpha: isDark ? 0.70 : 0.65),
         ),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.24 : 0.025),
-
-            blurRadius: isDark ? 18 : 12,
-
-            offset: const Offset(0, 5),
-          ),
-        ],
       ),
 
       child: Column(
@@ -1142,53 +1034,38 @@ class _PartnerCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              // ================================================
-              // PARTNER INITIAL TILE
-              // ================================================
+              // ------------------------------------------------
+              // INITIAL
+              // ------------------------------------------------
 
               Container(
-                width: 52,
-                height: 52,
+                width: 44,
+                height: 44,
 
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
+                  color: colors.primary.withValues(alpha: isDark ? 0.14 : 0.08),
 
-                    end: Alignment.bottomRight,
-
-                    colors: [
-                      colors.primary.withValues(alpha: isDark ? 0.24 : 0.14),
-
-                      colors.primary.withValues(alpha: isDark ? 0.12 : 0.06),
-                    ],
-                  ),
-
-                  borderRadius: BorderRadius.circular(16),
-
-                  border: Border.all(
-                    color: colors.primary.withValues(
-                      alpha: isDark ? 0.24 : 0.08,
-                    ),
-                  ),
+                  borderRadius: BorderRadius.circular(13),
                 ),
 
-                child: Center(
-                  child: Text(
-                    initial,
+                alignment: Alignment.center,
 
-                    style: TextStyle(
-                      fontSize: 20,
+                child: Text(
+                  initial,
 
-                      fontWeight: FontWeight.w800,
-
-                      color: colors.primary,
-                    ),
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: colors.primary,
                   ),
                 ),
               ),
 
-              const SizedBox(width: 13),
+              const SizedBox(width: 12),
 
+              // ------------------------------------------------
+              // NAME + METADATA
+              // ------------------------------------------------
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1203,50 +1080,33 @@ class _PartnerCard extends StatelessWidget {
 
                       style: TextStyle(
                         fontSize: 15,
-
                         height: 1.25,
-
                         fontWeight: FontWeight.w700,
-
+                        letterSpacing: -0.15,
                         color: colors.onSurface,
                       ),
                     ),
 
-                    // ============================================
-                    // CITY
-                    // ============================================
-                    if (_hasText(city)) ...[
-                      const SizedBox(height: 7),
+                    if (type != null || id != null) ...[
+                      const SizedBox(height: 6),
 
-                      _InfoRow(
-                        icon: Icons.location_city_outlined,
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 4,
 
-                        value: city!,
+                        children: [
+                          if (id != null)
+                            _PartnerMetaItem(
+                              icon: Icons.tag_rounded,
+                              label: 'ID $id',
+                            ),
 
-                        // If there is no address,
-                        // put the map button
-                        // beside the city.
-                        onAction: !_hasText(address) ? onLocation : null,
-
-                        actionIcon: Icons.map_outlined,
-                      ),
-                    ],
-
-                    // ============================================
-                    // ADDRESS
-                    // ============================================
-                    if (_hasText(address)) ...[
-                      const SizedBox(height: 4),
-
-                      _InfoRow(
-                        icon: Icons.location_on_outlined,
-
-                        value: address!,
-
-                        // Main location button.
-                        onAction: onLocation,
-
-                        actionIcon: Icons.map_outlined,
+                          if (type != null)
+                            _PartnerMetaItem(
+                              icon: Icons.category_outlined,
+                              label: 'Type $type',
+                            ),
+                        ],
                       ),
                     ],
                   ],
@@ -1256,35 +1116,57 @@ class _PartnerCard extends StatelessWidget {
           ),
 
           // ====================================================
-          // TAGS
+          // LOCATION
           // ====================================================
-          if (type != null || id != null) ...[
-            const SizedBox(height: 14),
+          if (_hasText(city) || _hasText(address)) ...[
+            const SizedBox(height: 13),
 
-            Wrap(
-              spacing: 7,
+            Container(
+              width: double.infinity,
 
-              runSpacing: 7,
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
 
-              children: [
-                if (type != null)
-                  _PartnerInfoChip(
-                    icon: Icons.category_outlined,
+              decoration: BoxDecoration(
+                color: colors.surfaceContainerHighest.withValues(
+                  alpha: isDark ? 0.38 : 0.28,
+                ),
 
-                    label: 'Type $type',
-                  ),
+                borderRadius: BorderRadius.circular(13),
+              ),
 
-                if (id != null)
-                  _PartnerInfoChip(icon: Icons.tag_rounded, label: 'ID $id'),
-              ],
+              child: Column(
+                children: [
+                  if (_hasText(city))
+                    _InfoRow(
+                      icon: Icons.location_city_outlined,
+                      value: city!,
+                      onAction: !_hasText(address) ? onLocation : null,
+                      actionIcon: Icons.map_outlined,
+                    ),
+
+                  if (_hasText(city) && _hasText(address))
+                    const SizedBox(height: 3),
+
+                  if (_hasText(address))
+                    _InfoRow(
+                      icon: Icons.location_on_outlined,
+                      value: address!,
+                      onAction: onLocation,
+                      actionIcon: Icons.map_outlined,
+                    ),
+                ],
+              ),
             ),
           ],
 
-          const SizedBox(height: 15),
-
-          Divider(color: colors.outlineVariant),
-
           const SizedBox(height: 12),
+
+          Divider(
+            height: 1,
+            color: colors.outlineVariant.withValues(alpha: 0.55),
+          ),
+
+          const SizedBox(height: 8),
 
           // ====================================================
           // ACTIONS
@@ -1294,33 +1176,23 @@ class _PartnerCard extends StatelessWidget {
               Expanded(
                 child: _PartnerActionButton(
                   icon: Icons.lan_outlined,
-
                   label: 'Connections',
-
                   onTap: onConnections,
                 ),
               ),
 
-              const SizedBox(width: 7),
-
               Expanded(
                 child: _PartnerActionButton(
                   icon: Icons.description_outlined,
-
                   label: 'Agreements',
-
                   onTap: onAgreements,
                 ),
               ),
 
-              const SizedBox(width: 7),
-
               Expanded(
                 child: _PartnerActionButton(
                   icon: Icons.people_outline_rounded,
-
                   label: 'Contacts',
-
                   onTap: onContacts,
                 ),
               ),
@@ -1333,6 +1205,38 @@ class _PartnerCard extends StatelessWidget {
 
   static bool _hasText(String? value) {
     return value != null && value.trim().isNotEmpty;
+  }
+}
+
+class _PartnerMetaItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _PartnerMetaItem({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+
+      children: [
+        Icon(icon, size: 12, color: colors.onSurfaceVariant),
+
+        const SizedBox(width: 4),
+
+        Text(
+          label,
+
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: colors.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -1427,71 +1331,12 @@ class _InfoRow extends StatelessWidget {
 }
 
 // ============================================================
-// PARTNER INFO CHIP
-// ============================================================
-
-class _PartnerInfoChip extends StatelessWidget {
-  final IconData icon;
-
-  final String label;
-
-  const _PartnerInfoChip({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-
-      decoration: BoxDecoration(
-        color: isDark
-            ? colors.surfaceContainerHighest
-            : colors.surfaceContainerHighest.withValues(alpha: 0.55),
-
-        borderRadius: BorderRadius.circular(20),
-
-        border: Border.all(
-          color: colors.outlineVariant.withValues(alpha: isDark ? 0.80 : 0.45),
-        ),
-      ),
-
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-
-        children: [
-          Icon(icon, size: 13, color: colors.onSurfaceVariant),
-
-          const SizedBox(width: 5),
-
-          Text(
-            label,
-
-            style: TextStyle(
-              fontSize: 10,
-
-              fontWeight: FontWeight.w600,
-
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ============================================================
 // PARTNER ACTION BUTTON
 // ============================================================
 
 class _PartnerActionButton extends StatelessWidget {
   final IconData icon;
-
   final String label;
-
   final VoidCallback onTap;
 
   const _PartnerActionButton({
@@ -1504,53 +1349,41 @@ class _PartnerActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Material(
-      color: colors.primary.withValues(alpha: isDark ? 0.14 : 0.06),
+      color: Colors.transparent,
 
-      borderRadius: BorderRadius.circular(13),
+      borderRadius: BorderRadius.circular(11),
 
       child: InkWell(
         onTap: onTap,
 
-        borderRadius: BorderRadius.circular(13),
+        borderRadius: BorderRadius.circular(11),
 
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(13),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 3),
 
-            border: Border.all(
-              color: colors.primary.withValues(alpha: isDark ? 0.19 : 0.04),
-            ),
-          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
 
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 3),
+            children: [
+              Icon(icon, size: 18, color: colors.primary),
 
-            child: Column(
-              children: [
-                Icon(icon, size: 18, color: colors.primary),
+              const SizedBox(height: 4),
 
-                const SizedBox(height: 5),
+              FittedBox(
+                fit: BoxFit.scaleDown,
 
-                FittedBox(
-                  fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
 
-                  child: Text(
-                    label,
-
-                    style: TextStyle(
-                      fontSize: 10,
-
-                      fontWeight: FontWeight.w700,
-
-                      color: colors.onSurface,
-                    ),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: colors.onSurfaceVariant,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

@@ -4,10 +4,20 @@ import '../../models/user.dart';
 
 enum AuthStatus { initial, authenticated, unauthenticated, sessionExpired }
 
+enum PasswordChangeStatus { initial, loading, success, failure }
+
 class UserState extends Equatable {
   final bool isLoading;
 
   final AuthStatus authStatus;
+
+  // ----------------------------------------------------------
+  // PASSWORD CHANGE
+  // ----------------------------------------------------------
+
+  final PasswordChangeStatus passwordChangeStatus;
+
+  final String? passwordChangeMessage;
 
   // ----------------------------------------------------------
   // REMEMBERED ACCOUNT
@@ -15,11 +25,8 @@ class UserState extends Equatable {
 
   final bool rememberMe;
 
-  /// Whether a remembered account exists in secure storage.
   final bool hasRememberedAccount;
 
-  /// Whether that remembered account currently has
-  /// an authenticated API session.
   final bool hasRememberedSession;
 
   // ----------------------------------------------------------
@@ -38,14 +45,8 @@ class UserState extends Equatable {
 
   final String authenticatedUsername;
 
-  /// Used mainly for normal login / last username.
-  ///
-  /// Password intentionally does NOT live in UserState anymore.
   final String username;
 
-  /// Safe to expose to the UI.
-  ///
-  /// The remembered password stays inside secure storage.
   final String rememberedUsername;
 
   final User? user;
@@ -57,6 +58,8 @@ class UserState extends Equatable {
   const UserState({
     this.isLoading = false,
     this.authStatus = AuthStatus.initial,
+    this.passwordChangeStatus = PasswordChangeStatus.initial,
+    this.passwordChangeMessage,
     this.rememberMe = false,
     this.hasRememberedAccount = false,
     this.hasRememberedSession = false,
@@ -74,6 +77,9 @@ class UserState extends Equatable {
   UserState copyWith({
     bool? isLoading,
     AuthStatus? authStatus,
+    PasswordChangeStatus? passwordChangeStatus,
+    String? passwordChangeMessage,
+    bool clearPasswordChangeMessage = false,
     bool? rememberMe,
     bool? hasRememberedAccount,
     bool? hasRememberedSession,
@@ -93,6 +99,12 @@ class UserState extends Equatable {
       isLoading: isLoading ?? this.isLoading,
 
       authStatus: authStatus ?? this.authStatus,
+
+      passwordChangeStatus: passwordChangeStatus ?? this.passwordChangeStatus,
+
+      passwordChangeMessage: clearPasswordChangeMessage
+          ? null
+          : passwordChangeMessage ?? this.passwordChangeMessage,
 
       rememberMe: rememberMe ?? this.rememberMe,
 
@@ -126,31 +138,20 @@ class UserState extends Equatable {
   @override
   List<Object?> get props => [
     isLoading,
-
     authStatus,
-
+    passwordChangeStatus,
+    passwordChangeMessage,
     rememberMe,
-
     hasRememberedAccount,
-
     hasRememberedSession,
-
     hasFingerprint,
-
     hasFaceAuthentication,
-
     hasIrisAuthentication,
-
     authenticatedUsername,
-
     username,
-
     rememberedUsername,
-
     user,
-
     users,
-
     errorMessage,
   ];
 }

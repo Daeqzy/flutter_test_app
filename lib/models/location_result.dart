@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, hash_and_equals
+
 import 'package:json_annotation/json_annotation.dart';
 
 part 'location_result.g.dart';

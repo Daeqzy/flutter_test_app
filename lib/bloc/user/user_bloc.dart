@@ -27,6 +27,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
     on<UserLoginRequested>(userLoginRequested);
 
+    on<ChangePasswordRequested>(changePasswordRequested);
+
+    on<ResetPasswordChangeState>(resetPasswordChangeState);
+
     on<GetUsersRequested>(getUsersRequested);
 
     on<AddUserRequested>(addUserRequested);
@@ -56,60 +60,30 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   }
 
   // ==========================================================
-  // NORMAL LOGIN
+  // NORMAL / PASSWORD LOGIN
   // ==========================================================
 
   Future<void> userLoginRequested(
     UserLoginRequested event,
     Emitter<UserState> emit,
   ) async {
-    final normalizedUsername = event.username.trim().toLowerCase();
-
-    final normalizedRememberedUsername = state.rememberedUsername
-        .trim()
-        .toLowerCase();
-
-    // --------------------------------------------------------
-    // DEFENSE IN DEPTH
-    // --------------------------------------------------------
-    //
-    // A remembered account must use biometric verification.
-    //
-    // The new LoginScreen already hides the password form,
-    // but we keep this check here as an additional safeguard.
-    // --------------------------------------------------------
-
-    final isRememberedUser =
-        state.hasRememberedAccount &&
-        normalizedRememberedUsername.isNotEmpty &&
-        normalizedUsername == normalizedRememberedUsername;
-
-    if (isRememberedUser) {
-      emit(
-        state.copyWith(
-          isLoading: false,
-
-          authStatus: AuthStatus.initial,
-
-          errorMessage:
-              'This account is remembered. '
-              'Verify with biometrics to continue.',
-        ),
-      );
-
-      return;
-    }
-
     // --------------------------------------------------------
     // LOGIN START
+    // --------------------------------------------------------
+    //
+    // This works for:
+    //
+    // 1. Normal username/password login.
+    // 2. Password login for a remembered account.
+    //
+    // A remembered account can therefore use either
+    // biometrics OR password.
     // --------------------------------------------------------
 
     emit(
       state.copyWith(
         isLoading: true,
-
         authStatus: AuthStatus.initial,
-
         clearError: true,
       ),
     );
@@ -193,6 +167,60 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   }
 
   // ==========================================================
+  // CHANGE PASSWORD
+  // ==========================================================
+
+  Future<void> changePasswordRequested(
+    ChangePasswordRequested event,
+    Emitter<UserState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        passwordChangeStatus: PasswordChangeStatus.loading,
+
+        clearPasswordChangeMessage: true,
+      ),
+    );
+
+    try {
+      await repository.changePassword(event.currentPassword, event.newPassword);
+
+      emit(
+        state.copyWith(
+          passwordChangeStatus: PasswordChangeStatus.success,
+
+          passwordChangeMessage: 'Password changed successfully.',
+        ),
+      );
+    } catch (e) {
+      emit(
+        state.copyWith(
+          passwordChangeStatus: PasswordChangeStatus.failure,
+
+          passwordChangeMessage: e.toString(),
+        ),
+      );
+    }
+  }
+
+  // ==========================================================
+  // RESET CHANGE PASSWORD STATE
+  // ==========================================================
+
+  void resetPasswordChangeState(
+    ResetPasswordChangeState event,
+    Emitter<UserState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        passwordChangeStatus: PasswordChangeStatus.initial,
+
+        clearPasswordChangeMessage: true,
+      ),
+    );
+  }
+
+  // ==========================================================
   // GET USERS
   // ==========================================================
 
@@ -268,10 +296,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     // ENABLED
     // --------------------------------------------------------
     //
-    // Nothing is saved yet.
-    //
-    // Credentials are stored only after
-    // a successful login.
+    // Nothing is stored until a successful login.
     // --------------------------------------------------------
 
     emit(state.copyWith(rememberMe: true, clearError: true));
@@ -288,7 +313,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     // Remove remembered credentials.
     await repository.clearRememberMe();
 
-    // Also make sure no old access token survives.
+    // Remove any active access token.
     await repository.logout();
 
     emit(
@@ -326,11 +351,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     Emitter<UserState> emit,
   ) async {
     // --------------------------------------------------------
-    // CHECK SECURE STORAGE
-    // --------------------------------------------------------
-    //
-    // We no longer determine Remember Me by checking
-    // for a remembered password inside UserState.
+    // CHECK REMEMBERED ACCOUNT
     // --------------------------------------------------------
 
     final hasRememberedAccount = await repository.hasRememberedAccount();
@@ -343,9 +364,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         ? state.authenticatedUsername
         : state.username.trim();
 
-    // Remove active access token.
+    // Remove the active API session.
     //
-    // Remembered account information survives.
+    // Remembered credentials intentionally survive.
     await repository.logout();
 
     emit(
@@ -427,12 +448,12 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       // IMPORTANT
       // ------------------------------------------------------
       //
-      // We intentionally DO NOT retrieve the password here.
+      // Password is intentionally NOT loaded into UserState.
       //
-      // It stays inside secure storage.
+      // It remains inside secure storage.
       //
-      // We also clear any previous access token so launching
-      // the app always requires fresh authentication.
+      // Any old access token is removed so the application
+      // always requires fresh authentication on launch.
       // ------------------------------------------------------
 
       await repository.logout();
@@ -606,7 +627,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
       final authenticated = await biometricService.authenticate();
 
-      // User cancelled or biometric failed.
       if (!authenticated) {
         emit(
           state.copyWith(
@@ -625,12 +645,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       // FRESH BACKEND LOGIN
       // ------------------------------------------------------
       //
-      // IMPORTANT:
+      // Repository retrieves the remembered password
+      // directly from secure storage.
       //
-      // The repository now retrieves the password directly
-      // from secure storage.
-      //
-      // UserBloc never sees the password.
+      // UserBloc never receives the stored password.
       // ------------------------------------------------------
 
       final loginResponse = await repository.loginRememberedAccount();

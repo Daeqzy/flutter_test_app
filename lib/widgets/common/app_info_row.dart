@@ -29,49 +29,41 @@ class AppInfoRow extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 8),
+
       child: Container(
         width: double.infinity,
 
-        padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
 
         decoration: BoxDecoration(
           color: isDark
-              ? colors.surfaceContainerHighest
-              : colors.surfaceContainerHighest.withValues(alpha: 0.55),
+              ? colors.surfaceContainerHigh.withValues(alpha: 0.55)
+              : colors.surfaceContainerHighest.withValues(alpha: 0.32),
 
-          borderRadius: BorderRadius.circular(14),
-
-          border: Border.all(
-            color: colors.outlineVariant.withValues(
-              alpha: isDark ? 0.75 : 0.40,
-            ),
-          ),
+          borderRadius: BorderRadius.circular(13),
         ),
 
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
 
           children: [
-            Container(
-              width: 36,
-              height: 36,
+            // ==================================================
+            // ICON
+            // ==================================================
 
-              decoration: BoxDecoration(
-                color: colors.primary.withValues(alpha: isDark ? 0.17 : 0.10),
+            SizedBox(
+              width: 32,
+              height: 32,
 
-                borderRadius: BorderRadius.circular(11),
-
-                border: Border.all(
-                  color: colors.primary.withValues(alpha: isDark ? 0.20 : 0.05),
-                ),
-              ),
-
-              child: Icon(icon, size: 17, color: colors.primary),
+              child: Center(child: Icon(icon, size: 17, color: colors.primary)),
             ),
 
-            const SizedBox(width: 11),
+            const SizedBox(width: 9),
 
+            // ==================================================
+            // CONTENT
+            // ==================================================
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,8 +73,12 @@ class AppInfoRow extends StatelessWidget {
                     label,
 
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 9.5,
+
                       fontWeight: FontWeight.w600,
+
+                      letterSpacing: 0.15,
+
                       color: colors.onSurfaceVariant,
                     ),
                   ),
@@ -94,9 +90,12 @@ class AppInfoRow extends StatelessWidget {
                       value.trim(),
 
                       style: TextStyle(
-                        fontSize: 12,
-                        height: 1.4,
+                        fontSize: 12.5,
+
+                        height: 1.35,
+
                         fontWeight: FontWeight.w600,
+
                         color: colors.onSurface,
                       ),
                     )
@@ -105,9 +104,12 @@ class AppInfoRow extends StatelessWidget {
                       value.trim(),
 
                       style: TextStyle(
-                        fontSize: 12,
-                        height: 1.4,
+                        fontSize: 12.5,
+
+                        height: 1.35,
+
                         fontWeight: FontWeight.w600,
+
                         color: colors.onSurface,
                       ),
                     ),
@@ -115,32 +117,25 @@ class AppInfoRow extends StatelessWidget {
               ),
             ),
 
+            // ==================================================
+            // ACTION
+            // ==================================================
             if (onTap != null) ...[
               const SizedBox(width: 8),
 
               Material(
-                color: colors.primary.withValues(alpha: isDark ? 0.17 : 0.10),
+                color: Colors.transparent,
 
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
 
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-
                   onTap: onTap,
 
-                  child: Container(
-                    width: 40,
-                    height: 40,
+                  borderRadius: BorderRadius.circular(10),
 
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-
-                      border: Border.all(
-                        color: colors.primary.withValues(
-                          alpha: isDark ? 0.20 : 0.05,
-                        ),
-                      ),
-                    ),
+                  child: SizedBox(
+                    width: 36,
+                    height: 36,
 
                     child: Icon(
                       actionIcon ?? Icons.arrow_outward_rounded,

@@ -13,13 +13,37 @@ abstract class UserEvent extends Equatable {
 
 class UserLoginRequested extends UserEvent {
   final String username;
-
   final String password;
 
   const UserLoginRequested({required this.username, required this.password});
 
   @override
   List<Object?> get props => [username, password];
+}
+
+// ----------------------------------------------------------
+// CHANGE PASSWORD
+// ----------------------------------------------------------
+
+class ChangePasswordRequested extends UserEvent {
+  final String currentPassword;
+  final String newPassword;
+
+  const ChangePasswordRequested({
+    required this.currentPassword,
+    required this.newPassword,
+  });
+
+  @override
+  List<Object?> get props => [currentPassword, newPassword];
+}
+
+// ----------------------------------------------------------
+// RESET CHANGE PASSWORD STATE
+// ----------------------------------------------------------
+
+class ResetPasswordChangeState extends UserEvent {
+  const ResetPasswordChangeState();
 }
 
 // ----------------------------------------------------------
@@ -36,7 +60,6 @@ class GetUsersRequested extends UserEvent {
 
 class AddUserRequested extends UserEvent {
   final String username;
-
   final String email;
 
   const AddUserRequested({required this.username, required this.email});

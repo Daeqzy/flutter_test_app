@@ -66,6 +66,51 @@ class UserRepository {
 
     return response;
   }
+  // ==========================================================
+  // CHANGE PASSWORD
+  // ==========================================================
+  //
+  // The backend changes the real CODEX account password.
+  //
+  // If this device currently remembers the account,
+  // update the password stored in secure storage only AFTER
+  // the backend successfully changes it.
+  //
+  // This keeps biometric login working with the new password.
+  // ==========================================================
+
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    // --------------------------------------------------------
+    // CHANGE PASSWORD ON SERVER
+    // --------------------------------------------------------
+
+    await dataRepository.changePassword(currentPassword, newPassword);
+
+    // --------------------------------------------------------
+    // UPDATE REMEMBERED CREDENTIALS
+    // --------------------------------------------------------
+
+    final hasRememberedAccount = await dataRepository.hasRememberedAccount();
+
+    if (!hasRememberedAccount) {
+      return;
+    }
+
+    final rememberedUsername = await dataRepository.getRememberedUsername();
+
+    if (rememberedUsername == null || rememberedUsername.trim().isEmpty) {
+      return;
+    }
+
+    // The backend change has already succeeded.
+    //
+    // Now replace only the locally remembered credentials
+    // with the new password.
+    await dataRepository.saveRememberMe(rememberedUsername.trim(), newPassword);
+  }
 
   // ==========================================================
   // LOGOUT

@@ -19,6 +19,10 @@ import '../../widgets/common/app_status_badge.dart';
 
 import 'partners_screen.dart';
 
+// ============================================================
+// HOME SCREEN
+// ============================================================
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -28,14 +32,14 @@ class HomeScreen extends StatelessWidget {
       top: false,
 
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 32),
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 32),
 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
             // ==================================================
-            // WELCOME HERO
+            // WELCOME
             // ==================================================
 
             BlocBuilder<UserBloc, UserState>(
@@ -53,7 +57,7 @@ class HomeScreen extends StatelessWidget {
               },
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 24),
 
             // ==================================================
             // QUICK ACCESS
@@ -63,7 +67,7 @@ class HomeScreen extends StatelessWidget {
               subtitle: 'Jump straight into your workspace',
             ),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
 
             GridView.count(
               crossAxisCount: 2,
@@ -72,16 +76,18 @@ class HomeScreen extends StatelessWidget {
 
               physics: const NeverScrollableScrollPhysics(),
 
-              mainAxisSpacing: 12,
+              mainAxisSpacing: 10,
 
-              crossAxisSpacing: 12,
+              crossAxisSpacing: 10,
 
-              childAspectRatio: 1.15,
+              childAspectRatio: 1.18,
 
               children: [
                 _QuickActionCard(
                   icon: Icons.business_rounded,
+
                   title: 'Partners',
+
                   subtitle: 'Company directory',
 
                   onTap: () {
@@ -91,7 +97,9 @@ class HomeScreen extends StatelessWidget {
 
                 _QuickActionCard(
                   icon: Icons.grid_view_rounded,
+
                   title: 'Services',
+
                   subtitle: 'Application tools',
 
                   onTap: () {
@@ -103,7 +111,9 @@ class HomeScreen extends StatelessWidget {
 
                 _QuickActionCard(
                   icon: Icons.notifications_none_rounded,
+
                   title: 'Notifications',
+
                   subtitle: 'Updates & alerts',
 
                   onTap: () {
@@ -114,8 +124,10 @@ class HomeScreen extends StatelessWidget {
                 ),
 
                 _QuickActionCard(
-                  icon: Icons.person_rounded,
+                  icon: Icons.person_outline_rounded,
+
                   title: 'Profile',
+
                   subtitle: 'Your account',
 
                   onTap: () {
@@ -127,7 +139,7 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 26),
 
             // ==================================================
             // WORKSPACE
@@ -137,11 +149,11 @@ class HomeScreen extends StatelessWidget {
               subtitle: 'Your CODEX environment at a glance',
             ),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
 
             const _WorkspaceCard(),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 26),
 
             // ==================================================
             // RECENT ACTIVITY
@@ -151,7 +163,7 @@ class HomeScreen extends StatelessWidget {
               subtitle: 'Your latest workspace actions',
             ),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
 
             const _EmptyActivityCard(),
           ],
@@ -194,7 +206,7 @@ class _WelcomeCard extends StatelessWidget {
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -204,161 +216,118 @@ class _WelcomeCard extends StatelessWidget {
           colors: [AppColors.primary, AppColors.primaryDark],
         ),
 
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(20),
 
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.22),
+            color: AppColors.primary.withValues(alpha: 0.10),
 
-            blurRadius: 28,
+            blurRadius: 18,
 
-            offset: const Offset(0, 12),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
 
-      child: Stack(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+
         children: [
-          // ----------------------------------------------------
-          // DECORATION
-          // ----------------------------------------------------
+          // ====================================================
+          // ICON
+          // ====================================================
 
-          Positioned(
-            right: -35,
-            top: -40,
+          Container(
+            width: 46,
+            height: 46,
 
-            child: Container(
-              width: 135,
-              height: 135,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.13),
 
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.07),
+              borderRadius: BorderRadius.circular(14),
+            ),
 
-                shape: BoxShape.circle,
-              ),
+            child: const Icon(
+              Icons.waving_hand_rounded,
+              size: 22,
+              color: Colors.white,
             ),
           ),
 
-          Positioned(
-            right: 35,
-            bottom: -55,
+          const SizedBox(width: 13),
 
-            child: Container(
-              width: 115,
-              height: 115,
+          // ====================================================
+          // USER
+          // ====================================================
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
+              children: [
+                Text(
+                  'Welcome back',
 
-                shape: BoxShape.circle,
-              ),
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+
+                    color: Colors.white.withValues(alpha: 0.68),
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                Text(
+                  username,
+
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.35,
+                    color: Colors.white,
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+
+                Text(
+                  'Your CODEX workspace is ready.',
+
+                  style: TextStyle(
+                    fontSize: 11,
+                    height: 1.35,
+
+                    color: Colors.white.withValues(alpha: 0.72),
+                  ),
+                ),
+              ],
             ),
           ),
 
-          // ----------------------------------------------------
-          // CONTENT
-          // ----------------------------------------------------
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(width: 10),
+
+          // ====================================================
+          // CONNECTION STATUS
+          // ====================================================
+          Row(
+            mainAxisSize: MainAxisSize.min,
 
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 46,
-                    height: 46,
+              const Icon(Icons.circle, size: 6, color: Color(0xFF86EFAC)),
 
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-
-                    child: const Icon(
-                      Icons.waving_hand_rounded,
-                      color: Colors.white,
-                      size: 23,
-                    ),
-                  ),
-
-                  const Spacer(),
-
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.14),
-
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-
-                      children: [
-                        Icon(Icons.circle, size: 7, color: Color(0xFF86EFAC)),
-
-                        SizedBox(width: 6),
-
-                        Text(
-                          'Connected',
-
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
+              const SizedBox(width: 5),
 
               Text(
-                'Welcome back,',
+                'Connected',
 
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w700,
 
-                  color: Colors.white.withValues(alpha: 0.78),
-                ),
-              ),
-
-              const SizedBox(height: 4),
-
-              Text(
-                username,
-
-                maxLines: 1,
-
-                overflow: TextOverflow.ellipsis,
-
-                style: const TextStyle(
-                  fontSize: 27,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  letterSpacing: -0.7,
-                ),
-              ),
-
-              const SizedBox(height: 9),
-
-              Text(
-                'Everything you need for your CODEX workspace is ready.',
-
-                style: TextStyle(
-                  height: 1.4,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-
-                  color: Colors.white.withValues(alpha: 0.78),
+                  color: Colors.white.withValues(alpha: 0.90),
                 ),
               ),
             ],
@@ -375,8 +344,11 @@ class _WelcomeCard extends StatelessWidget {
 
 class _QuickActionCard extends StatelessWidget {
   final IconData icon;
+
   final String title;
+
   final String subtitle;
+
   final VoidCallback onTap;
 
   const _QuickActionCard({
@@ -393,72 +365,56 @@ class _QuickActionCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Material(
-      color: colors.surfaceContainer,
+      color: isDark ? colors.surfaceContainerHigh : colors.surface,
 
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(18),
 
       child: InkWell(
         onTap: onTap,
 
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
 
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(14),
 
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(18),
 
-            border: Border.all(color: colors.outlineVariant),
-
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.035),
-
-                blurRadius: isDark ? 14 : 10,
-
-                offset: const Offset(0, 4),
-              ),
-            ],
+            border: Border.all(
+              color: colors.outlineVariant.withValues(alpha: 0.65),
+            ),
           ),
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
+              // ==================================================
+              // ICON + ARROW
+              // ==================================================
+
               Row(
                 children: [
-                  // ============================================
-                  // ICON TILE
-                  // ============================================
-
                   Container(
-                    width: 44,
-                    height: 44,
+                    width: 40,
+                    height: 40,
 
                     decoration: BoxDecoration(
                       color: colors.primary.withValues(
-                        alpha: isDark ? 0.18 : 0.09,
+                        alpha: isDark ? 0.14 : 0.08,
                       ),
 
-                      borderRadius: BorderRadius.circular(14),
-
-                      border: Border.all(
-                        color: colors.primary.withValues(
-                          alpha: isDark ? 0.20 : 0.08,
-                        ),
-                      ),
+                      borderRadius: BorderRadius.circular(12),
                     ),
 
-                    child: Icon(icon, size: 22, color: colors.primary),
+                    child: Icon(icon, size: 20, color: colors.primary),
                   ),
 
                   const Spacer(),
 
                   Icon(
                     Icons.arrow_outward_rounded,
-
-                    size: 18,
-
+                    size: 17,
                     color: colors.onSurfaceVariant,
                   ),
                 ],
@@ -466,13 +422,15 @@ class _QuickActionCard extends StatelessWidget {
 
               const Spacer(),
 
+              // ==================================================
+              // TITLE
+              // ==================================================
               Text(
                 title,
 
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
-
                   color: colors.onSurface,
                 ),
               ),
@@ -483,10 +441,12 @@ class _QuickActionCard extends StatelessWidget {
                 subtitle,
 
                 maxLines: 1,
-
                 overflow: TextOverflow.ellipsis,
 
-                style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
+                style: TextStyle(
+                  fontSize: 10.5,
+                  color: colors.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -512,31 +472,27 @@ class _WorkspaceCard extends StatelessWidget {
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.all(18),
-
       decoration: BoxDecoration(
-        color: colors.surfaceContainer,
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
 
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(18),
 
-        border: Border.all(color: colors.outlineVariant),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.025),
-
-            blurRadius: isDark ? 16 : 10,
-
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: 0.65),
+        ),
       ),
 
       child: Column(
         children: [
+          // ====================================================
+          // SESSION
+          // ====================================================
+
           const _WorkspaceRow(
             icon: Icons.shield_outlined,
+
             title: 'Secure session',
+
             subtitle: 'Authentication is active',
 
             trailing: AppStatusBadge(
@@ -546,15 +502,16 @@ class _WorkspaceCard extends StatelessWidget {
             ),
           ),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14),
+          const _WorkspaceDivider(),
 
-            child: Divider(color: colors.outlineVariant),
-          ),
-
+          // ====================================================
+          // BACKEND
+          // ====================================================
           const _WorkspaceRow(
             icon: Icons.cloud_done_outlined,
+
             title: 'Backend connection',
+
             subtitle: 'CODEX services available',
 
             trailing: AppStatusBadge(
@@ -564,19 +521,21 @@ class _WorkspaceCard extends StatelessWidget {
             ),
           ),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14),
+          const _WorkspaceDivider(),
 
-            child: Divider(color: colors.outlineVariant),
-          ),
-
+          // ====================================================
+          // PARTNERS
+          // ====================================================
           _WorkspaceRow(
             icon: Icons.business_outlined,
+
             title: 'Partner directory',
+
             subtitle: 'Loaded only when you need it',
 
             trailing: Icon(
               Icons.chevron_right_rounded,
+              size: 20,
               color: colors.onSurfaceVariant,
             ),
 
@@ -608,9 +567,13 @@ class _WorkspaceCard extends StatelessWidget {
 
 class _WorkspaceRow extends StatelessWidget {
   final IconData icon;
+
   final String title;
+
   final String subtitle;
+
   final Widget trailing;
+
   final VoidCallback? onTap;
 
   const _WorkspaceRow({
@@ -627,76 +590,98 @@ class _WorkspaceRow extends StatelessWidget {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return InkWell(
-      onTap: onTap,
+    return Material(
+      color: Colors.transparent,
 
-      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
 
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
 
-        child: Row(
-          children: [
-            // ================================================
-            // ICON
-            // ================================================
+          child: Row(
+            children: [
+              // ==================================================
+              // ICON
+              // ==================================================
 
-            Container(
-              width: 44,
-              height: 44,
+              Container(
+                width: 38,
+                height: 38,
 
-              decoration: BoxDecoration(
-                color: colors.primary.withValues(alpha: isDark ? 0.17 : 0.08),
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: isDark ? 0.14 : 0.08),
 
-                borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(11),
+                ),
 
-                border: Border.all(
-                  color: colors.primary.withValues(alpha: isDark ? 0.20 : 0.05),
+                child: Icon(icon, size: 19, color: colors.primary),
+              ),
+
+              const SizedBox(width: 12),
+
+              // ==================================================
+              // TEXT
+              // ==================================================
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                  children: [
+                    Text(
+                      title,
+
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: colors.onSurface,
+                      ),
+                    ),
+
+                    const SizedBox(height: 2),
+
+                    Text(
+                      subtitle,
+
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
-              child: Icon(icon, size: 21, color: colors.primary),
-            ),
+              const SizedBox(width: 10),
 
-            const SizedBox(width: 13),
-
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-
-                children: [
-                  Text(
-                    title,
-
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-
-                      color: colors.onSurface,
-                    ),
-                  ),
-
-                  const SizedBox(height: 3),
-
-                  Text(
-                    subtitle,
-
-                    style: TextStyle(
-                      fontSize: 12,
-
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(width: 10),
-
-            trailing,
-          ],
+              trailing,
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+// ============================================================
+// WORKSPACE DIVIDER
+// ============================================================
+
+class _WorkspaceDivider extends StatelessWidget {
+  const _WorkspaceDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Divider(
+      height: 1,
+
+      indent: 64,
+
+      endIndent: 14,
+
+      color: colors.outlineVariant.withValues(alpha: 0.60),
     );
   }
 }
@@ -717,70 +702,54 @@ class _EmptyActivityCard extends StatelessWidget {
     return Container(
       width: double.infinity,
 
-      padding: const EdgeInsets.all(22),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
 
       decoration: BoxDecoration(
-        color: colors.surfaceContainer,
+        color: colors.primary.withValues(alpha: isDark ? 0.07 : 0.045),
 
-        borderRadius: BorderRadius.circular(22),
-
-        border: Border.all(color: colors.outlineVariant),
-
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.025),
-
-            blurRadius: isDark ? 16 : 10,
-
-            offset: const Offset(0, 5),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(16),
       ),
 
-      child: Column(
+      child: Row(
         children: [
-          Container(
-            width: 58,
-            height: 58,
+          // ====================================================
+          // ICON
+          // ====================================================
 
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerHighest,
+          Icon(Icons.history_rounded, size: 19, color: colors.primary),
 
-              borderRadius: BorderRadius.circular(18),
+          const SizedBox(width: 10),
 
-              border: Border.all(color: colors.outlineVariant),
-            ),
+          // ====================================================
+          // TEXT
+          // ====================================================
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
 
-            child: Icon(Icons.history_rounded, size: 27, color: colors.primary),
-          ),
+              children: [
+                Text(
+                  'No recent activity yet',
 
-          const SizedBox(height: 14),
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    color: colors.onSurface,
+                  ),
+                ),
 
-          Text(
-            'No recent activity yet',
+                const SizedBox(height: 3),
 
-            textAlign: TextAlign.center,
+                Text(
+                  'Your latest workspace actions will appear here.',
 
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-
-              color: colors.onSurface,
-            ),
-          ),
-
-          const SizedBox(height: 5),
-
-          Text(
-            'Your latest workspace actions will appear here.',
-
-            textAlign: TextAlign.center,
-
-            style: TextStyle(
-              height: 1.4,
-              fontSize: 12,
-
-              color: colors.onSurfaceVariant,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    height: 1.4,
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

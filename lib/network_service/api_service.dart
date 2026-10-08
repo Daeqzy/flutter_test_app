@@ -3,6 +3,8 @@ import 'package:retrofit/retrofit.dart';
 
 import '../models/login_request.dart';
 import '../models/login_response.dart';
+import '../models/change_password_request.dart';
+
 import '../models/mat_partner_data.dart';
 import '../models/partner_connection_data.dart';
 import '../models/partner_agreement_data.dart';
@@ -14,23 +16,46 @@ part 'api_service.g.dart';
 abstract class ApiService {
   factory ApiService(Dio dio, {String? baseUrl}) = _ApiService;
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // AUTHENTICATION
-  // ----------------------------------------------------------
+  // ==========================================================
 
   @POST('api/Account/Login')
   Future<LoginResponse> login(@Body() LoginRequest request);
 
-  // ----------------------------------------------------------
+  // ==========================================================
+  // CHANGE PASSWORD
+  // ==========================================================
+  //
+  // Temporary / assumed backend contract:
+  //
+  // POST api/Account/ChangePassword
+  //
+  // {
+  //   "currentPassword": "...",
+  //   "newPassword": "..."
+  // }
+  //
+  // Expected success:
+  // 204 No Content
+  //
+  // The authenticated user is determined from
+  // the Bearer access token.
+  // ==========================================================
+
+  @POST('api/Account/ChangePassword')
+  Future<void> changePassword(@Body() ChangePasswordRequest request);
+
+  // ==========================================================
   // PARTNERS
-  // ----------------------------------------------------------
+  // ==========================================================
 
   @GET('api/MobileIntra/GetPartners')
   Future<List<MatPartnerData>> getPartners();
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // PARTNER CONNECTIONS
-  // ----------------------------------------------------------
+  // ==========================================================
 
   @GET('api/MobileIntra/GetPartnerConnections')
   Future<List<PartnerConnectionData>> getPartnerConnections(
@@ -38,9 +63,9 @@ abstract class ApiService {
     @Query('p') int p,
   );
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // PARTNER AGREEMENTS
-  // ----------------------------------------------------------
+  // ==========================================================
 
   @GET('api/MobileIntra/GetPartnerAgreements')
   Future<List<PartnerAgreementData>> getPartnerAgreements(
@@ -48,9 +73,9 @@ abstract class ApiService {
     @Query('p') int p,
   );
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // PARTNER CONTACTS
-  // ----------------------------------------------------------
+  // ==========================================================
 
   @GET('api/MobileIntra/GetPartnerContacts')
   Future<List<PartnerContactData>> getPartnerContacts(
