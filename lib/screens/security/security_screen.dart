@@ -5,9 +5,9 @@ import '../../bloc/user/user_bloc.dart';
 import '../../bloc/user/user_event.dart';
 import '../../bloc/user/user_state.dart';
 
-// ============================================================
-// SECURITY SCREEN
-// ============================================================
+import '../../theme/app_theme.dart';
+
+import 'change_password_screen.dart';
 
 class SecurityScreen extends StatefulWidget {
   const SecurityScreen({super.key});
@@ -21,10 +21,10 @@ class _SecurityScreenState extends State<SecurityScreen> {
   void initState() {
     super.initState();
 
-    // Refresh biometric information whenever
-    // the Security screen is opened.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       context.read<UserBloc>().add(const CheckBiometricAvailability());
     });
@@ -71,8 +71,11 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
                 style: TextStyle(
                   fontSize: 18,
+
                   fontWeight: FontWeight.w800,
+
                   letterSpacing: -0.3,
+
                   color: colors.onSurface,
                 ),
               ),
@@ -84,7 +87,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
                 style: TextStyle(
                   fontSize: 11.5,
+
                   fontWeight: FontWeight.w500,
+
                   color: colors.onSurfaceVariant,
                 ),
               ),
@@ -113,11 +118,14 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
                   child: SizedBox(
                     width: 40,
+
                     height: 40,
 
                     child: Icon(
                       Icons.refresh_rounded,
+
                       size: 20,
+
                       color: colors.onSurfaceVariant,
                     ),
                   ),
@@ -128,7 +136,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
         ),
 
         // ======================================================
-        // CONTENT
+        // BODY
         // ======================================================
         body: BlocBuilder<UserBloc, UserState>(
           builder: (context, state) {
@@ -141,10 +149,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
 
               children: [
-                // ==================================================
-                // SECURITY SUMMARY
-                // ==================================================
-
                 _SecurityHero(
                   username: authenticatedUsername.isNotEmpty
                       ? authenticatedUsername
@@ -158,6 +162,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 // ==================================================
                 const _SectionTitle(
                   title: 'Session',
+
                   subtitle: 'Current authentication status',
                 ),
 
@@ -176,6 +181,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
                         status: _authStatusLabel(state.authStatus),
 
                         positive: state.authStatus == AuthStatus.authenticated,
+
+                        accent: AppColors.success,
                       ),
 
                       const _SecurityDivider(),
@@ -194,8 +201,43 @@ class _SecurityScreenState extends State<SecurityScreen> {
                             : 'Inactive',
 
                         positive: state.authStatus == AuthStatus.authenticated,
+
+                        accent: AppColors.profileAccent,
                       ),
                     ],
+                  ),
+                ),
+
+                const SizedBox(height: 26),
+
+                // ==================================================
+                // ACCOUNT SECURITY
+                // ==================================================
+                const _SectionTitle(
+                  title: 'Account security',
+
+                  subtitle: 'Manage your CODEX credentials',
+                ),
+
+                const SizedBox(height: 12),
+
+                _SecurityCard(
+                  child: _ActionRow(
+                    icon: Icons.password_rounded,
+
+                    title: 'Change password',
+
+                    subtitle: 'Update the password for your CODEX account',
+
+                    accent: AppColors.notificationsAccent,
+
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const ChangePasswordScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ),
 
@@ -206,6 +248,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 // ==================================================
                 const _SectionTitle(
                   title: 'Remembered account',
+
                   subtitle: 'Credentials securely stored on this device',
                 ),
 
@@ -228,6 +271,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
                             : 'Disabled',
 
                         positive: state.hasRememberedAccount,
+
+                        accent: AppColors.partnersAccent,
                       ),
 
                       if (state.hasRememberedAccount) ...[
@@ -243,9 +288,12 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
                           destructive: true,
 
+                          accent: AppColors.error,
+
                           onTap: () {
                             _confirmForgetAccount(
                               context,
+
                               state.rememberedUsername,
                             );
                           },
@@ -262,6 +310,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 // ==================================================
                 const _SectionTitle(
                   title: 'Biometric authentication',
+
                   subtitle: 'Device verification for remembered login',
                 ),
 
@@ -282,6 +331,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
                         status: state.hasFingerprint ? 'Detected' : 'System',
 
                         positive: state.hasFingerprint,
+
+                        accent: AppColors.primary,
                       ),
 
                       const _SecurityDivider(),
@@ -300,6 +351,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
                             : 'System',
 
                         positive: state.hasFaceAuthentication,
+
+                        accent: AppColors.profileAccent,
                       ),
 
                       if (state.hasIrisAuthentication) ...[
@@ -315,6 +368,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
                           status: 'Detected',
 
                           positive: true,
+
+                          accent: AppColors.partnersAccent,
                         ),
                       ],
 
@@ -326,6 +381,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
                         title: 'Refresh biometric status',
 
                         subtitle: 'Check enrolled biometric methods again',
+
+                        accent: AppColors.securityAccent,
 
                         onTap: () {
                           context.read<UserBloc>().add(
@@ -340,10 +397,11 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 const SizedBox(height: 26),
 
                 // ==================================================
-                // APPLICATION SECURITY
+                // APP SECURITY
                 // ==================================================
                 const _SectionTitle(
                   title: 'Application security',
+
                   subtitle: 'Protect access to the current session',
                 ),
 
@@ -356,8 +414,10 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     title: 'Lock application',
 
                     subtitle: state.hasRememberedAccount
-                        ? 'End this session and require biometric verification again'
+                        ? 'End this session and require authentication again'
                         : 'End this session and return to login',
+
+                    accent: AppColors.securityAccent,
 
                     onTap: () {
                       _confirmLockApplication(context);
@@ -367,9 +427,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
                 const SizedBox(height: 18),
 
-                // ==================================================
-                // SECURITY INFO
-                // ==================================================
                 const _SecurityInfoNote(),
               ],
             );
@@ -380,7 +437,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
   }
 
   // ==========================================================
-  // FORGET REMEMBERED ACCOUNT
+  // FORGET ACCOUNT
   // ==========================================================
 
   Future<void> _confirmForgetAccount(
@@ -439,7 +496,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
   }
 
   // ==========================================================
-  // LOCK APPLICATION
+  // LOCK
   // ==========================================================
 
   Future<void> _confirmLockApplication(BuildContext context) async {
@@ -488,10 +545,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
     context.read<UserBloc>().add(const UserLogoutRequested());
   }
 
-  // ==========================================================
-  // AUTH STATUS LABEL
-  // ==========================================================
-
   String _authStatusLabel(AuthStatus status) {
     switch (status) {
       case AuthStatus.authenticated:
@@ -510,7 +563,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
 }
 
 // ============================================================
-// SECURITY HERO
+// HERO
 // ============================================================
 
 class _SecurityHero extends StatelessWidget {
@@ -520,26 +573,25 @@ class _SecurityHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
     return Container(
       width: double.infinity,
 
       padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
+
           end: Alignment.bottomRight,
 
-          colors: [colors.primary, colors.primary.withValues(alpha: 0.86)],
+          colors: [AppColors.securityAccent, AppColors.securityAccentDark],
         ),
 
         borderRadius: BorderRadius.circular(20),
 
         boxShadow: [
           BoxShadow(
-            color: colors.primary.withValues(alpha: 0.10),
+            color: AppColors.securityAccent.withValues(alpha: 0.13),
 
             blurRadius: 18,
 
@@ -552,6 +604,7 @@ class _SecurityHero extends StatelessWidget {
         children: [
           Container(
             width: 46,
+
             height: 46,
 
             decoration: BoxDecoration(
@@ -562,7 +615,9 @@ class _SecurityHero extends StatelessWidget {
 
             child: const Icon(
               Icons.shield_rounded,
+
               size: 22,
+
               color: Colors.white,
             ),
           ),
@@ -579,8 +634,11 @@ class _SecurityHero extends StatelessWidget {
 
                   style: TextStyle(
                     fontSize: 17,
+
                     fontWeight: FontWeight.w800,
+
                     letterSpacing: -0.3,
+
                     color: Colors.white,
                   ),
                 ),
@@ -621,6 +679,7 @@ class _SecurityHero extends StatelessWidget {
 
                 style: TextStyle(
                   fontSize: 9.5,
+
                   fontWeight: FontWeight.w700,
 
                   color: Colors.white.withValues(alpha: 0.90),
@@ -640,6 +699,7 @@ class _SecurityHero extends StatelessWidget {
 
 class _SectionTitle extends StatelessWidget {
   final String title;
+
   final String subtitle;
 
   const _SectionTitle({required this.title, required this.subtitle});
@@ -660,7 +720,9 @@ class _SectionTitle extends StatelessWidget {
 
             style: TextStyle(
               fontSize: 16,
+
               fontWeight: FontWeight.w800,
+
               color: colors.onSurface,
             ),
           ),
@@ -679,7 +741,7 @@ class _SectionTitle extends StatelessWidget {
 }
 
 // ============================================================
-// SECURITY CARD
+// CARD
 // ============================================================
 
 class _SecurityCard extends StatelessWidget {
@@ -712,7 +774,7 @@ class _SecurityCard extends StatelessWidget {
 }
 
 // ============================================================
-// INFORMATION ROW
+// INFO ROW
 // ============================================================
 
 class _SecurityInfoRow extends StatelessWidget {
@@ -726,12 +788,15 @@ class _SecurityInfoRow extends StatelessWidget {
 
   final bool positive;
 
+  final Color accent;
+
   const _SecurityInfoRow({
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.status,
     required this.positive,
+    required this.accent,
   });
 
   @override
@@ -740,33 +805,29 @@ class _SecurityInfoRow extends StatelessWidget {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final statusColor = positive ? AppColors.success : colors.onSurfaceVariant;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
 
       child: Row(
         children: [
-          // ====================================================
-          // ICON
-          // ====================================================
-
           Container(
             width: 38,
+
             height: 38,
 
             decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: isDark ? 0.14 : 0.08),
+              color: accent.withValues(alpha: isDark ? 0.16 : 0.08),
 
               borderRadius: BorderRadius.circular(11),
             ),
 
-            child: Icon(icon, size: 19, color: colors.primary),
+            child: Icon(icon, size: 19, color: accent),
           ),
 
           const SizedBox(width: 12),
 
-          // ====================================================
-          // TEXT
-          // ====================================================
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -803,7 +864,7 @@ class _SecurityInfoRow extends StatelessWidget {
 
           const SizedBox(width: 10),
 
-          _StatusBadge(label: status, positive: positive),
+          _StatusBadge(label: status, positive: positive, color: statusColor),
         ],
       ),
     );
@@ -811,7 +872,7 @@ class _SecurityInfoRow extends StatelessWidget {
 }
 
 // ============================================================
-// ACTION ROW
+// ACTION
 // ============================================================
 
 class _ActionRow extends StatelessWidget {
@@ -823,6 +884,8 @@ class _ActionRow extends StatelessWidget {
 
   final VoidCallback onTap;
 
+  final Color accent;
+
   final bool destructive;
 
   const _ActionRow({
@@ -830,6 +893,7 @@ class _ActionRow extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    required this.accent,
     this.destructive = false,
   });
 
@@ -839,7 +903,7 @@ class _ActionRow extends StatelessWidget {
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final actionColor = destructive ? colors.error : colors.primary;
+    final actionColor = destructive ? colors.error : accent;
 
     return Material(
       color: Colors.transparent,
@@ -854,10 +918,11 @@ class _ActionRow extends StatelessWidget {
             children: [
               Container(
                 width: 38,
+
                 height: 38,
 
                 decoration: BoxDecoration(
-                  color: actionColor.withValues(alpha: isDark ? 0.13 : 0.07),
+                  color: actionColor.withValues(alpha: isDark ? 0.16 : 0.08),
 
                   borderRadius: BorderRadius.circular(11),
                 ),
@@ -908,9 +973,7 @@ class _ActionRow extends StatelessWidget {
 
                 size: 19,
 
-                color: destructive
-                    ? colors.error.withValues(alpha: 0.80)
-                    : colors.onSurfaceVariant,
+                color: actionColor.withValues(alpha: 0.80),
               ),
             ],
           ),
@@ -921,7 +984,7 @@ class _ActionRow extends StatelessWidget {
 }
 
 // ============================================================
-// STATUS BADGE
+// STATUS
 // ============================================================
 
 class _StatusBadge extends StatelessWidget {
@@ -929,15 +992,19 @@ class _StatusBadge extends StatelessWidget {
 
   final bool positive;
 
-  const _StatusBadge({required this.label, required this.positive});
+  final Color color;
+
+  const _StatusBadge({
+    required this.label,
+    required this.positive,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
     final statusColor = positive
-        ? const Color(0xFF16A34A)
-        : colors.onSurfaceVariant;
+        ? color
+        : Theme.of(context).colorScheme.onSurfaceVariant;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
@@ -961,7 +1028,9 @@ class _StatusBadge extends StatelessWidget {
 
             style: TextStyle(
               fontSize: 9.5,
+
               fontWeight: FontWeight.w700,
+
               color: statusColor,
             ),
           ),
@@ -995,7 +1064,7 @@ class _SecurityDivider extends StatelessWidget {
 }
 
 // ============================================================
-// SECURITY INFO NOTE
+// INFO NOTE
 // ============================================================
 
 class _SecurityInfoNote extends StatelessWidget {
@@ -1013,7 +1082,9 @@ class _SecurityInfoNote extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
 
       decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: isDark ? 0.07 : 0.045),
+        color: AppColors.securityAccent.withValues(
+          alpha: isDark ? 0.08 : 0.045,
+        ),
 
         borderRadius: BorderRadius.circular(16),
       ),
@@ -1022,7 +1093,13 @@ class _SecurityInfoNote extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          Icon(Icons.info_outline_rounded, size: 19, color: colors.primary),
+          const Icon(
+            Icons.info_outline_rounded,
+
+            size: 19,
+
+            color: AppColors.securityAccent,
+          ),
 
           const SizedBox(width: 10),
 
@@ -1035,7 +1112,9 @@ class _SecurityInfoNote extends StatelessWidget {
 
               style: TextStyle(
                 fontSize: 10.5,
+
                 height: 1.4,
+
                 color: colors.onSurfaceVariant,
               ),
             ),

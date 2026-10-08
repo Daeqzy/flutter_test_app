@@ -19,13 +19,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _usernameController;
+
   late final TextEditingController _passwordController;
 
   bool _obscurePassword = true;
 
-  // ==========================================================
-  // INIT
-  // ==========================================================
+  bool _showRememberedPassword = false;
 
   @override
   void initState() {
@@ -40,13 +39,10 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController = TextEditingController();
   }
 
-  // ==========================================================
-  // DISPOSE
-  // ==========================================================
-
   @override
   void dispose() {
     _usernameController.dispose();
+
     _passwordController.dispose();
 
     super.dispose();
@@ -66,8 +62,37 @@ class _LoginScreenState extends State<LoginScreen> {
     context.read<UserBloc>().add(
       UserLoginRequested(
         username: _usernameController.text.trim(),
+
         password: _passwordController.text,
       ),
+    );
+  }
+
+  // ==========================================================
+  // REMEMBERED ACCOUNT PASSWORD LOGIN
+  // ==========================================================
+
+  void _rememberedPasswordLogin(UserState state) {
+    FocusScope.of(context).unfocus();
+
+    final password = _passwordController.text;
+
+    if (password.isEmpty) {
+      _showMessage('Please enter your password');
+
+      return;
+    }
+
+    final username = state.rememberedUsername.trim();
+
+    if (username.isEmpty) {
+      _showMessage('No remembered account is available.');
+
+      return;
+    }
+
+    context.read<UserBloc>().add(
+      UserLoginRequested(username: username, password: password),
     );
   }
 
@@ -96,10 +121,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _useAnotherAccount() {
     _usernameController.clear();
+
     _passwordController.clear();
 
     setState(() {
       _obscurePassword = true;
+
+      _showRememberedPassword = false;
     });
 
     context.read<UserBloc>().add(const UseAnotherAccountRequested());
@@ -139,19 +167,11 @@ class _LoginScreenState extends State<LoginScreen> {
       },
 
       listener: (context, state) {
-        // ====================================================
-        // ERROR
-        // ====================================================
-
         if (state.errorMessage != null) {
           _showMessage(state.errorMessage!);
 
           return;
         }
-
-        // ====================================================
-        // SUCCESS
-        // ====================================================
 
         if (state.authStatus == AuthStatus.authenticated) {
           TextInput.finishAutofillContext(shouldSave: true);
@@ -163,53 +183,90 @@ class _LoginScreenState extends State<LoginScreen> {
       },
 
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
+
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
         body: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(20, 28, 20, 36),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final availableWidth = (constraints.maxWidth - 32)
+                  .clamp(0.0, 460.0)
+                  .toDouble();
 
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 460),
+              final availableHeight = (constraints.maxHeight - 24)
+                  .clamp(0.0, double.infinity)
+                  .toDouble();
 
-                child: BlocBuilder<UserBloc, UserState>(
-                  builder: (context, state) {
-                    return Container(
-                      width: double.infinity,
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
 
-                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 26),
-
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? colors.surfaceContainerHigh
-                            : colors.surface,
-
-                        borderRadius: BorderRadius.circular(26),
-
-                        border: Border.all(color: colors.outlineVariant),
-
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(
-                              alpha: isDark ? 0.24 : 0.06,
-                            ),
-
-                            blurRadius: 24,
-
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-
-                      child: state.hasRememberedAccount
-                          ? _buildRememberedAccount(state, colors)
-                          : _buildNormalLogin(state, colors),
-                    );
-                  },
+                  vertical: 12,
                 ),
-              ),
-            ),
+
+                child: Center(
+                  child: SizedBox(
+                    width: availableWidth,
+
+                    height: availableHeight,
+
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+
+                      alignment: Alignment.center,
+
+                      child: SizedBox(
+                        width: availableWidth,
+
+                        child: BlocBuilder<UserBloc, UserState>(
+                          builder: (context, state) {
+                            return Container(
+                              width: double.infinity,
+
+                              padding: const EdgeInsets.fromLTRB(
+                                22,
+                                22,
+                                22,
+                                20,
+                              ),
+
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? colors.surfaceContainerHigh
+                                    : colors.surface,
+
+                                borderRadius: BorderRadius.circular(24),
+
+                                border: Border.all(
+                                  color: colors.outlineVariant,
+                                ),
+
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(
+                                      alpha: isDark ? 0.22 : 0.055,
+                                    ),
+
+                                    blurRadius: 22,
+
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+
+                              child: state.hasRememberedAccount
+                                  ? _buildRememberedAccount(state, colors)
+                                  : _buildNormalLogin(state, colors),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -217,7 +274,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // ==========================================================
-  // REMEMBERED ACCOUNT LOGIN
+  // REMEMBERED ACCOUNT
   // ==========================================================
 
   Widget _buildRememberedAccount(UserState state, ColorScheme colors) {
@@ -225,42 +282,35 @@ class _LoginScreenState extends State<LoginScreen> {
       mainAxisSize: MainAxisSize.min,
 
       children: [
-        // ------------------------------------------------------
-        // LOGO
-        // ------------------------------------------------------
-
         ClipRRect(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(18),
 
           child: Image.asset(
             'assets/images/codex_logo.png',
 
-            width: 225,
+            width: 185,
 
             fit: BoxFit.contain,
           ),
         ),
 
-        const SizedBox(height: 30),
+        const SizedBox(height: 20),
 
-        // ------------------------------------------------------
-        // WELCOME
-        // ------------------------------------------------------
         Text(
           'Welcome back',
 
           style: TextStyle(
-            fontSize: 29,
+            fontSize: 26,
 
             fontWeight: FontWeight.w800,
 
-            letterSpacing: -0.6,
+            letterSpacing: -0.55,
 
             color: colors.onSurface,
           ),
         ),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
 
         Text(
           state.authStatus == AuthStatus.sessionExpired
@@ -270,41 +320,41 @@ class _LoginScreenState extends State<LoginScreen> {
           textAlign: TextAlign.center,
 
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 12.5,
 
-            height: 1.4,
+            height: 1.35,
 
             color: colors.onSurfaceVariant,
           ),
         ),
 
-        const SizedBox(height: 26),
+        const SizedBox(height: 18),
 
-        // ------------------------------------------------------
-        // REMEMBERED ACCOUNT
-        // ------------------------------------------------------
+        // ======================================================
+        // REMEMBERED ACCOUNT CARD
+        // ======================================================
         Container(
           width: double.infinity,
 
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
 
           decoration: BoxDecoration(
-            color: colors.primary.withValues(alpha: 0.07),
+            color: colors.primary.withValues(alpha: 0.065),
 
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(16),
 
-            border: Border.all(color: colors.primary.withValues(alpha: 0.16)),
+            border: Border.all(color: colors.primary.withValues(alpha: 0.14)),
           ),
 
           child: Row(
             children: [
               Container(
-                width: 48,
+                width: 42,
 
-                height: 48,
+                height: 42,
 
                 decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.12),
+                  color: colors.primary.withValues(alpha: 0.11),
 
                   shape: BoxShape.circle,
                 ),
@@ -312,11 +362,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Icon(
                   Icons.person_outline_rounded,
 
+                  size: 21,
+
                   color: colors.primary,
                 ),
               ),
 
-              const SizedBox(width: 13),
+              const SizedBox(width: 12),
 
               Expanded(
                 child: Column(
@@ -327,7 +379,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Remembered account',
 
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 10.5,
 
                         fontWeight: FontWeight.w600,
 
@@ -335,7 +387,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 2),
 
                     Text(
                       state.rememberedUsername,
@@ -345,7 +397,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       overflow: TextOverflow.ellipsis,
 
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 14.5,
 
                         fontWeight: FontWeight.w700,
 
@@ -356,156 +408,344 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              Icon(Icons.verified_user_rounded, color: colors.primary),
+              Icon(
+                Icons.verified_user_rounded,
+
+                size: 21,
+
+                color: colors.primary,
+              ),
             ],
           ),
         ),
 
-        const SizedBox(height: 32),
+        const SizedBox(height: 20),
 
-        // ------------------------------------------------------
-        // SINGLE BIOMETRIC ACTION
-        // ------------------------------------------------------
-        Material(
-          color: Colors.transparent,
+        if (!_showRememberedPassword) ...[
+          // ====================================================
+          // SMALLER BIOMETRIC BUTTON
+          // ====================================================
 
-          child: InkWell(
-            onTap: state.isLoading ? null : _biometricLogin,
+          Material(
+            color: Colors.transparent,
 
-            customBorder: const CircleBorder(),
+            child: InkWell(
+              onTap: state.isLoading ? null : _biometricLogin,
 
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
+              customBorder: const CircleBorder(),
 
-              width: 112,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
 
-              height: 112,
+                width: 86,
 
-              decoration: BoxDecoration(
-                color: colors.primary.withValues(
-                  alpha: state.isLoading ? 0.06 : 0.10,
-                ),
+                height: 86,
 
-                shape: BoxShape.circle,
-
-                border: Border.all(
+                decoration: BoxDecoration(
                   color: colors.primary.withValues(
-                    alpha: state.isLoading ? 0.12 : 0.24,
+                    alpha: state.isLoading ? 0.06 : 0.10,
                   ),
 
-                  width: 2,
+                  shape: BoxShape.circle,
+
+                  border: Border.all(
+                    color: colors.primary.withValues(
+                      alpha: state.isLoading ? 0.12 : 0.24,
+                    ),
+
+                    width: 2,
+                  ),
+
+                  boxShadow: state.isLoading
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: colors.primary.withValues(alpha: 0.12),
+
+                            blurRadius: 20,
+
+                            spreadRadius: 1,
+                          ),
+                        ],
                 ),
 
-                boxShadow: state.isLoading
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: colors.primary.withValues(alpha: 0.13),
+                child: Center(
+                  child: state.isLoading
+                      ? SizedBox(
+                          width: 28,
 
-                          blurRadius: 26,
+                          height: 28,
 
-                          spreadRadius: 2,
-                        ),
-                      ],
-              ),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
 
-              child: Center(
-                child: state.isLoading
-                    ? SizedBox(
-                        width: 36,
+                            color: colors.primary,
+                          ),
+                        )
+                      : Icon(
+                          _biometricIcon(state),
 
-                        height: 36,
-
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3,
+                          size: 40,
 
                           color: colors.primary,
                         ),
-                      )
-                    : Icon(
-                        _biometricIcon(state),
-
-                        size: 55,
-
-                        color: colors.primary,
-                      ),
+                ),
               ),
             ),
           ),
-        ),
 
-        const SizedBox(height: 17),
+          const SizedBox(height: 11),
 
-        // ------------------------------------------------------
-        // BIOMETRIC TITLE
-        // ------------------------------------------------------
-        Text(
-          state.isLoading ? 'Verifying identity...' : _biometricTitle(state),
+          Text(
+            state.isLoading ? 'Verifying identity...' : _biometricTitle(state),
 
-          textAlign: TextAlign.center,
+            textAlign: TextAlign.center,
 
-          style: TextStyle(
-            fontSize: 17,
+            style: TextStyle(
+              fontSize: 15.5,
 
-            fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w700,
 
-            color: colors.onSurface,
+              color: colors.onSurface,
+            ),
           ),
-        ),
 
-        const SizedBox(height: 7),
+          const SizedBox(height: 4),
 
-        Text(
-          state.isLoading
-              ? 'Complete the verification on your device.'
-              : 'Tap the icon to securely sign in',
+          Text(
+            state.isLoading
+                ? 'Complete the verification on your device.'
+                : 'Tap the icon to securely sign in',
 
-          textAlign: TextAlign.center,
+            textAlign: TextAlign.center,
 
-          style: TextStyle(
-            fontSize: 12,
+            style: TextStyle(
+              fontSize: 11,
 
-            fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w500,
 
-            color: colors.onSurfaceVariant,
+              color: colors.onSurfaceVariant,
+            ),
           ),
-        ),
 
-        const SizedBox(height: 15),
+          const SizedBox(height: 15),
 
-        // ------------------------------------------------------
-        // OS SECURITY INFO
-        // ------------------------------------------------------
+          Row(
+            children: [
+              Expanded(child: Divider(color: colors.outlineVariant)),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+
+                child: Text(
+                  'or',
+
+                  style: TextStyle(
+                    fontSize: 10.5,
+
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ),
+
+              Expanded(child: Divider(color: colors.outlineVariant)),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          SizedBox(
+            height: 46,
+
+            width: double.infinity,
+
+            child: OutlinedButton.icon(
+              onPressed: state.isLoading
+                  ? null
+                  : () {
+                      setState(() {
+                        _passwordController.clear();
+
+                        _obscurePassword = true;
+
+                        _showRememberedPassword = true;
+                      });
+                    },
+
+              icon: const Icon(Icons.password_rounded, size: 18),
+
+              label: const Text('Sign in with password'),
+            ),
+          ),
+        ] else ...[
+          Text(
+            'Sign in with password',
+
+            style: TextStyle(
+              fontSize: 16,
+
+              fontWeight: FontWeight.w800,
+
+              color: colors.onSurface,
+            ),
+          ),
+
+          const SizedBox(height: 4),
+
+          Text(
+            'Enter the password for ${state.rememberedUsername}.',
+
+            textAlign: TextAlign.center,
+
+            style: TextStyle(fontSize: 11.5, color: colors.onSurfaceVariant),
+          ),
+
+          const SizedBox(height: 14),
+
+          AutofillGroup(
+            child: TextFormField(
+              controller: _passwordController,
+
+              enabled: !state.isLoading,
+
+              obscureText: _obscurePassword,
+
+              textInputAction: TextInputAction.done,
+
+              autocorrect: false,
+
+              enableSuggestions: false,
+
+              autofillHints: const [AutofillHints.password],
+
+              onFieldSubmitted: (_) {
+                if (!state.isLoading) {
+                  _rememberedPasswordLogin(state);
+                }
+              },
+
+              decoration: InputDecoration(
+                labelText: 'Password',
+
+                hintText: 'Enter your password',
+
+                prefixIcon: const Icon(Icons.lock_outline_rounded),
+
+                suffixIcon: IconButton(
+                  tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+
+                  onPressed: state.isLoading
+                      ? null
+                      : () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+
+                  icon: Icon(
+                    _obscurePassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          SizedBox(
+            width: double.infinity,
+
+            height: 48,
+
+            child: FilledButton(
+              onPressed: state.isLoading
+                  ? null
+                  : () {
+                      _rememberedPasswordLogin(state);
+                    },
+
+              child: state.isLoading
+                  ? const Row(
+                      mainAxisSize: MainAxisSize.min,
+
+                      children: [
+                        SizedBox(
+                          width: 18,
+
+                          height: 18,
+
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+
+                        SizedBox(width: 9),
+
+                        Text('Signing in...'),
+                      ],
+                    )
+                  : const Text('Sign in with password'),
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          TextButton.icon(
+            onPressed: state.isLoading
+                ? null
+                : () {
+                    setState(() {
+                      _passwordController.clear();
+
+                      _showRememberedPassword = false;
+                    });
+                  },
+
+            icon: Icon(_biometricIcon(state), size: 18),
+
+            label: const Text('Use biometrics instead'),
+          ),
+        ],
+
+        const SizedBox(height: 12),
+
         Container(
           width: double.infinity,
 
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
 
           decoration: BoxDecoration(
-            color: colors.surfaceContainerHighest.withValues(alpha: 0.45),
+            color: colors.surfaceContainerHighest.withValues(alpha: 0.40),
 
-            borderRadius: BorderRadius.circular(14),
-
-            border: Border.all(color: colors.outlineVariant),
+            borderRadius: BorderRadius.circular(13),
           ),
 
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              Icon(Icons.security_rounded, size: 19, color: colors.primary),
+              Icon(
+                _showRememberedPassword
+                    ? Icons.lock_outline_rounded
+                    : Icons.security_rounded,
 
-              const SizedBox(width: 9),
+                size: 18,
+
+                color: colors.primary,
+              ),
+
+              const SizedBox(width: 8),
 
               Expanded(
                 child: Text(
-                  'Fingerprint or face verification is handled securely '
-                  'by your phone. CODEX never receives your biometric data.',
+                  _showRememberedPassword
+                      ? 'Your password is sent only to the CODEX server for authentication.'
+                      : 'Biometric verification is handled by your phone. CODEX never receives your biometric data.',
 
                   style: TextStyle(
-                    fontSize: 10.5,
+                    fontSize: 10,
 
-                    height: 1.45,
+                    height: 1.35,
 
                     color: colors.onSurfaceVariant,
                   ),
@@ -515,31 +755,14 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
 
-        const SizedBox(height: 22),
+        const SizedBox(height: 10),
 
-        Divider(color: colors.outlineVariant),
-
-        const SizedBox(height: 8),
-
-        // ------------------------------------------------------
-        // USE ANOTHER ACCOUNT
-        // ------------------------------------------------------
         TextButton.icon(
           onPressed: state.isLoading ? null : _useAnotherAccount,
 
-          icon: const Icon(Icons.person_add_alt_1_outlined),
+          icon: const Icon(Icons.person_add_alt_1_outlined, size: 18),
 
           label: const Text('Use another account'),
-        ),
-
-        const SizedBox(height: 2),
-
-        Text(
-          'This removes the remembered account from this device.',
-
-          textAlign: TextAlign.center,
-
-          style: TextStyle(fontSize: 10.5, color: colors.onSurfaceVariant),
         ),
       ],
     );
@@ -558,56 +781,46 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisSize: MainAxisSize.min,
 
           children: [
-            // --------------------------------------------------
-            // LOGO
-            // --------------------------------------------------
-
             ClipRRect(
-              borderRadius: BorderRadius.circular(22),
+              borderRadius: BorderRadius.circular(18),
 
               child: Image.asset(
                 'assets/images/codex_logo.png',
 
-                width: 225,
+                width: 185,
 
                 fit: BoxFit.contain,
               ),
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 19),
 
-            // --------------------------------------------------
-            // TITLE
-            // --------------------------------------------------
             Text(
               'Sign in',
 
               style: TextStyle(
-                fontSize: 29,
+                fontSize: 26,
 
                 fontWeight: FontWeight.w800,
 
-                letterSpacing: -0.6,
+                letterSpacing: -0.55,
 
                 color: colors.onSurface,
               ),
             ),
 
-            const SizedBox(height: 7),
+            const SizedBox(height: 5),
 
             Text(
               'Access your CODEX workspace',
 
               textAlign: TextAlign.center,
 
-              style: TextStyle(fontSize: 14, color: colors.onSurfaceVariant),
+              style: TextStyle(fontSize: 12.5, color: colors.onSurfaceVariant),
             ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 20),
 
-            // --------------------------------------------------
-            // USERNAME
-            // --------------------------------------------------
             TextFormField(
               controller: _usernameController,
 
@@ -629,8 +842,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 hintText: 'Enter your username',
 
                 prefixIcon: Icon(Icons.person_outline_rounded),
-
-                border: OutlineInputBorder(),
               ),
 
               validator: (value) {
@@ -642,11 +853,8 @@ class _LoginScreenState extends State<LoginScreen> {
               },
             ),
 
-            const SizedBox(height: 18),
+            const SizedBox(height: 13),
 
-            // --------------------------------------------------
-            // PASSWORD
-            // --------------------------------------------------
             TextFormField(
               controller: _passwordController,
 
@@ -674,8 +882,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 hintText: 'Enter your password',
 
                 prefixIcon: const Icon(Icons.lock_outline_rounded),
-
-                border: const OutlineInputBorder(),
 
                 suffixIcon: IconButton(
                   tooltip: _obscurePassword ? 'Show password' : 'Hide password',
@@ -705,11 +911,8 @@ class _LoginScreenState extends State<LoginScreen> {
               },
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
 
-            // --------------------------------------------------
-            // REMEMBER ME
-            // --------------------------------------------------
             Row(
               children: [
                 Checkbox(
@@ -729,7 +932,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     'Remember me',
 
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 12.5,
 
                       fontWeight: FontWeight.w500,
 
@@ -740,15 +943,12 @@ class _LoginScreenState extends State<LoginScreen> {
               ],
             ),
 
-            const SizedBox(height: 15),
+            const SizedBox(height: 10),
 
-            // --------------------------------------------------
-            // SIGN IN BUTTON
-            // --------------------------------------------------
             SizedBox(
               width: double.infinity,
 
-              height: 52,
+              height: 50,
 
               child: FilledButton(
                 onPressed: state.isLoading ? null : _login,
@@ -766,7 +966,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           ),
 
-                          SizedBox(width: 10),
+                          SizedBox(width: 9),
 
                           Text('Signing in...'),
                         ],
@@ -775,7 +975,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         'Sign In',
 
                         style: TextStyle(
-                          fontSize: 15,
+                          fontSize: 14.5,
 
                           fontWeight: FontWeight.w700,
                         ),
@@ -783,22 +983,17 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 13),
 
-            // --------------------------------------------------
-            // BIOMETRIC INFO
-            // --------------------------------------------------
             Container(
               width: double.infinity,
 
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
 
               decoration: BoxDecoration(
-                color: colors.surfaceContainerHighest.withValues(alpha: 0.55),
+                color: colors.surfaceContainerHighest.withValues(alpha: 0.42),
 
-                borderRadius: BorderRadius.circular(16),
-
-                border: Border.all(color: colors.outlineVariant),
+                borderRadius: BorderRadius.circular(13),
               ),
 
               child: Row(
@@ -808,23 +1003,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   Icon(
                     Icons.lock_person_rounded,
 
-                    size: 22,
+                    size: 19,
 
                     color: colors.primary,
                   ),
 
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 9),
 
                   Expanded(
                     child: Text(
-                      'Enable Remember me during a successful login '
-                      'to use biometric authentication the next time '
-                      'you open the app.',
+                      'Enable Remember me to use biometric authentication or quick password login next time.',
 
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 10.2,
 
-                        height: 1.45,
+                        height: 1.35,
 
                         color: colors.onSurfaceVariant,
                       ),
@@ -840,55 +1033,28 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   // ==========================================================
-  // BIOMETRIC ICON
+  // BIOMETRIC HELPERS
   // ==========================================================
 
   IconData _biometricIcon(UserState state) {
-    // --------------------------------------------------------
-    // MULTIPLE TYPES
-    // --------------------------------------------------------
-    //
-    // If the phone reports both fingerprint and face,
-    // don't pretend that our app lets the user choose.
-    //
-    // The operating system controls which biometric
-    // verification method is used.
-    // --------------------------------------------------------
-
     if (state.hasFingerprint && state.hasFaceAuthentication) {
       return Icons.lock_person_rounded;
     }
-
-    // --------------------------------------------------------
-    // FACE ONLY
-    // --------------------------------------------------------
 
     if (state.hasFaceAuthentication) {
       return Icons.face_retouching_natural;
     }
 
-    // --------------------------------------------------------
-    // FINGERPRINT ONLY
-    // --------------------------------------------------------
-
     if (state.hasFingerprint) {
       return Icons.fingerprint_rounded;
     }
 
-    // --------------------------------------------------------
-    // GENERIC BIOMETRIC
-    // --------------------------------------------------------
-    //
-    // Some Android devices report generic strong/weak
-    // biometrics rather than an exact type.
-    // --------------------------------------------------------
+    if (state.hasIrisAuthentication) {
+      return Icons.remove_red_eye_outlined;
+    }
 
     return Icons.lock_person_rounded;
   }
-
-  // ==========================================================
-  // BIOMETRIC TITLE
-  // ==========================================================
 
   String _biometricTitle(UserState state) {
     if (state.hasFingerprint && state.hasFaceAuthentication) {
@@ -901,6 +1067,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (state.hasFingerprint) {
       return 'Continue with fingerprint';
+    }
+
+    if (state.hasIrisAuthentication) {
+      return 'Continue with iris verification';
     }
 
     return 'Continue with biometrics';

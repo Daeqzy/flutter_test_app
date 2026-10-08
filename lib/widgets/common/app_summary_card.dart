@@ -4,10 +4,18 @@ import '../../theme/app_theme.dart';
 
 class AppSummaryCard extends StatelessWidget {
   final IconData icon;
+
   final String title;
+
   final String subtitle;
+
   final String? detail;
+
   final Widget? trailing;
+
+  final Color startColor;
+
+  final Color endColor;
 
   const AppSummaryCard({
     super.key,
@@ -16,6 +24,8 @@ class AppSummaryCard extends StatelessWidget {
     required this.subtitle,
     this.detail,
     this.trailing,
+    this.startColor = AppColors.partnersAccent,
+    this.endColor = AppColors.partnersAccentDark,
   });
 
   @override
@@ -26,18 +36,19 @@ class AppSummaryCard extends StatelessWidget {
       padding: const EdgeInsets.all(17),
 
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
+
           end: Alignment.bottomRight,
 
-          colors: [AppColors.primary, AppColors.primaryDark],
+          colors: [startColor, endColor],
         ),
 
         borderRadius: BorderRadius.circular(20),
 
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.12),
+            color: startColor.withValues(alpha: 0.13),
 
             blurRadius: 18,
 
@@ -48,10 +59,6 @@ class AppSummaryCard extends StatelessWidget {
 
       child: Row(
         children: [
-          // ====================================================
-          // ICON
-          // ====================================================
-
           Container(
             width: 46,
             height: 46,
@@ -67,9 +74,6 @@ class AppSummaryCard extends StatelessWidget {
 
           const SizedBox(width: 13),
 
-          // ====================================================
-          // TEXT
-          // ====================================================
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,8 +84,11 @@ class AppSummaryCard extends StatelessWidget {
 
                   style: const TextStyle(
                     fontSize: 16,
+
                     fontWeight: FontWeight.w800,
+
                     letterSpacing: -0.25,
+
                     color: Colors.white,
                   ),
                 ),

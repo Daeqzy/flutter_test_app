@@ -5,11 +5,8 @@ import '../../bloc/preferences/preferences_bloc.dart';
 import '../../bloc/preferences/preferences_event.dart';
 import '../../bloc/preferences/preferences_state.dart';
 
+import '../../theme/app_theme.dart';
 import '../../widgets/common/app_section_header.dart';
-
-// ============================================================
-// PREFERENCES SCREEN
-// ============================================================
 
 class PreferencesScreen extends StatelessWidget {
   const PreferencesScreen({super.key});
@@ -21,9 +18,6 @@ class PreferencesScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
-      // ========================================================
-      // APP BAR
-      // ========================================================
       appBar: AppBar(
         toolbarHeight: 68,
 
@@ -36,8 +30,11 @@ class PreferencesScreen extends StatelessWidget {
 
               style: TextStyle(
                 fontSize: 18,
+
                 fontWeight: FontWeight.w800,
+
                 letterSpacing: -0.3,
+
                 color: colors.onSurface,
               ),
             ),
@@ -49,7 +46,9 @@ class PreferencesScreen extends StatelessWidget {
 
               style: TextStyle(
                 fontSize: 11.5,
+
                 fontWeight: FontWeight.w500,
+
                 color: colors.onSurfaceVariant,
               ),
             ),
@@ -57,9 +56,6 @@ class PreferencesScreen extends StatelessWidget {
         ),
       ),
 
-      // ========================================================
-      // CONTENT
-      // ========================================================
       body: BlocBuilder<PreferencesBloc, PreferencesState>(
         builder: (context, state) {
           if (state.isLoading) {
@@ -75,19 +71,13 @@ class PreferencesScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                // ==================================================
-                // HERO
-                // ==================================================
-
                 _PreferencesHero(themeMode: state.themeMode),
 
                 const SizedBox(height: 24),
 
-                // ==================================================
-                // APPEARANCE
-                // ==================================================
                 const AppSectionHeader(
                   title: 'Appearance',
+
                   subtitle: 'Choose how CODEX looks on this device',
                 ),
 
@@ -106,6 +96,8 @@ class PreferencesScreen extends StatelessWidget {
                         value: ThemeMode.system,
 
                         selected: state.themeMode == ThemeMode.system,
+
+                        accent: AppColors.partnersAccent,
                       ),
 
                       const _PreferenceDivider(),
@@ -120,6 +112,8 @@ class PreferencesScreen extends StatelessWidget {
                         value: ThemeMode.light,
 
                         selected: state.themeMode == ThemeMode.light,
+
+                        accent: AppColors.notificationsAccent,
                       ),
 
                       const _PreferenceDivider(),
@@ -134,6 +128,8 @@ class PreferencesScreen extends StatelessWidget {
                         value: ThemeMode.dark,
 
                         selected: state.themeMode == ThemeMode.dark,
+
+                        accent: AppColors.profileAccent,
                       ),
                     ],
                   ),
@@ -141,11 +137,9 @@ class PreferencesScreen extends StatelessWidget {
 
                 const SizedBox(height: 26),
 
-                // ==================================================
-                // LOCAL SETTINGS
-                // ==================================================
                 const AppSectionHeader(
                   title: 'About preferences',
+
                   subtitle: 'Settings stored locally on this device',
                 ),
 
@@ -172,11 +166,11 @@ class _PreferencesHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
     final modeText = switch (themeMode) {
       ThemeMode.system => 'System',
+
       ThemeMode.light => 'Light',
+
       ThemeMode.dark => 'Dark',
     };
 
@@ -194,18 +188,23 @@ class _PreferencesHero extends StatelessWidget {
       padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
+
           end: Alignment.bottomRight,
 
-          colors: [colors.primary, colors.primary.withValues(alpha: 0.86)],
+          colors: [
+            AppColors.preferencesAccent,
+
+            AppColors.preferencesAccentDark,
+          ],
         ),
 
         borderRadius: BorderRadius.circular(20),
 
         boxShadow: [
           BoxShadow(
-            color: colors.primary.withValues(alpha: 0.10),
+            color: AppColors.preferencesAccent.withValues(alpha: 0.13),
 
             blurRadius: 18,
 
@@ -216,12 +215,9 @@ class _PreferencesHero extends StatelessWidget {
 
       child: Row(
         children: [
-          // ====================================================
-          // ICON
-          // ====================================================
-
           Container(
             width: 46,
+
             height: 46,
 
             decoration: BoxDecoration(
@@ -232,16 +228,15 @@ class _PreferencesHero extends StatelessWidget {
 
             child: const Icon(
               Icons.tune_rounded,
+
               size: 22,
+
               color: Colors.white,
             ),
           ),
 
           const SizedBox(width: 13),
 
-          // ====================================================
-          // TEXT
-          // ====================================================
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,8 +247,11 @@ class _PreferencesHero extends StatelessWidget {
 
                   style: TextStyle(
                     fontSize: 17,
+
                     fontWeight: FontWeight.w800,
+
                     letterSpacing: -0.3,
+
                     color: Colors.white,
                   ),
                 ),
@@ -265,6 +263,7 @@ class _PreferencesHero extends StatelessWidget {
 
                   style: TextStyle(
                     fontSize: 11,
+
                     height: 1.35,
 
                     color: Colors.white.withValues(alpha: 0.70),
@@ -276,9 +275,6 @@ class _PreferencesHero extends StatelessWidget {
 
           const SizedBox(width: 10),
 
-          // ====================================================
-          // CURRENT MODE
-          // ====================================================
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
 
@@ -292,6 +288,7 @@ class _PreferencesHero extends StatelessWidget {
 
                 style: TextStyle(
                   fontSize: 9.5,
+
                   fontWeight: FontWeight.w700,
 
                   color: Colors.white.withValues(alpha: 0.88),
@@ -306,7 +303,7 @@ class _PreferencesHero extends StatelessWidget {
 }
 
 // ============================================================
-// PREFERENCE CARD
+// CARD
 // ============================================================
 
 class _PreferenceCard extends StatelessWidget {
@@ -353,12 +350,15 @@ class _ThemeOption extends StatelessWidget {
 
   final bool selected;
 
+  final Color accent;
+
   const _ThemeOption({
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.value,
     required this.selected,
+    required this.accent,
   });
 
   @override
@@ -369,7 +369,7 @@ class _ThemeOption extends StatelessWidget {
 
     return Material(
       color: selected
-          ? colors.primary.withValues(alpha: isDark ? 0.055 : 0.025)
+          ? accent.withValues(alpha: isDark ? 0.075 : 0.035)
           : Colors.transparent,
 
       child: InkWell(
@@ -382,36 +382,22 @@ class _ThemeOption extends StatelessWidget {
 
           child: Row(
             children: [
-              // ==================================================
-              // ICON
-              // ==================================================
-
               Container(
                 width: 38,
+
                 height: 38,
 
                 decoration: BoxDecoration(
-                  color: selected
-                      ? colors.primary.withValues(alpha: isDark ? 0.14 : 0.08)
-                      : colors.surfaceContainerHighest.withValues(alpha: 0.60),
+                  color: accent.withValues(alpha: isDark ? 0.16 : 0.08),
 
                   borderRadius: BorderRadius.circular(11),
                 ),
 
-                child: Icon(
-                  icon,
-
-                  size: 19,
-
-                  color: selected ? colors.primary : colors.onSurfaceVariant,
-                ),
+                child: Icon(icon, size: 19, color: accent),
               ),
 
               const SizedBox(width: 12),
 
-              // ==================================================
-              // TEXT
-              // ==================================================
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,24 +432,22 @@ class _ThemeOption extends StatelessWidget {
 
               const SizedBox(width: 10),
 
-              // ==================================================
-              // SELECTED INDICATOR
-              // ==================================================
               AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
 
                 width: 22,
+
                 height: 22,
 
                 decoration: BoxDecoration(
-                  color: selected ? colors.primary : Colors.transparent,
+                  color: selected ? accent : Colors.transparent,
 
                   shape: BoxShape.circle,
 
                   border: Border.all(
                     width: selected ? 0 : 1.5,
 
-                    color: selected ? colors.primary : colors.outlineVariant,
+                    color: selected ? accent : colors.outlineVariant,
                   ),
                 ),
 
@@ -509,7 +493,7 @@ class _PreferenceDivider extends StatelessWidget {
 }
 
 // ============================================================
-// LOCAL PREFERENCES INFO
+// LOCAL INFO
 // ============================================================
 
 class _LocalPreferencesInfo extends StatelessWidget {
@@ -527,7 +511,9 @@ class _LocalPreferencesInfo extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
 
       decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: isDark ? 0.07 : 0.045),
+        color: AppColors.preferencesAccent.withValues(
+          alpha: isDark ? 0.08 : 0.045,
+        ),
 
         borderRadius: BorderRadius.circular(16),
       ),
@@ -536,7 +522,13 @@ class _LocalPreferencesInfo extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          Icon(Icons.phone_android_rounded, size: 19, color: colors.primary),
+          const Icon(
+            Icons.phone_android_rounded,
+
+            size: 19,
+
+            color: AppColors.preferencesAccent,
+          ),
 
           const SizedBox(width: 10),
 

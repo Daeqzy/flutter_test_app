@@ -9,6 +9,7 @@ import '../models/mat_partner_data.dart';
 import '../models/partner_connection_data.dart';
 import '../models/partner_agreement_data.dart';
 import '../models/partner_contact_data.dart';
+import '../models/change_password_request.dart';
 
 import '../network_service/api_service.dart';
 
@@ -40,6 +41,22 @@ class DataRepository {
     print('Tokens saved securely');
 
     return response;
+  }
+
+  // ==========================================================
+  // CHANGE PASSWORD
+  // ==========================================================
+
+  Future<void> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final request = ChangePasswordRequest(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
+
+    await _safeApiCall<void>(() => apiService.changePassword(request));
   }
 
   // ==========================================================
@@ -219,27 +236,18 @@ class DataRepository {
       // ------------------------------------------------------
 
       case 400:
-        return const AppException(
-          'The request was invalid. Please check the information and try again.',
-          statusCode: 400,
-        );
-
-      // ------------------------------------------------------
-      // 401 UNAUTHORIZED
-      // ------------------------------------------------------
-
-      case 401:
-        // Login endpoint has different meaning.
-        if (path.contains('api/Account/Login')) {
+        if (path.contains('api/Account/ChangePassword')) {
           return const AppException(
-            'Incorrect username or password.',
-            statusCode: 401,
+            'The current password is incorrect '
+            'or the new password is invalid.',
+            statusCode: 400,
           );
         }
 
         return const AppException(
-          'Your session has expired. Please sign in again.',
-          statusCode: 401,
+          'The request was invalid. '
+          'Please check the information and try again.',
+          statusCode: 400,
         );
 
       // ------------------------------------------------------

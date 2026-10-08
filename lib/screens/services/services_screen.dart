@@ -9,11 +9,9 @@ import '../../bloc/user/user_state.dart';
 
 import '../../repositories/data_repository.dart';
 
-import '../home/partners_screen.dart';
+import '../../theme/app_theme.dart';
 
-// ============================================================
-// SERVICES SCREEN
-// ============================================================
+import '../home/partners_screen.dart';
 
 class ServicesScreen extends StatelessWidget {
   const ServicesScreen({super.key});
@@ -23,6 +21,8 @@ class ServicesScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SafeArea(
+      top: false,
+
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 32),
 
@@ -30,10 +30,6 @@ class ServicesScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
-            // ==================================================
-            // HEADER
-            // ==================================================
-
             BlocBuilder<UserBloc, UserState>(
               buildWhen: (previous, current) {
                 return previous.authenticatedUsername !=
@@ -51,20 +47,15 @@ class ServicesScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // ==================================================
-            // WORKSPACE
-            // ==================================================
             const _SectionHeader(
               title: 'Workspace services',
+
               subtitle:
                   'Quick access to partner information and business tools.',
             ),
 
             const SizedBox(height: 12),
 
-            // ==================================================
-            // PARTNER DIRECTORY
-            // ==================================================
             _LargeServiceCard(
               icon: Icons.business_rounded,
 
@@ -74,6 +65,8 @@ class ServicesScreen extends StatelessWidget {
 
               badge: 'Directory',
 
+              accent: AppColors.partnersAccent,
+
               onTap: () {
                 _openPartners(context, instruction: null);
               },
@@ -81,9 +74,6 @@ class ServicesScreen extends StatelessWidget {
 
             const SizedBox(height: 14),
 
-            // ==================================================
-            // CONNECTIONS + AGREEMENTS
-            // ==================================================
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -96,9 +86,12 @@ class ServicesScreen extends StatelessWidget {
 
                     subtitle: 'Remote access, network and system information.',
 
+                    accent: AppColors.primary,
+
                     onTap: () {
                       _openPartners(
                         context,
+
                         instruction: 'Select a partner and tap Connections.',
                       );
                     },
@@ -115,9 +108,12 @@ class ServicesScreen extends StatelessWidget {
 
                     subtitle: 'View partner agreements and their status.',
 
+                    accent: AppColors.notificationsAccent,
+
                     onTap: () {
                       _openPartners(
                         context,
+
                         instruction: 'Select a partner and tap Agreements.',
                       );
                     },
@@ -128,9 +124,6 @@ class ServicesScreen extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // ==================================================
-            // CONTACTS + LOCATIONS
-            // ==================================================
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
 
@@ -144,9 +137,12 @@ class ServicesScreen extends StatelessWidget {
                     subtitle:
                         'Partner phone numbers, email and contact information.',
 
+                    accent: AppColors.servicesAccent,
+
                     onTap: () {
                       _openPartners(
                         context,
+
                         instruction: 'Select a partner and tap Contacts.',
                       );
                     },
@@ -164,9 +160,12 @@ class ServicesScreen extends StatelessWidget {
                     subtitle:
                         'Find partner addresses and open their map location.',
 
+                    accent: AppColors.profileAccent,
+
                     onTap: () {
                       _openPartners(
                         context,
+
                         instruction:
                             'Select a partner and tap the location icon.',
                       );
@@ -178,11 +177,9 @@ class ServicesScreen extends StatelessWidget {
 
             const SizedBox(height: 28),
 
-            // ==================================================
-            // PARTNER WORKFLOW
-            // ==================================================
             const _SectionHeader(
               title: 'Partner workflow',
+
               subtitle: 'All business information starts from a partner.',
             ),
 
@@ -192,19 +189,12 @@ class ServicesScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // ==================================================
-            // DATA INFO
-            // ==================================================
             const _DataInfoCard(),
           ],
         ),
       ),
     );
   }
-
-  // ==========================================================
-  // OPEN PARTNER DIRECTORY
-  // ==========================================================
 
   void _openPartners(BuildContext context, {required String? instruction}) {
     final repository = context.read<DataRepository>();
@@ -222,10 +212,6 @@ class ServicesScreen extends StatelessWidget {
       ),
     );
 
-    // ----------------------------------------------------------
-    // OPTIONAL FEATURE INSTRUCTION
-    // ----------------------------------------------------------
-
     if (instruction != null) {
       Future.delayed(const Duration(milliseconds: 350), () {
         messenger.hideCurrentSnackBar();
@@ -236,7 +222,9 @@ class ServicesScreen extends StatelessWidget {
               children: [
                 const Icon(
                   Icons.touch_app_rounded,
+
                   color: Colors.white,
+
                   size: 20,
                 ),
 
@@ -257,7 +245,7 @@ class ServicesScreen extends StatelessWidget {
 }
 
 // ============================================================
-// SERVICES HEADER
+// HEADER
 // ============================================================
 
 class _ServicesHeader extends StatelessWidget {
@@ -267,27 +255,25 @@ class _ServicesHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
     return Container(
       width: double.infinity,
 
       padding: const EdgeInsets.all(18),
 
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
 
           end: Alignment.bottomRight,
 
-          colors: [colors.primary, colors.primary.withValues(alpha: 0.86)],
+          colors: [AppColors.servicesAccent, AppColors.servicesAccentDark],
         ),
 
         borderRadius: BorderRadius.circular(20),
 
         boxShadow: [
           BoxShadow(
-            color: colors.primary.withValues(alpha: 0.10),
+            color: AppColors.servicesAccent.withValues(alpha: 0.14),
 
             blurRadius: 18,
 
@@ -298,12 +284,9 @@ class _ServicesHeader extends StatelessWidget {
 
       child: Row(
         children: [
-          // ====================================================
-          // ICON
-          // ====================================================
-
           Container(
             width: 46,
+
             height: 46,
 
             decoration: BoxDecoration(
@@ -314,16 +297,15 @@ class _ServicesHeader extends StatelessWidget {
 
             child: const Icon(
               Icons.grid_view_rounded,
+
               size: 22,
+
               color: Colors.white,
             ),
           ),
 
           const SizedBox(width: 13),
 
-          // ====================================================
-          // TEXT
-          // ====================================================
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -441,6 +423,8 @@ class _LargeServiceCard extends StatelessWidget {
 
   final String badge;
 
+  final Color accent;
+
   final VoidCallback onTap;
 
   const _LargeServiceCard({
@@ -448,6 +432,7 @@ class _LargeServiceCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.badge,
+    required this.accent,
     required this.onTap,
   });
 
@@ -476,34 +461,28 @@ class _LargeServiceCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
 
             border: Border.all(
-              color: colors.outlineVariant.withValues(alpha: 0.65),
+              color: accent.withValues(alpha: isDark ? 0.23 : 0.13),
             ),
           ),
 
           child: Row(
             children: [
-              // ==================================================
-              // ICON
-              // ==================================================
-
               Container(
                 width: 46,
+
                 height: 46,
 
                 decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: isDark ? 0.14 : 0.08),
+                  color: accent.withValues(alpha: isDark ? 0.17 : 0.09),
 
                   borderRadius: BorderRadius.circular(13),
                 ),
 
-                child: Icon(icon, size: 22, color: colors.primary),
+                child: Icon(icon, size: 22, color: accent),
               ),
 
               const SizedBox(width: 13),
 
-              // ==================================================
-              // CONTENT
-              // ==================================================
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -525,15 +504,29 @@ class _LargeServiceCard extends StatelessWidget {
                           ),
                         ),
 
-                        Text(
-                          badge,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
 
-                          style: TextStyle(
-                            fontSize: 9.5,
+                            vertical: 4,
+                          ),
 
-                            fontWeight: FontWeight.w700,
+                          decoration: BoxDecoration(
+                            color: accent.withValues(alpha: 0.08),
 
-                            color: colors.primary,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+
+                          child: Text(
+                            badge,
+
+                            style: TextStyle(
+                              fontSize: 9.5,
+
+                              fontWeight: FontWeight.w700,
+
+                              color: accent,
+                            ),
                           ),
                         ),
                       ],
@@ -563,7 +556,7 @@ class _LargeServiceCard extends StatelessWidget {
 
                 size: 20,
 
-                color: colors.onSurfaceVariant,
+                color: accent.withValues(alpha: 0.80),
               ),
             ],
           ),
@@ -584,12 +577,15 @@ class _ServiceCard extends StatelessWidget {
 
   final String subtitle;
 
+  final Color accent;
+
   final VoidCallback onTap;
 
   const _ServiceCard({
     required this.icon,
     required this.title,
     required this.subtitle,
+    required this.accent,
     required this.onTap,
   });
 
@@ -618,7 +614,7 @@ class _ServiceCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
 
             border: Border.all(
-              color: colors.outlineVariant.withValues(alpha: 0.65),
+              color: accent.withValues(alpha: isDark ? 0.22 : 0.12),
             ),
           ),
 
@@ -626,30 +622,23 @@ class _ServiceCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
 
             children: [
-              // ==================================================
-              // ICON / ARROW
-              // ==================================================
-
               Row(
                 children: [
                   Container(
                     width: 40,
+
                     height: 40,
 
                     decoration: BoxDecoration(
-                      color: colors.primary.withValues(
-                        alpha: isDark ? 0.14 : 0.08,
-                      ),
+                      color: accent.withValues(alpha: isDark ? 0.17 : 0.09),
 
                       borderRadius: BorderRadius.circular(12),
                     ),
 
-                    child: Icon(icon, size: 20, color: colors.primary),
+                    child: Icon(icon, size: 20, color: accent),
                   ),
 
-                  // IMPORTANT:
-                  // This Spacer is safe because
-                  // it is inside a Row.
+                  // SAFE: horizontal Spacer.
                   const Spacer(),
 
                   Icon(
@@ -657,20 +646,15 @@ class _ServiceCard extends StatelessWidget {
 
                     size: 17,
 
-                    color: colors.onSurfaceVariant,
+                    color: accent.withValues(alpha: 0.80),
                   ),
                 ],
               ),
 
               // IMPORTANT:
-              // Do NOT use Spacer here.
-              // The old vertical Spacer caused
-              // the login/MainScreen layout issue.
+              // Do not turn this into a vertical Spacer.
               const SizedBox(height: 18),
 
-              // ==================================================
-              // TITLE
-              // ==================================================
               Text(
                 title,
 
@@ -685,9 +669,6 @@ class _ServiceCard extends StatelessWidget {
 
               const SizedBox(height: 5),
 
-              // ==================================================
-              // DESCRIPTION
-              // ==================================================
               Text(
                 subtitle,
 
@@ -712,7 +693,7 @@ class _ServiceCard extends StatelessWidget {
 }
 
 // ============================================================
-// WORKFLOW CARD
+// WORKFLOW
 // ============================================================
 
 class _WorkflowCard extends StatelessWidget {
@@ -749,6 +730,8 @@ class _WorkflowCard extends StatelessWidget {
             title: 'Choose partner',
 
             subtitle: 'Search the partner directory.',
+
+            accent: AppColors.partnersAccent,
           ),
 
           _WorkflowConnector(),
@@ -761,6 +744,8 @@ class _WorkflowCard extends StatelessWidget {
             title: 'Choose an action',
 
             subtitle: 'Connections, agreements, contacts or map.',
+
+            accent: AppColors.servicesAccent,
           ),
 
           _WorkflowConnector(),
@@ -773,16 +758,14 @@ class _WorkflowCard extends StatelessWidget {
             title: 'Load live data',
 
             subtitle: 'Retrieve the selected partner data from the backend.',
+
+            accent: AppColors.primary,
           ),
         ],
       ),
     );
   }
 }
-
-// ============================================================
-// WORKFLOW STEP
-// ============================================================
 
 class _WorkflowStep extends StatelessWidget {
   final String number;
@@ -793,11 +776,14 @@ class _WorkflowStep extends StatelessWidget {
 
   final String subtitle;
 
+  final Color accent;
+
   const _WorkflowStep({
     required this.number,
     required this.icon,
     required this.title,
     required this.subtitle,
+    required this.accent,
   });
 
   @override
@@ -807,21 +793,16 @@ class _WorkflowStep extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-
       children: [
-        // ====================================================
-        // STEP NUMBER
-        // ====================================================
-
         Container(
           width: 32,
+
           height: 32,
 
           alignment: Alignment.center,
 
           decoration: BoxDecoration(
-            color: colors.primary.withValues(alpha: isDark ? 0.14 : 0.08),
+            color: accent.withValues(alpha: isDark ? 0.16 : 0.08),
 
             borderRadius: BorderRadius.circular(10),
           ),
@@ -834,23 +815,17 @@ class _WorkflowStep extends StatelessWidget {
 
               fontWeight: FontWeight.w800,
 
-              color: colors.primary,
+              color: accent,
             ),
           ),
         ),
 
         const SizedBox(width: 11),
 
-        // ====================================================
-        // ICON
-        // ====================================================
-        Icon(icon, size: 18, color: colors.primary),
+        Icon(icon, size: 18, color: accent),
 
         const SizedBox(width: 11),
 
-        // ====================================================
-        // TEXT
-        // ====================================================
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -889,10 +864,6 @@ class _WorkflowStep extends StatelessWidget {
   }
 }
 
-// ============================================================
-// WORKFLOW CONNECTOR
-// ============================================================
-
 class _WorkflowConnector extends StatelessWidget {
   const _WorkflowConnector();
 
@@ -901,25 +872,19 @@ class _WorkflowConnector extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.only(left: 15),
+      padding: const EdgeInsets.only(left: 15.5, top: 5, bottom: 5),
 
       child: Align(
         alignment: Alignment.centerLeft,
 
-        child: Container(
-          width: 1,
-
-          height: 16,
-
-          color: colors.outlineVariant.withValues(alpha: 0.75),
-        ),
+        child: Container(width: 1, height: 14, color: colors.outlineVariant),
       ),
     );
   }
 }
 
 // ============================================================
-// REAL APPLICATION DATA
+// DATA INFO
 // ============================================================
 
 class _DataInfoCard extends StatelessWidget {
@@ -937,7 +902,9 @@ class _DataInfoCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
 
       decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: isDark ? 0.07 : 0.045),
+        color: AppColors.servicesAccent.withValues(
+          alpha: isDark ? 0.08 : 0.045,
+        ),
 
         borderRadius: BorderRadius.circular(16),
       ),
@@ -946,42 +913,27 @@ class _DataInfoCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
 
         children: [
-          Icon(Icons.info_outline_rounded, size: 19, color: colors.primary),
+          const Icon(
+            Icons.cloud_sync_outlined,
+
+            size: 19,
+
+            color: AppColors.servicesAccent,
+          ),
 
           const SizedBox(width: 10),
 
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Text(
+              'Partner information is loaded from the CODEX backend when you open a feature.',
 
-              children: [
-                Text(
-                  'Real application data',
+              style: TextStyle(
+                fontSize: 10.5,
 
-                  style: TextStyle(
-                    fontSize: 12.5,
+                height: 1.4,
 
-                    fontWeight: FontWeight.w700,
-
-                    color: colors.onSurface,
-                  ),
-                ),
-
-                const SizedBox(height: 3),
-
-                Text(
-                  'Connections, agreements and contacts are loaded '
-                  'from the backend after selecting a partner.',
-
-                  style: TextStyle(
-                    fontSize: 10.5,
-
-                    height: 1.4,
-
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
+                color: colors.onSurfaceVariant,
+              ),
             ),
           ),
         ],

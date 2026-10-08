@@ -31,7 +31,6 @@ import '../notifications/notifications_screen.dart';
 import '../profile/profile_screen.dart';
 import '../home/partners_screen.dart';
 import '../preferences/preferences_screen.dart';
-import '../security/security_screen.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -46,10 +45,6 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<UserBloc, UserState>(
-      // ========================================================
-      // AUTHENTICATION / SESSION LISTENER
-      // ========================================================
-
       listenWhen: (previous, current) {
         if (previous.authStatus == current.authStatus) {
           return false;
@@ -64,32 +59,20 @@ class MainScreen extends StatelessWidget {
             state.authStatus == AuthStatus.sessionExpired) {
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => const LoginScreen()),
+
             (route) => false,
           );
         }
       },
 
-      // ========================================================
-      // MAIN SCREEN BLOCS
-      // ========================================================
       child: MultiBlocProvider(
         providers: [
-          // ------------------------------------------------------
-          // NAVIGATION
-          // ------------------------------------------------------
-
           BlocProvider(create: (_) => NavigationBloc()),
 
-          // ------------------------------------------------------
-          // SERVICES
-          // ------------------------------------------------------
           BlocProvider(
             create: (_) => ServicesBloc()..add(const ServicesRequested()),
           ),
 
-          // ------------------------------------------------------
-          // NOTIFICATIONS
-          // ------------------------------------------------------
           BlocProvider(
             create: (_) =>
                 NotificationsBloc()..add(const NotificationsRequested()),
@@ -102,30 +85,13 @@ class MainScreen extends StatelessWidget {
 
             final colors = Theme.of(context).colorScheme;
 
-            // ====================================================
-            // SYSTEM BACK / SWIPE BACK HANDLING
-            // ====================================================
-
             return PopScope(
-              // --------------------------------------------------
-              // Prevent the MainScreen route from immediately
-              // being popped by Android's back gesture.
-              // --------------------------------------------------
-
               canPop: false,
 
               onPopInvokedWithResult: (didPop, result) async {
                 if (didPop) {
                   return;
                 }
-
-                // ================================================
-                // NOT ON HOME
-                // ================================================
-                //
-                // Services / Notifications / Profile
-                // -> Back returns to Home.
-                // ================================================
 
                 if (state.selectedIndex != 0) {
                   context.read<NavigationBloc>().add(
@@ -134,13 +100,6 @@ class MainScreen extends StatelessWidget {
 
                   return;
                 }
-
-                // ================================================
-                // ALREADY ON HOME
-                // ================================================
-                //
-                // Ask the user before closing CODEX.
-                // ================================================
 
                 final shouldExit = await showDialog<bool>(
                   context: context,
@@ -162,10 +121,6 @@ class MainScreen extends StatelessWidget {
                       ),
 
                       actions: [
-                        // ----------------------------------------
-                        // CANCEL
-                        // ----------------------------------------
-
                         TextButton(
                           onPressed: () {
                             Navigator.of(dialogContext).pop(false);
@@ -174,9 +129,6 @@ class MainScreen extends StatelessWidget {
                           child: const Text('Cancel'),
                         ),
 
-                        // ----------------------------------------
-                        // EXIT
-                        // ----------------------------------------
                         FilledButton(
                           onPressed: () {
                             Navigator.of(dialogContext).pop(true);
@@ -189,18 +141,11 @@ class MainScreen extends StatelessWidget {
                   },
                 );
 
-                // ================================================
-                // CLOSE APPLICATION
-                // ================================================
-
                 if (shouldExit == true) {
                   SystemNavigator.pop();
                 }
               },
 
-              // ==================================================
-              // MAIN SCAFFOLD
-              // ==================================================
               child: Scaffold(
                 backgroundColor: Theme.of(context).scaffoldBackgroundColor,
 
@@ -209,43 +154,30 @@ class MainScreen extends StatelessWidget {
                 // ==================================================
                 appBar: AppBar(
                   toolbarHeight: 68,
+
                   titleSpacing: 18,
 
                   title: Row(
                     children: [
-                      // ======================================================
-                      // CODEX BRAND MARK
-                      // ======================================================
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(11),
 
-                      Container(
-                        width: 36,
-                        height: 36,
+                        child: Image.asset(
+                          'assets/images/app_icon.png',
 
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [AppColors.primary, AppColors.primaryDark],
-                          ),
+                          width: 36,
+                          height: 36,
 
-                          borderRadius: BorderRadius.circular(11),
-                        ),
-
-                        child: const Icon(
-                          Icons.business_center_rounded,
-                          color: Colors.white,
-                          size: 19,
+                          fit: BoxFit.cover,
                         ),
                       ),
 
                       const SizedBox(width: 11),
 
-                      // ======================================================
-                      // PAGE TITLE
-                      // ======================================================
                       Expanded(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
+
                           crossAxisAlignment: CrossAxisAlignment.start,
 
                           children: [
@@ -254,8 +186,11 @@ class MainScreen extends StatelessWidget {
 
                               style: TextStyle(
                                 fontSize: 17,
+
                                 fontWeight: FontWeight.w800,
+
                                 letterSpacing: -0.35,
+
                                 color: colors.onSurface,
                               ),
                             ),
@@ -265,7 +200,9 @@ class MainScreen extends StatelessWidget {
 
                               style: TextStyle(
                                 fontSize: 11,
+
                                 fontWeight: FontWeight.w500,
+
                                 color: colors.onSurfaceVariant,
                               ),
                             ),
@@ -297,11 +234,14 @@ class MainScreen extends StatelessWidget {
 
                               child: SizedBox(
                                 width: 40,
+
                                 height: 40,
 
                                 child: Icon(
                                   Icons.menu_rounded,
+
                                   size: 21,
+
                                   color: colors.onSurface,
                                 ),
                               ),
@@ -313,13 +253,10 @@ class MainScreen extends StatelessWidget {
                   ],
                 ),
 
-                // ==================================================
-                // RIGHT DRAWER
-                // ==================================================
                 endDrawer: _AppDrawer(selectedIndex: state.selectedIndex),
 
                 // ==================================================
-                // MAIN PAGES
+                // PAGES
                 // ==================================================
                 body: IndexedStack(
                   index: state.selectedIndex,
@@ -336,7 +273,7 @@ class MainScreen extends StatelessWidget {
                 ),
 
                 // ==================================================
-                // BOTTOM NAVIGATION
+                // BOTTOM NAV
                 // ==================================================
                 bottomNavigationBar: SafeArea(
                   top: false,
@@ -347,6 +284,7 @@ class MainScreen extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 7,
+
                         vertical: 7,
                       ),
 
@@ -391,6 +329,7 @@ class MainScreen extends StatelessWidget {
 
                         padding: const EdgeInsets.symmetric(
                           horizontal: 13,
+
                           vertical: 10,
                         ),
 
@@ -411,16 +350,19 @@ class MainScreen extends StatelessWidget {
 
                           GButton(
                             icon: Icons.grid_view_rounded,
+
                             text: 'Services',
                           ),
 
                           GButton(
                             icon: Icons.notifications_none_rounded,
+
                             text: 'Alerts',
                           ),
 
                           GButton(
                             icon: Icons.person_outline_rounded,
+
                             text: 'Profile',
                           ),
                         ],
@@ -444,7 +386,7 @@ class MainScreen extends StatelessWidget {
 }
 
 // ============================================================
-// RIGHT DRAWER
+// DRAWER
 // ============================================================
 
 class _AppDrawer extends StatelessWidget {
@@ -463,7 +405,7 @@ class _AppDrawer extends StatelessWidget {
         child: Column(
           children: [
             // ==================================================
-            // DRAWER HEADER
+            // HEADER
             // ==================================================
 
             Padding(
@@ -473,6 +415,7 @@ class _AppDrawer extends StatelessWidget {
                 width: double.infinity,
 
                 padding: const EdgeInsets.all(17),
+
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     begin: Alignment.topLeft,
@@ -487,7 +430,9 @@ class _AppDrawer extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.primary.withValues(alpha: 0.10),
+
                       blurRadius: 16,
+
                       offset: const Offset(0, 6),
                     ),
                   ],
@@ -511,22 +456,16 @@ class _AppDrawer extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Container(
-                              width: 48,
-                              height: 48,
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
 
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.16),
+                              child: Image.asset(
+                                'assets/images/app_icon.png',
 
-                                borderRadius: BorderRadius.circular(15),
-                              ),
+                                width: 48,
+                                height: 48,
 
-                              child: const Icon(
-                                Icons.business_center_rounded,
-
-                                color: Colors.white,
-
-                                size: 24,
+                                fit: BoxFit.cover,
                               ),
                             ),
 
@@ -628,9 +567,6 @@ class _AppDrawer extends StatelessWidget {
 
                   const SizedBox(height: 6),
 
-                  // --------------------------------------------
-                  // DASHBOARD
-                  // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.dashboard_outlined,
 
@@ -640,14 +576,13 @@ class _AppDrawer extends StatelessWidget {
 
                     selected: selectedIndex == 0,
 
+                    accent: AppColors.primary,
+
                     onTap: () {
                       _openBottomTab(context, 0);
                     },
                   ),
 
-                  // --------------------------------------------
-                  // PARTNERS
-                  // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.business_outlined,
 
@@ -655,14 +590,13 @@ class _AppDrawer extends StatelessWidget {
 
                     title: 'Partners',
 
+                    accent: AppColors.partnersAccent,
+
                     onTap: () {
                       _openPartners(context);
                     },
                   ),
 
-                  // --------------------------------------------
-                  // SERVICES
-                  // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.grid_view_outlined,
 
@@ -672,14 +606,13 @@ class _AppDrawer extends StatelessWidget {
 
                     selected: selectedIndex == 1,
 
+                    accent: AppColors.servicesAccent,
+
                     onTap: () {
                       _openBottomTab(context, 1);
                     },
                   ),
 
-                  // --------------------------------------------
-                  // NOTIFICATIONS
-                  // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.notifications_none_rounded,
 
@@ -688,6 +621,8 @@ class _AppDrawer extends StatelessWidget {
                     title: 'Notifications',
 
                     selected: selectedIndex == 2,
+
+                    accent: AppColors.notificationsAccent,
 
                     onTap: () {
                       _openBottomTab(context, 2);
@@ -700,9 +635,6 @@ class _AppDrawer extends StatelessWidget {
 
                   const SizedBox(height: 6),
 
-                  // --------------------------------------------
-                  // PROFILE
-                  // --------------------------------------------
                   _DrawerItem(
                     icon: Icons.person_outline_rounded,
 
@@ -712,122 +644,36 @@ class _AppDrawer extends StatelessWidget {
 
                     selected: selectedIndex == 3,
 
+                    accent: AppColors.profileAccent,
+
                     onTap: () {
                       _openBottomTab(context, 3);
                     },
                   ),
 
-                  // --------------------------------------------
-                  // SETTINGS
-                  // --------------------------------------------
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 3,
-                    ),
+                  // ============================================
+                  // PREFERENCES ONLY
+                  // ============================================
+                  _DrawerItem(
+                    icon: Icons.tune_outlined,
 
-                    child: Theme(
-                      data: Theme.of(context)
-                          .copyWith(dividerColor: Colors.transparent),
+                    selectedIcon: Icons.tune_rounded,
 
-                      child: ExpansionTile(
-                        tilePadding: const EdgeInsets.symmetric(horizontal: 13),
+                    title: 'Preferences',
 
-                        childrenPadding: const EdgeInsets.fromLTRB(14, 0, 6, 6),
+                    accent: AppColors.preferencesAccent,
 
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      final navigator = Navigator.of(context);
+
+                      navigator.pop();
+
+                      navigator.push(
+                        MaterialPageRoute(
+                          builder: (_) => const PreferencesScreen(),
                         ),
-
-                        collapsedShape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-
-                        leading: Container(
-                          width: 38,
-                          height: 38,
-
-                          decoration: BoxDecoration(
-                            color: colors.surfaceContainerHighest,
-
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-
-                          child: Icon(
-                            Icons.settings_outlined,
-
-                            size: 20,
-
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-
-                        title: Text(
-                          'Settings',
-
-                          style: TextStyle(
-                            fontSize: 14,
-
-                            fontWeight: FontWeight.w600,
-
-                            color: colors.onSurface,
-                          ),
-                        ),
-
-                        iconColor: colors.onSurfaceVariant,
-
-                        collapsedIconColor: colors.onSurfaceVariant,
-
-                        children: [
-                          // ====================================
-                          // PREFERENCES
-                          // ====================================
-
-                          _DrawerSubItem(
-                            icon: Icons.tune_rounded,
-
-                            title: 'Preferences',
-
-                            onTap: () {
-                              final navigator = Navigator.of(context);
-
-                              // Close drawer.
-                              navigator.pop();
-
-                              // Open Preferences.
-                              navigator.push(
-                                MaterialPageRoute(
-                                  builder: (_) => const PreferencesScreen(),
-                                ),
-                              );
-                            },
-                          ),
-
-                          // ====================================
-                          // SECURITY
-                          // ====================================
-                          _DrawerSubItem(
-                            icon: Icons.shield_outlined,
-
-                            title: 'Security',
-
-                            onTap: () {
-                              final navigator = Navigator.of(context);
-
-                              // Close drawer.
-                              navigator.pop();
-
-                              // Open Security.
-                              navigator.push(
-                                MaterialPageRoute(
-                                  builder: (_) => const SecurityScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -858,6 +704,7 @@ class _AppDrawer extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 14,
+
                       vertical: 13,
                     ),
 
@@ -906,10 +753,6 @@ class _AppDrawer extends StatelessWidget {
     );
   }
 
-  // ==========================================================
-  // OPEN BOTTOM TAB
-  // ==========================================================
-
   void _openBottomTab(BuildContext context, int index) {
     final navigationBloc = context.read<NavigationBloc>();
 
@@ -918,19 +761,13 @@ class _AppDrawer extends StatelessWidget {
     navigationBloc.add(NavigationTabChanged(index));
   }
 
-  // ==========================================================
-  // OPEN PARTNERS
-  // ==========================================================
-
   void _openPartners(BuildContext context) {
     final repository = context.read<DataRepository>();
 
     final navigator = Navigator.of(context);
 
-    // Close drawer.
     navigator.pop();
 
-    // Partners stays lazy-loaded.
     navigator.push(
       MaterialPageRoute(
         builder: (_) => BlocProvider(
@@ -945,7 +782,7 @@ class _AppDrawer extends StatelessWidget {
 }
 
 // ============================================================
-// DRAWER SECTION LABEL
+// DRAWER SECTION
 // ============================================================
 
 class _DrawerSectionLabel extends StatelessWidget {
@@ -992,11 +829,14 @@ class _DrawerItem extends StatelessWidget {
 
   final bool selected;
 
+  final Color accent;
+
   const _DrawerItem({
     required this.icon,
     required this.selectedIcon,
     required this.title,
     required this.onTap,
+    required this.accent,
     this.selected = false,
   });
 
@@ -1008,9 +848,7 @@ class _DrawerItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
 
       child: Material(
-        color: selected
-            ? colors.primary.withValues(alpha: 0.10)
-            : Colors.transparent,
+        color: selected ? accent.withValues(alpha: 0.10) : Colors.transparent,
 
         borderRadius: BorderRadius.circular(16),
 
@@ -1026,11 +864,12 @@ class _DrawerItem extends StatelessWidget {
               children: [
                 Container(
                   width: 38,
+
                   height: 38,
 
                   decoration: BoxDecoration(
                     color: selected
-                        ? colors.primary.withValues(alpha: 0.12)
+                        ? accent.withValues(alpha: 0.13)
                         : colors.surfaceContainerHighest,
 
                     borderRadius: BorderRadius.circular(12),
@@ -1041,7 +880,7 @@ class _DrawerItem extends StatelessWidget {
 
                     size: 20,
 
-                    color: selected ? colors.primary : colors.onSurfaceVariant,
+                    color: selected ? accent : colors.onSurfaceVariant,
                   ),
                 ),
 
@@ -1056,7 +895,7 @@ class _DrawerItem extends StatelessWidget {
 
                       fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
 
-                      color: selected ? colors.primary : colors.onSurface,
+                      color: selected ? accent : colors.onSurface,
                     ),
                   ),
                 ),
@@ -1064,10 +903,11 @@ class _DrawerItem extends StatelessWidget {
                 if (selected)
                   Container(
                     width: 6,
+
                     height: 6,
 
                     decoration: BoxDecoration(
-                      color: colors.primary,
+                      color: accent,
 
                       shape: BoxShape.circle,
                     ),
@@ -1077,59 +917,6 @@ class _DrawerItem extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-// ============================================================
-// DRAWER SUB ITEM
-// ============================================================
-
-class _DrawerSubItem extends StatelessWidget {
-  final IconData icon;
-
-  final String title;
-
-  final VoidCallback onTap;
-
-  const _DrawerSubItem({
-    required this.icon,
-    required this.title,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return ListTile(
-      dense: true,
-
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-
-      leading: Icon(icon, size: 19, color: colors.onSurfaceVariant),
-
-      title: Text(
-        title,
-
-        style: TextStyle(
-          fontSize: 13,
-
-          fontWeight: FontWeight.w600,
-
-          color: colors.onSurface,
-        ),
-      ),
-
-      trailing: Icon(
-        Icons.arrow_forward_ios_rounded,
-
-        size: 11,
-
-        color: colors.onSurfaceVariant,
-      ),
-
-      onTap: onTap,
     );
   }
 }
